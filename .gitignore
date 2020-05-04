@@ -1,0 +1,8 @@
+env/
+*.pyc
+*.swp
+**/*.DS_Store
+dist/
+breqwatr_deployment_tool.egg-info/
+.tox/
+.coverage
