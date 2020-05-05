@@ -36,6 +36,7 @@ def ceph_ansible(release, inventory, group_vars, ssh_key, debug):
 def zap_disk(disk, force):
     """ Erase filesystem from given disk """
     if not force:
+        click.echo('')
         click.echo(f'WARNING: This will destroy any filesystem on the drive: {disk}')
         click.echo('Type the drive name again to continue:')
         user_in = input()
