@@ -22,5 +22,5 @@ def test_ceph_ansible(mock_shell):
         voidith.cli.ceph.ceph_ansible,
         ["--release", "test", "--inventory", "test", "--group-vars", "test", "--ssh-key", "test",],
     )
-    assert mock_shell.call_count == 2
+    assert mock_shell.call_count == 1
     assert result.exit_code == 0
