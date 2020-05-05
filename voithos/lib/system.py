@@ -14,7 +14,7 @@ def shell(cmd, print_error=True):
         # The OpenStack CLI in particular sets print_error=False
         if print_error:
             sys.stderr.write(f"\n\n{error}\n")
-        sys.exit(1)
+        sys.exit(12)
 
 
 def error(msg, exit=False, code=1):
@@ -38,4 +38,4 @@ def assert_path_exists(file_path):
     if not path.exists():
         err = f"ERROR: Expected {file_path} not found\n"
         sys.stderr.write(err)
-        sys.exit(1)
+        sys.exit(11)
