@@ -19,7 +19,7 @@ def shell(cmd, print_error=True):
 
 def error(msg, exit=False, code=1):
     """ Write an error to stderr, and exit with error code 'code' if exit=True """
-    sys.stderr.write(f'{msg}\n')
+    sys.stderr.write(f"{msg}\n")
     if exit:
         sys.exit(code)
 

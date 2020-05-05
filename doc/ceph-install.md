@@ -19,6 +19,22 @@ it.
 
 ## Install Procedure
 
+### Zap Disks
+
+If the disks that will be used for OSDs are not brand new, you need to clear the first few blocks
+of data off each one.
+
+If it's easy to install voidith on the OSD nodes, you can use use `voidith ceph zap-disk`.
+
+If not, that command just wraps the following to commands:
+
+```bash
+disk=... # set the drive name... Careful not to overwrite your boot drive!
+wipefs -a $disk
+dd if=/dev/zero of=$disk bs=4096k count=100
+```
+
+
 ### SSH Key
 
 Identify the path of the SSH key that will be used to SSH to each server. Test it out now, SSH as
@@ -50,6 +66,9 @@ mkdir -p group_vars
 
 {% gist 3f30e1659a45fb3976654e1771fe5327 %}
 
+Note: If you've manually installed `docker-ce` to use the ceph node as a deployment server, you
+need to put `container_package_name: docker-ce` in this file.
+
 
 ### osds.yml
 
@@ -78,4 +97,28 @@ In the deployed servers hosting the OSD roles, check ceph.conf's
 `osd memory target` value. Sometimes ceph-ansible picks a value that is WAY
 too high. This is the ammount of ram **each** OSD service will use under high
 load.
+
+
+
+---
+
+# Optional - update CRUSH rules
+
+If this is a single-node deployment but you still want 2 replicas for data availability, you need
+to change the `chooseleaf_firstn` CRUSH rule from `host` to `osd`
+
+From a ceph monitor node export the crushmap to a text file
+
+```bash
+ceph osd getcrushmap -o crushmap.bin
+crushtool --decompile crushmap.bin  -o crushmap.txt
+```
+Replace `step chooseleaf firstn 0 type host` with `step chooseleaf firstn 0 type osd`.
+
+Apply the changes
+
+```bash
+crushtool --compile crushmap.txt  -o new.crushmap.bin
+ceph osd setcrushmap -i new.crushmap.bin
+```
 

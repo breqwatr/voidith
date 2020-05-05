@@ -48,3 +48,10 @@ pip install .
 
 - [**Installing Ceph**](/ceph-install.html):
   An open-source cloud storage solution
+
+
+# Index
+
+- [Installing Ceph](/ceph-install.html)
+- [Local Registry](/registry.html)
+- [Mirroring OpenStack Release's Images on Local Registry](openstack-registry-mirror.html)

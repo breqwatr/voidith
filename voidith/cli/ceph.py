@@ -17,15 +17,18 @@ import voidith.lib.system as system
     "--ssh-key", "-s", "ssh_key", required=True, help="Ceph-Ansible grou_vars directory path",
 )
 @click.option(
-    "--debug/--no-debug", default=False, help="Run ansible-playbook with -vvvv",
+    "--verbose/--no-verbose", default=False, help="Run ansible-playbook with -vvvv",
+)
+@click.option(
+    "--debug/--no-debug", default=False, help="Start the container as an idle daemon instead",
 )
 @click.command(name="ceph-ansible")
-def ceph_ansible(release, inventory, group_vars, ssh_key, debug):
+def ceph_ansible(release, inventory, group_vars, ssh_key, verbose, debug):
     """ Run Ceph-Ansible's ansible-playbook command """
-    ceph.ceph_ansible_exec(release, inventory, group_vars, ssh_key, debug=debug)
+    ceph.ceph_ansible_exec(release, inventory, group_vars, ssh_key, verbose=verbose, debug=debug)
 
 
-@click.argument('disk')
+@click.argument("disk")
 @click.option(
     "--force/--ask",
     required=False,
@@ -36,12 +39,12 @@ def ceph_ansible(release, inventory, group_vars, ssh_key, debug):
 def zap_disk(disk, force):
     """ Erase filesystem from given disk """
     if not force:
-        click.echo('')
-        click.echo(f'WARNING: This will destroy any filesystem on the drive: {disk}')
-        click.echo('Type the drive name again to continue:')
+        click.echo("")
+        click.echo(f"WARNING: This will destroy any filesystem on the drive: {disk}")
+        click.echo("Type the drive name again to continue:")
         user_in = input()
         if user_in != disk:
-            system.error(f'ERROR: Confirm does not match {disk}', exit=True)
+            system.error(f"ERROR: Confirm does not match {disk}", exit=True)
     system.assert_path_exists(disk)
     ceph.zap_disk(disk)
 
