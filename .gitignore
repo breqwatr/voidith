@@ -1,4 +1,5 @@
 env/
+*egg*
 *.pyc
 *.swp
 **/*.DS_Store

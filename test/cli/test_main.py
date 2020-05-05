@@ -5,6 +5,7 @@ from click.testing import CliRunner
 import voidith.cli.main
 from voidith.constants import VOIDITH_VERSION
 
+
 def test_entrypoint():
     """ test for the entrypoint - should show version if asked"""
     runner = CliRunner()

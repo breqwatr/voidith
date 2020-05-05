@@ -8,22 +8,12 @@ import voidith.lib.ceph as ceph
 @click.option(
     "--release", "-r", required=True, help="Ceph-Ansible stable branch [3.2, 4.0, 5.0]",
 )
+@click.option("--inventory", "-i", required=True, help="Ceph-Ansible inventory file path")
 @click.option(
-    "--inventory", "-i", required=True, help="Ceph-Ansible inventory file path"
+    "--group-vars", "-g", "group_vars", required=True, help="Ceph-Ansible grou_vars directory path",
 )
 @click.option(
-    "--group-vars",
-    "-g",
-    "group_vars",
-    required=True,
-    help="Ceph-Ansible grou_vars directory path",
-)
-@click.option(
-    "--ssh-key",
-    "-s",
-    "ssh_key",
-    required=True,
-    help="Ceph-Ansible grou_vars directory path",
+    "--ssh-key", "-s", "ssh_key", required=True, help="Ceph-Ansible grou_vars directory path",
 )
 @click.command(name="ceph-ansible")
 def ceph_ansible(release, inventory, group_vars, ssh_key):
