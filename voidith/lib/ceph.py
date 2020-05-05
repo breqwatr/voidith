@@ -7,7 +7,6 @@ from voidith.lib.system import shell
 def ceph_ansible_exec(release, inventory_path, group_vars_path, ssh_key_path):
     """ Execute ceph-ansible """
     image = f"breqwatr/ceph-ansible:{release}"
-    shell(f"docker pull {image}")
     run_cmd = "ansible-playbook -i /ceph-inventory.yml /var/repos/ceph-ansible/site.yml"
     cmd = (
         "docker run --rm --network host --workdir /var/repos/ceph-ansible "
