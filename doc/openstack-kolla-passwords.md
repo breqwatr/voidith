@@ -21,6 +21,6 @@ generate a `passwords.yml` in the present working directory.
 
 ```bash
 # creates ./passwords.yml
-voidith openstack get-passwords --release <release name>
+voithos openstack get-passwords --release <release name>
 ```
 

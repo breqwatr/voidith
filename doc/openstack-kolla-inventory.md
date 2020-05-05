@@ -6,14 +6,14 @@
 The inventory file defines which nodes will run what OpenStack roles.
 
 Generate a template of the file. Kolla-Ansible's git checkout contains sample
-inventory files. Voidith can automatically extract one of those sample files
+inventory files. Voithos can automatically extract one of those sample files
 to the present working directory. The inventory files change from OpenStack
 release to OpenStack release, so be sure to use the correct `--release` option.
 
 
 ```bash
 # creates ./inventory
-voidith openstack get-inventory-template --release stein
+voithos openstack get-inventory-template --release stein
 ```
 
 This is a standard [INI-format](https://en.wikipedia.org/wiki/INI_file) Ansible

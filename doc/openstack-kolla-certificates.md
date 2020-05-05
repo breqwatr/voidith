@@ -32,13 +32,13 @@ The filenames can be modified in `globals.yml`.
 
 ## Generate self-signed certificates
 
-Use Voidith's `generate-certificates` command to generate new self-signed
+Use Voithos's `generate-certificates` command to generate new self-signed
 certificates. A new directory named `certificates/` will be created in the
 directory specified by `--config-dir`.
 
 ```bash
 # creates ./certificates/
-voidith openstack get-certificates \
+voithos openstack get-certificates \
   --release stein \
   --globals-file globals.yml \
   --passwords-file passwords.yml

@@ -2,8 +2,8 @@
 
 import os
 
-from voidith.lib.system import shell
-from voidith.lib.docker import volume_opt
+from voithos.lib.system import shell
+from voithos.lib.docker import volume_opt
 
 
 def kolla_ansible_genpwd(release):

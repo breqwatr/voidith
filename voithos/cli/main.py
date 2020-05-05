@@ -1,14 +1,14 @@
-""" Entrypoint for voidith CLI """
+""" Entrypoint for voithos CLI """
 
 import sys
 
 import click
 
-import voidith.cli.ceph as ceph
-import voidith.cli.openstack as openstack
-import voidith.cli.services as services
-import voidith.constants as constants
-from voidith.lib.system import error
+import voithos.cli.ceph as ceph
+import voithos.cli.openstack as openstack
+import voithos.cli.services as services
+import voithos.constants as constants
+from voithos.lib.system import error
 
 
 # Requires python 3
@@ -19,7 +19,7 @@ if sys.version_info[0] != 3:
 @click.command()
 def version():
     """ Show the current version """
-    click.echo(constants.VOIDITH_VERSION)
+    click.echo(constants.VOITHOS_VERSION)
 
 
 def get_entrypoint():
@@ -37,7 +37,7 @@ def get_entrypoint():
 
 
 def main():
-    """ Entrypoint defined in setup.py for voidith command """
+    """ Entrypoint defined in setup.py for voithos command """
     try:
         entrypoint = get_entrypoint()
         entrypoint()

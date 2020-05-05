@@ -1,7 +1,7 @@
-""" Command-group for Voidith Services """
+""" Command-group for Voithos Services """
 import click
 
-import voidith.cli.service.registry as registry
+import voithos.cli.service.registry as registry
 
 
 def get_services_group():
@@ -9,7 +9,7 @@ def get_services_group():
 
     @click.group()
     def services():
-        """ Manage Voidith services """
+        """ Manage Voithos services """
 
     services.add_command(registry.get_registry_group())
     return services

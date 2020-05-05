@@ -22,10 +22,10 @@ suggested.
 
 ```bash
 # Show the available options for starting the registry service
-voidith service registry start --help
+voithos service registry start --help
 
 # Launch the registry on port 5000, listening on all IPs
-voidith service registry start --ip 0.0.0.0 --port 5000
+voithos service registry start --ip 0.0.0.0 --port 5000
 ```
 
 ## Configure Docker to trust the local registry
@@ -60,8 +60,8 @@ At this point you may want to
 To list the images currently stored in the local registry:
 
 ```bash
-voidith service registry list-images <registry ip:port>
+voithos service registry list-images <registry ip:port>
 
 # example
-voidith service registry list-images 10.10.10.9:5000
+voithos service registry list-images 10.10.10.9:5000
 ```

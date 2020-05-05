@@ -1,6 +1,6 @@
 """ Operate the registry service """
 
-from voidith.lib.system import shell
+from voithos.lib.system import shell
 
 
 def start(ip, port):

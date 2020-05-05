@@ -1,6 +1,6 @@
 """ Docker shell command runner """
 
-from voidith.lib.system import assert_path_exists, get_absolute_path
+from voithos.lib.system import assert_path_exists, get_absolute_path
 
 
 def volume_opt(src, dest):

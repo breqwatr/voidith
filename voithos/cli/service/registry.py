@@ -3,7 +3,7 @@
 
 import click
 
-import voidith.service.registry as registry
+import voithos.service.registry as registry
 
 
 @click.option("--ip", default="0.0.0.0", help="[optional] bind IP address")

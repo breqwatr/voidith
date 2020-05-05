@@ -2,7 +2,7 @@
 
 import click
 
-import voidith.lib.openstack as openstack
+import voithos.lib.openstack as openstack
 
 
 @click.option("--release", "-r", help="OpenStack release name", required=True)

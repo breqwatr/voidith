@@ -1,4 +1,5 @@
 env/
+build/
 *egg*
 *.pyc
 *.swp

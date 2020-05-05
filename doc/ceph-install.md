@@ -13,7 +13,7 @@ Ceph has been open source since its inception.
 
 ## Before you begin
 
-Ensure that voidith is installed and the host from which it will run can SSH using a keypair as
+Ensure that voithos is installed and the host from which it will run can SSH using a keypair as
 root to each Ceph member node. Also ensure each member node has Python installed - Ansible needs
 it.
 
@@ -24,7 +24,7 @@ it.
 If the disks that will be used for OSDs are not brand new, you need to clear the first few blocks
 of data off each one.
 
-If it's easy to install voidith on the OSD nodes, you can use use `voidith ceph zap-disk`.
+If it's easy to install voithos on the OSD nodes, you can use use `voithos ceph zap-disk`.
 
 If not, that command just wraps the following to commands:
 
@@ -84,7 +84,7 @@ need to put `container_package_name: docker-ce` in this file.
 
 
 ```bash
-voidith ceph ceph-ansible \
+voithos ceph ceph-ansible \
   --inventory <path to inventory file> \
   --group-vars <path to group_vars directory> \
   --ssh-key <path to ssh private key file (usually id_rsa)>

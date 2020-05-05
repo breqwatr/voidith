@@ -2,8 +2,8 @@
 
 import click
 
-import voidith.lib.ceph as ceph
-import voidith.lib.system as system
+import voithos.lib.ceph as ceph
+import voithos.lib.system as system
 
 
 @click.option(
