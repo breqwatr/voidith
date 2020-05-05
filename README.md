@@ -14,7 +14,7 @@ Voithos is currently pre-release and only available on GitHub.
 virtualenv --python=python3 env/
 source env/bin/activate
 
-# Install voidith
+# Install voithos
 pip install git+https://github.com/breqwatr/voithos.git
 ```
 
