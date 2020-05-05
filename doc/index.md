@@ -17,7 +17,30 @@ they do. In practice, it is tested against Mac OSX and Ubuntu Server 18.04.
 
 To install Voidith, check out the git project and use pip in a virtualenv.
 
+On Ubuntu:
 
+```bash
+# Install Docker
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
+add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu bionic stable"
+apt-get update
+apt-get install -y docker-ce
+
+# Install python3
+apt-get update
+apt-get install -y python3 python3-pip virtualenv
+
+# Clone the repo
+git clone https://github.com/breqwatr/voidith.git
+cd voidith
+
+# Create and source the virtualenv
+virtualenv --python=python3 env/
+source env/bin/activate
+
+# Install voidith
+pip install .
+```
 ---
 
 
