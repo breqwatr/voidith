@@ -6,7 +6,7 @@ import click
 
 import voithos.cli.ceph as ceph
 import voithos.cli.openstack as openstack
-import voithos.cli.services as services
+import voithos.cli.service.service as service
 import voithos.constants as constants
 from voithos.lib.system import error
 
@@ -32,7 +32,7 @@ def get_entrypoint():
     entrypoint.add_command(version)
     entrypoint.add_command(ceph.get_ceph_group())
     entrypoint.add_command(openstack.get_openstack_group())
-    entrypoint.add_command(services.get_services_group())
+    entrypoint.add_command(service.get_service_group())
     return entrypoint
 
 
