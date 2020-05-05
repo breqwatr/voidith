@@ -32,10 +32,10 @@ def get_absolute_path(file_path):
     return str(path)
 
 
-def assert_file_exists(file_path):
+def assert_path_exists(file_path):
     """ Gracefully exist if a file does not exist """
     path = pathlib.Path(get_absolute_path(file_path))
     if not path.exists():
-        err = f"ERROR: Expected file/directory {file_path} not found\n"
+        err = f"ERROR: Expected {file_path} not found\n"
         sys.stderr.write(err)
         sys.exit(1)
