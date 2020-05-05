@@ -5,6 +5,7 @@ import sys
 import click
 
 import voidith.cli.ceph as ceph
+import voidith.cli.openstack as openstack
 import voidith.cli.services as services
 import voidith.constants as constants
 from voidith.lib.system import error
@@ -30,6 +31,7 @@ def get_entrypoint():
 
     entrypoint.add_command(version)
     entrypoint.add_command(ceph.get_ceph_group())
+    entrypoint.add_command(openstack.get_openstack_group())
     entrypoint.add_command(services.get_services_group())
     return entrypoint
 

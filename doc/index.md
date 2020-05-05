@@ -55,3 +55,4 @@ pip install .
 - [Installing Ceph](/ceph-install.html)
 - [Local Registry](/registry.html)
 - [Mirroring OpenStack Release's Images on Local Registry](openstack-registry-mirror.html)
+- [Generating Unique OpenStack Service Passwords](openstack-kolla-passwords.htlm)
