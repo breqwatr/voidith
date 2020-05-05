@@ -1,13 +1,13 @@
-# Voidith - Private Cloud Helper by Breqwatr
+# Voithos - Private Cloud Helper by Breqwatr
 
-Voidith is a free and Open-Source utility written by Breqwatr to deploy and
+Voithos is a free and Open-Source utility written by Breqwatr to deploy and
 manage private clouds. Breqwatr uses this tool internally and has open-sourced
 it in the spirit of sharing and collaboration.
 
 
 ## Installation
 
-Voidith is currently pre-release and only available on GitHub.
+Voithos is currently pre-release and only available on GitHub.
 
 ```bash
 # Create virtualenv
@@ -15,7 +15,7 @@ virtualenv --python=python3 env/
 source env/bin/activate
 
 # Install voidith
-pip install git+https://github.com/breqwatr/voidith.git
+pip install git+https://github.com/breqwatr/voithos.git
 ```
 
 
@@ -44,8 +44,8 @@ Use Black to enforce the style guide. It's configuration is in `./pyproject.toml
 
 ```bash
 # Example of re-styling one file
-black voidith\cli\main.py
+black voithos\cli\main.py
 
 # Example of re-styling the whole project
-black voidith
+black voithos
 ```
