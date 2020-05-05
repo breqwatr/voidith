@@ -15,3 +15,14 @@ def kolla_ansible_genpwd(release):
            f'bash -c "kolla-genpwd --passwords {path} '
            f'&& cp {path} /etc/kolla/passwords.yml"')
     shell(cmd)
+
+
+def kolla_ansible_inventory(release):
+    """ Print the inventory template for the given release """
+    cwd = os.getcwd()
+    inventory_file = '/var/repos/kolla-ansible/ansible/inventory/multinode'
+    cmd = (f'docker run --rm '
+           f'-v {cwd}:/etc/kolla '
+           f'breqwatr/kolla-ansible:{release} '
+           f'cp {inventory_file} /etc/kolla/inventory')
+    shell(cmd)
