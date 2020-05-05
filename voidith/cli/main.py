@@ -7,11 +7,12 @@ import click
 import voidith.cli.ceph as ceph
 import voidith.cli.services as services
 import voidith.constants as constants
+from voidith.lib.system import error
+
 
 # Requires python 3
 if sys.version_info[0] != 3:
-    sys.stderr.write("ERROR: Python 3 required \n")
-    sys.exit(42)
+    error("ERROR: Python3 required", exit=True, code=42)
 
 
 @click.command()
@@ -40,4 +41,4 @@ def main():
         entrypoint()
     except KeyboardInterrupt:
         # Handle ctrl+C without dumping a stack-trace
-        sys.exit(100)
+        error("CTRL+C detected, exiting", exit=True, code=2)
