@@ -33,7 +33,7 @@ def test_arcus_api_pull(mock_aws, mock_shell):
     mock_aws.get_client.return_value.get_authorization_token.return_value = token
 
     runner = CliRunner()
-    result = runner.invoke(voithos.cli.service.arcus.api.pull)
+    result = runner.invoke(voithos.cli.service.arcus.api.pull, ['--release', '7.5'])
     assert result.exit_code == 0
     assert mock_aws.get_client.return_value.get_authorization_token.called
     assert mock_shell.called

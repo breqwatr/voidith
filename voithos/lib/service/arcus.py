@@ -1,18 +1,6 @@
 """ lib for arcus services """
 
 from voithos.lib.system import shell
-import voithos.lib.aws.ecr as ecr
-
-
-def pull(service):
-    """ Pull one of the arcus services from ECR and retag it """
-    services = {
-        "api": "breqwatr/arcus-api",
-        "client": "breqwatr/arcus-client",
-        "mgr": "breqwatr/arcus-mgr",
-    }
-    image = services[service]
-    ecr.pull(image)
 
 
 def start_api(release, fqdn, rabbit_pass, rabbit_ips_list, sql_ip, sql_password, ceph_enabled,
@@ -37,8 +25,8 @@ def start_api(release, fqdn, rabbit_pass, rabbit_ips_list, sql_ip, sql_password,
         value = env_vars[env_var]
         env_str += f' -e {env_var}={value} '
     cmd = ('docker run -d '
-           '-p 0.0.0.0:1234:1234'
-           '--name arcus_api'
-           '--restart=always'
+           '-p 0.0.0.0:1234:1234 '
+           '--name arcus_api '
+           '--restart=always '
            f'{env_str} {image}')
     shell(cmd)

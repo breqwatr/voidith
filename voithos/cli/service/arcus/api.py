@@ -2,17 +2,19 @@
 
 import click
 
-
+import voithos.lib.aws.ecr as ecr
 import voithos.lib.service.arcus as arcus
 
 
+@click.option('--release', '-r', required=True, help='Version of Arcus API to run')
 @click.command(name="pull")
-def pull():
+def pull(release):
     """ Pull Arcus API from Breqwatr's private repository """
-    arcus.pull("api")
+    image = f'breqwatr/arcus-api:{release}'
+    ecr.pull(image)
 
 
-@click.option('--release', required=True, help='Version of Arcus API to run')
+@click.option('--release', '-r', required=True, help='Version of Arcus API to run')
 @click.option("--openstack-fqdn", required=True, help="fqdn/VIP of openstack")
 @click.option("--rabbit-pass", required=True, help="RabbitMQ password")
 @click.option(
