@@ -17,7 +17,7 @@ setup(
     download_url="https://github.com/breqwatr/voithos/archive/1.00.tar.gz",
     url="https://github.com/breqwatr/voithos",
     keywords=["Breqwatr", "Openstack", "Kolla", "Ceph", "Docker"],
-    install_requires=["flake8", "pylint", "black", "pytest"],
+    install_requires=["boto3", "flake8", "pylint", "black", "pytest"],
     entry_points="""
         [console_scripts]
         voithos=voithos.cli.main:main

@@ -5,7 +5,8 @@ from voithos.lib.system import shell
 
 
 def ceph_ansible_exec(
-        release, inventory_path, group_vars_path, ssh_key_path, verbose=False, debug=False):
+    release, inventory_path, group_vars_path, ssh_key_path, verbose=False, debug=False
+):
     """ Execute ceph-ansible """
     verbose_str = " -vvvv " if verbose else ""
     image = f"breqwatr/ceph-ansible:{release}"

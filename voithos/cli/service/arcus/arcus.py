@@ -1,7 +1,8 @@
 """ Manage Arcus services """
 
-
 import click
+
+import voithos.cli.service.arcus.api as api
 
 
 def get_arcus_group():
@@ -11,5 +12,5 @@ def get_arcus_group():
     def arcus_group():
         """ Arcus services """
 
-    # arcus_group.add_command(start)
+    arcus_group.add_command(api.get_api_group())
     return arcus_group

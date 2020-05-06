@@ -14,7 +14,7 @@ def test_registry_group():
     assert result.exit_code == 0
 
 
-@patch("voithos.service.registry.shell")
+@patch("voithos.lib.service.registry.shell")
 def test_registry_start(mock_shell):
     """ test ceph-ansible cli call """
     runner = CliRunner()

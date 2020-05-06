@@ -38,23 +38,50 @@ def get_certificates(release, passwords_file, globals_file):
     click.echo("Generated ./certificates/")
 
 
-@click.option('--release', '-r', help='OpenStack release name', required=True)
-@click.option('--ssh-private-key-file', '-s', 'ssh_private_key_file',
-              required=True, help='Path of SSH private key file')
-@click.option('--inventory-file', '-i', 'inventory_file', required=True,
-              help='Path of Ansible inventory file')
-@click.option('--passwords-file', '-p', 'passwords_file', required=True,
-              help='Path of passwords.yml file')
-@click.option('--globals-file', '-g', 'globals_file', required=True,
-              help='Path of globals.yml file')
-@click.option('--certificates-dir', '-d', 'certificates_dir', required=True,
-              help='Path of certificates/ directory')
-@click.option('--config-dir', '-c', 'config_dir', required=False, default=None,
-              help='Path of config/ directory  [optional]')
-@click.argument('command')
-@click.command(name='kolla-ansible')
-def kolla_ansible(release, ssh_private_key_file, inventory_file, globals_file,
-                  passwords_file, certificates_dir, config_dir, command):
+@click.option("--release", "-r", help="OpenStack release name", required=True)
+@click.option(
+    "--ssh-private-key-file",
+    "-s",
+    "ssh_private_key_file",
+    required=True,
+    help="Path of SSH private key file",
+)
+@click.option(
+    "--inventory-file", "-i", "inventory_file", required=True, help="Path of Ansible inventory file"
+)
+@click.option(
+    "--passwords-file", "-p", "passwords_file", required=True, help="Path of passwords.yml file"
+)
+@click.option(
+    "--globals-file", "-g", "globals_file", required=True, help="Path of globals.yml file"
+)
+@click.option(
+    "--certificates-dir",
+    "-d",
+    "certificates_dir",
+    required=True,
+    help="Path of certificates/ directory",
+)
+@click.option(
+    "--config-dir",
+    "-c",
+    "config_dir",
+    required=False,
+    default=None,
+    help="Path of config/ directory  [optional]",
+)
+@click.argument("command")
+@click.command(name="kolla-ansible")
+def kolla_ansible(
+    release,
+    ssh_private_key_file,
+    inventory_file,
+    globals_file,
+    passwords_file,
+    certificates_dir,
+    config_dir,
+    command,
+):
     """ Execute Kolla-Ansible command  """
     openstack.kolla_ansible_exec(
         release=release,
@@ -64,7 +91,8 @@ def kolla_ansible(release, ssh_private_key_file, inventory_file, globals_file,
         passwords_path=passwords_file,
         certificates_dir=certificates_dir,
         config_dir=config_dir,
-        command=command)
+        command=command,
+    )
 
 
 def get_openstack_group():

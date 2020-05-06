@@ -1,10 +1,8 @@
 """ Tests for arcus """
-from unittest.mock import patch
 
 from click.testing import CliRunner
 
-import voithos.cli.ceph
-import voithos.lib.ceph
+import voithos.cli.service.arcus
 
 
 def test_arcus_group():
