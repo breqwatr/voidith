@@ -8,7 +8,7 @@ import voithos.cli.openstack
 def test_openstack_group():
     """ test the openstack group cli call """
     runner = CliRunner()
-    result = runner.invoke(voithos.cli.openstack.get_openstack_group())
+    result = runner.invoke(voithos.cli.openstack.get_openstack_group(), catch_exceptions=False)
     assert result.exit_code == 0
 
 
@@ -16,7 +16,9 @@ def test_openstack_group():
 def test_openstack_get_passwords(mock_shell):
     """ test generating passwords """
     runner = CliRunner()
-    result = runner.invoke(voithos.cli.openstack.get_passwords, ["--release", "train"])
+    result = runner.invoke(
+        voithos.cli.openstack.get_passwords, ["--release", "train"], catch_exceptions=False
+    )
     assert result.exit_code == 0
     assert mock_shell.call_count == 1
 
@@ -25,7 +27,9 @@ def test_openstack_get_passwords(mock_shell):
 def test_openstack_get_inventory_template(mock_shell):
     """ test generating inventory """
     runner = CliRunner()
-    result = runner.invoke(voithos.cli.openstack.get_inventory_template, ["--release", "train"])
+    result = runner.invoke(
+        voithos.cli.openstack.get_inventory_template, ["--release", "train"], catch_exceptions=False
+    )
     assert result.exit_code == 0
     assert mock_shell.call_count == 1
 
@@ -45,6 +49,7 @@ def test_openstack_get_certificates(mock_shell, mock_assert):
             "--globals-file",
             "globals.yml",
         ],
+        catch_exceptions=False,
     )
     assert result.exit_code == 0
     assert mock_shell.call_count == 1
@@ -75,6 +80,7 @@ def test_openstack_kolla_ansible(mock_shell, mock_assert):
             "config/",
             "deploy",
         ],
+        catch_exceptions=False,
     )
     assert result.exit_code == 0, result.output
     assert mock_shell.called

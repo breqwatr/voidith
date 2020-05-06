@@ -1,24 +1,24 @@
-""" Tests for arcus api """
+""" Tests for arcus client """
 
 from base64 import b64encode
 from unittest.mock import patch
 from click.testing import CliRunner
 
-import voithos.cli.service.arcus.api
+import voithos.cli.service.arcus.client
 import voithos.lib.config
 
 
-def test_arcus_api_group():
-    """ test the arcus api group cli call """
+def test_arcus_client_group():
+    """ test the arcus client group cli call """
     runner = CliRunner()
-    result = runner.invoke(voithos.cli.service.arcus.api.get_api_group())
+    result = runner.invoke(voithos.cli.service.arcus.client.get_client_group())
     assert result.exit_code == 0
 
 
 @patch("voithos.lib.aws.ecr.shell")
 @patch("voithos.lib.aws.ecr.aws")
-def test_arcus_api_pull(mock_aws, mock_shell):
-    """ test the arcus api pull cli call """
+def test_arcus_client_pull(mock_aws, mock_shell):
+    """ test the arcus client pull cli call """
     config = voithos.lib.config.DEFAULT_CONFIG
     config["license"] = "11111111111111111111-2222222222222222222222222222222222222222"
     #  mock_config_system.get_file_contents.return_value = json.dumps(config)
@@ -33,34 +33,37 @@ def test_arcus_api_pull(mock_aws, mock_shell):
     mock_aws.get_client.return_value.get_authorization_token.return_value = token
 
     runner = CliRunner()
-    result = runner.invoke(voithos.cli.service.arcus.api.pull, ["--release", "7.5"])
+    result = runner.invoke(
+        voithos.cli.service.arcus.client.pull, ["--release", "7.5"], catch_exceptions=False
+    )
     assert result.exit_code == 0
     assert mock_aws.get_client.return_value.get_authorization_token.called
     assert mock_shell.called
 
 
+@patch("voithos.lib.docker.assert_path_exists")
 @patch("voithos.lib.service.arcus.shell")
-def test_arcus_api_start(mock_shell):
-    """ Test starting the arcus api service """
+def ixtest_arcus_client_start(mock_shell, mock_assert):
+    """ Test starting the arcus client service """
     runner = CliRunner()
     result = runner.invoke(
-        voithos.cli.service.arcus.api.start,
+        voithos.cli.service.arcus.client.start,
         [
             "--release",
             "7.5",
-            "--openstack-fqdn",
-            "example.com",
-            "--rabbit-pass",
-            "fake-password",
-            "--rabbit-ip",
+            "--api-ip",
             "5.5.5.5",
-            "--sql-ip",
+            "--openstack-ip",
             "5.5.5.5",
-            "--sql-password",
-            "fake-password",
-            "--ceph",
-            "--https",
+            "--glance-https",
+            "--arcus-https",
+            "--cert-path",
+            "/example/fake/file",
+            "--cert-key",
+            "/example/fake/file",
         ],
+        catch_exceptions=False,
     )
     assert result.exit_code == 0, result.output
     assert mock_shell.called
+    assert mock_assert.called

@@ -6,15 +6,15 @@ import voithos.lib.aws.ecr as ecr
 import voithos.lib.service.arcus as arcus
 
 
-@click.option('--release', '-r', required=True, help='Version of Arcus API to run')
+@click.option("--release", "-r", required=True, help="Version of Arcus API to run")
 @click.command(name="pull")
 def pull(release):
     """ Pull Arcus API from Breqwatr's private repository """
-    image = f'breqwatr/arcus-api:{release}'
+    image = f"breqwatr/arcus-api:{release}"
     ecr.pull(image)
 
 
-@click.option('--release', '-r', required=True, help='Version of Arcus API to run')
+@click.option("--release", "-r", required=True, help="Version of Arcus API to run")
 @click.option("--openstack-fqdn", required=True, help="fqdn/VIP of openstack")
 @click.option("--rabbit-pass", required=True, help="RabbitMQ password")
 @click.option(
@@ -32,7 +32,7 @@ def pull(release):
 @click.command(name="start")
 def start(release, openstack_fqdn, rabbit_pass, rabbit_ip, sql_ip, sql_password, ceph, https):
     """ Launch the arcus-api service """
-    click.echo('starting arcus api')
+    click.echo("starting arcus api")
     arcus.start_api(
         release=release,
         fqdn=openstack_fqdn,
@@ -41,7 +41,8 @@ def start(release, openstack_fqdn, rabbit_pass, rabbit_ip, sql_ip, sql_password,
         sql_ip=sql_ip,
         sql_password=sql_password,
         ceph_enabled=ceph,
-        https=https)
+        https=https,
+    )
 
 
 def get_api_group():
