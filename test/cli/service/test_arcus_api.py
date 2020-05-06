@@ -33,7 +33,9 @@ def test_arcus_api_pull(mock_aws, mock_shell):
     mock_aws.get_client.return_value.get_authorization_token.return_value = token
 
     runner = CliRunner()
-    result = runner.invoke(voithos.cli.service.arcus.api.pull, ["--release", "7.5"])
+    result = runner.invoke(
+        voithos.cli.service.arcus.api.pull, ["--release", "7.5"], catch_exceptions=False
+    )
     assert result.exit_code == 0
     assert mock_aws.get_client.return_value.get_authorization_token.called
     assert mock_shell.called
@@ -61,6 +63,25 @@ def test_arcus_api_start(mock_shell):
             "--ceph",
             "--https",
         ],
+        catch_exceptions=False,
     )
     assert result.exit_code == 0, result.output
     assert mock_shell.called
+
+
+@patch("voithos.lib.service.arcus.connector")
+def test_arcus_api_database_init(mock_connector):
+    """ Test initializing the database """
+    runner = CliRunner()
+    result = runner.invoke(
+        voithos.cli.service.arcus.api.database_init,
+        [
+            '--host', '1.2.3.4',
+            '--admin-user', 'root',
+            '--admin-pass', 'sample-pass',
+            '--arcus-pass', 'sample-pass'
+        ],
+        catch_exceptions=False,
+    )
+    assert result.exit_code == 0, result.output
+    assert mock_connector.connect.called

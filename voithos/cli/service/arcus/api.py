@@ -56,4 +56,22 @@ def get_api_group():
 
     api_group.add_command(pull)
     api_group.add_command(start)
+    api_group.add_command(database_init)
     return api_group
+
+
+@click.option('--host', required=True, help='MariaDB IP or FQDN')
+@click.option('--admin-user', required=True, help='Admin user for creating the new DB')
+@click.option('--admin-pass', required=True, help='Amin user password')
+@click.option('--arcus-pass', required=True, help='New "arcus" DB user password')
+@click.command(name='database-init')
+def database_init(host, admin_user, admin_pass, arcus_pass):
+    """ Initialize the Arcus database """
+    click.echo('Initializing Arcus database')
+    res = arcus.init_database(
+        host=host,
+        admin_user=admin_user,
+        admin_passwd=admin_pass,
+        arcus_passwd=arcus_pass)
+    for key in res:
+        click.echo(f'{key} {res[key]}')

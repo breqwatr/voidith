@@ -43,7 +43,7 @@ def test_arcus_client_pull(mock_aws, mock_shell):
 
 @patch("voithos.lib.docker.assert_path_exists")
 @patch("voithos.lib.service.arcus.shell")
-def ixtest_arcus_client_start(mock_shell, mock_assert):
+def test_arcus_client_start(mock_shell, mock_assert):
     """ Test starting the arcus client service """
     runner = CliRunner()
     result = runner.invoke(
