@@ -37,3 +37,21 @@ def test_arcus_api_pull(mock_aws, mock_shell):
     assert result.exit_code == 0
     assert mock_aws.get_client.return_value.get_authorization_token.called
     assert mock_shell.called
+
+
+@patch("voithos.lib.service.arcus.shell")
+def test_arcus_api_start(mock_shell):
+    """ Test starting the arcus api service """
+    runner = CliRunner()
+    result = runner.invoke(voithos.cli.service.arcus.api.start, [
+        '--release', '7.5',
+        '--openstack-fqdn', 'example.com',
+        '--rabbit-pass', 'fake-password',
+        '--rabbit-ip', '5.5.5.5',
+        '--sql-ip', '5.5.5.5',
+        '--sql-password', 'fake-password',
+        '--ceph',
+        '--https',
+    ])
+    assert result.exit_code == 0, result.output
+    assert mock_shell.called
