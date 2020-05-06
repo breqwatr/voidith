@@ -164,5 +164,5 @@ def get_openstack_group():
     openstack_group.add_command(get_certificates)
     openstack_group.add_command(get_admin_openrc)
     openstack_group.add_command(kolla_ansible)
-    # openstack_group.add_command(cli)
+    openstack_group.add_command(cli)
     return openstack_group
