@@ -22,7 +22,7 @@ def test_config_license(mock_system):
     runner = CliRunner()
     default_config = voithos.lib.config.DEFAULT_CONFIG
     mock_system.get_file_contents.return_value = json.dumps(default_config)
-    result = runner.invoke(voithos.cli.config.license, ['--set', 'qqq'])
+    result = runner.invoke(voithos.cli.config.license, ["--set", "qqq"])
     assert result.exit_code == 0, result.output
     assert mock_system.get_absolute_path.called
     assert mock_system.get_file_contents.called

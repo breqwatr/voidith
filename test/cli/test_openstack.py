@@ -59,15 +59,22 @@ def test_openstack_kolla_ansible(mock_shell, mock_assert):
     result = runner.invoke(
         voithos.cli.openstack.kolla_ansible,
         [
-            "--release", "train",
-            "--ssh-private-key-file", "id_rsa",
-            "--inventory-file", "inventory",
-            "--passwords-file", "passwords.yml",
-            "--globals-file", "globals.yml",
-            "--certificates-dir", "certificates/",
-            "--config-dir", "config/",
-            "deploy"
-        ]
+            "--release",
+            "train",
+            "--ssh-private-key-file",
+            "id_rsa",
+            "--inventory-file",
+            "inventory",
+            "--passwords-file",
+            "passwords.yml",
+            "--globals-file",
+            "globals.yml",
+            "--certificates-dir",
+            "certificates/",
+            "--config-dir",
+            "config/",
+            "deploy",
+        ],
     )
     assert result.exit_code == 0, result.output
     assert mock_shell.called

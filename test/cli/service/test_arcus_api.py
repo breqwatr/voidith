@@ -1,6 +1,5 @@
 """ Tests for arcus api """
 
-import json
 from base64 import b64encode
 from unittest.mock import patch
 from click.testing import CliRunner
@@ -21,13 +20,13 @@ def test_arcus_api_group():
 def test_arcus_api_pull(mock_aws, mock_shell):
     """ test the arcus api pull cli call """
     config = voithos.lib.config.DEFAULT_CONFIG
-    config['license'] = '11111111111111111111-2222222222222222222222222222222222222222'
+    config["license"] = "11111111111111111111-2222222222222222222222222222222222222222"
     #  mock_config_system.get_file_contents.return_value = json.dumps(config)
     token = {
-        'authorizationData': [
+        "authorizationData": [
             {
-                'proxyEndpoint': 'http://fake.exampple.com',
-                'authorizationToken': b64encode('username:password'.encode('utf-8'))
+                "proxyEndpoint": "http://fake.exampple.com",
+                "authorizationToken": b64encode("username:password".encode("utf-8")),
             }
         ]
     }
