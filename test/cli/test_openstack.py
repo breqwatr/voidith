@@ -41,19 +41,36 @@ def test_openstack_get_certificates(mock_shell, mock_assert):
     runner = CliRunner()
     result = runner.invoke(
         voithos.cli.openstack.get_certificates,
-        [
-            "--release",
-            "train",
-            "--passwords-file",
-            "passwords.yml",
-            "--globals-file",
-            "globals.yml",
-        ],
+        ["--release", "train", "--passwords", "passwords.yml", "--globals", "globals.yml",],
         catch_exceptions=False,
     )
     assert result.exit_code == 0
-    assert mock_shell.call_count == 1
-    assert mock_assert.call_count > 0
+    assert mock_shell.called
+    assert mock_assert.called
+
+
+@patch("voithos.lib.docker.assert_path_exists")
+@patch("voithos.lib.openstack.shell")
+def test_openstack_get_admin_openrc(mock_shell, mock_assert):
+    """ test generating certs """
+    runner = CliRunner()
+    result = runner.invoke(
+        voithos.cli.openstack.get_admin_openrc,
+        [
+            "--passwords",
+            "passwords.yml",
+            "--globals",
+            "globals.yml",
+            "--release",
+            "train",
+            "--inventory",
+            "inventory",
+        ],
+        catch_exceptions=False,
+    )
+    assert result.exit_code == 0, result.output
+    assert mock_shell.called
+    assert mock_assert.called
 
 
 @patch("voithos.lib.docker.assert_path_exists")
@@ -66,17 +83,17 @@ def test_openstack_kolla_ansible(mock_shell, mock_assert):
         [
             "--release",
             "train",
-            "--ssh-private-key-file",
+            "--ssh-key",
             "id_rsa",
-            "--inventory-file",
+            "--inventory",
             "inventory",
-            "--passwords-file",
+            "--passwords",
             "passwords.yml",
-            "--globals-file",
+            "--globals",
             "globals.yml",
-            "--certificates-dir",
+            "--certificates",
             "certificates/",
-            "--config-dir",
+            "--config",
             "config/",
             "deploy",
         ],

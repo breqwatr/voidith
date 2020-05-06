@@ -76,10 +76,14 @@ def test_arcus_api_database_init(mock_connector):
     result = runner.invoke(
         voithos.cli.service.arcus.api.database_init,
         [
-            '--host', '1.2.3.4',
-            '--admin-user', 'root',
-            '--admin-pass', 'sample-pass',
-            '--arcus-pass', 'sample-pass'
+            "--host",
+            "1.2.3.4",
+            "--admin-user",
+            "root",
+            "--admin-pass",
+            "sample-pass",
+            "--arcus-pass",
+            "sample-pass",
         ],
         catch_exceptions=False,
     )

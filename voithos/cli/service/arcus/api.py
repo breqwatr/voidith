@@ -43,7 +43,7 @@ def start(release, openstack_fqdn, rabbit_pass, rabbit_ip, sql_ip, sql_password,
         sql_password=sql_password,
         ceph_enabled=ceph,
         https=https,
-        port=port
+        port=port,
     )
 
 
@@ -60,18 +60,16 @@ def get_api_group():
     return api_group
 
 
-@click.option('--host', required=True, help='MariaDB IP or FQDN')
-@click.option('--admin-user', required=True, help='Admin user for creating the new DB')
-@click.option('--admin-pass', required=True, help='Amin user password')
-@click.option('--arcus-pass', required=True, help='New "arcus" DB user password')
-@click.command(name='database-init')
+@click.option("--host", required=True, help="MariaDB IP or FQDN")
+@click.option("--admin-user", required=True, help="Admin user for creating the new DB")
+@click.option("--admin-pass", required=True, help="Amin user password")
+@click.option("--arcus-pass", required=True, help='New "arcus" DB user password')
+@click.command(name="database-init")
 def database_init(host, admin_user, admin_pass, arcus_pass):
     """ Initialize the Arcus database """
-    click.echo('Initializing Arcus database')
+    click.echo("Initializing Arcus database")
     res = arcus.init_database(
-        host=host,
-        admin_user=admin_user,
-        admin_passwd=admin_pass,
-        arcus_passwd=arcus_pass)
+        host=host, admin_user=admin_user, admin_passwd=admin_pass, arcus_passwd=arcus_pass
+    )
     for key in res:
-        click.echo(f'{key} {res[key]}')
+        click.echo(f"{key} {res[key]}")

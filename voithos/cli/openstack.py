@@ -24,11 +24,9 @@ def get_inventory_template(release):
 
 @click.option("--release", "-r", help="OpenStack release name", required=True)
 @click.option(
-    "--passwords-file", "-p", "passwords_file", required=True, help="Path of passwords.yml file"
+    "--passwords", "-p", "passwords_file", required=True, help="Path of passwords.yml file"
 )
-@click.option(
-    "--globals-file", "-g", "globals_file", required=True, help="Path of globals.yml file"
-)
+@click.option("--globals", "-g", "globals_file", required=True, help="Path of globals.yml file")
 @click.command(name="get-certificates")
 def get_certificates(release, passwords_file, globals_file):
     """ Generate certificates, save to ./certificates/ """
@@ -40,30 +38,24 @@ def get_certificates(release, passwords_file, globals_file):
 
 @click.option("--release", "-r", help="OpenStack release name", required=True)
 @click.option(
-    "--ssh-private-key-file",
-    "-s",
-    "ssh_private_key_file",
-    required=True,
-    help="Path of SSH private key file",
+    "--ssh-key", "-s", "ssh_private_key_file", required=True, help="Path of SSH private key file",
 )
 @click.option(
-    "--inventory-file", "-i", "inventory_file", required=True, help="Path of Ansible inventory file"
+    "--inventory", "-i", "inventory_file", required=True, help="Path of Ansible inventory file"
 )
 @click.option(
-    "--passwords-file", "-p", "passwords_file", required=True, help="Path of passwords.yml file"
+    "--passwords", "-p", "passwords_file", required=True, help="Path of passwords.yml file"
 )
+@click.option("--globals", "-g", "globals_file", required=True, help="Path of globals.yml file")
 @click.option(
-    "--globals-file", "-g", "globals_file", required=True, help="Path of globals.yml file"
-)
-@click.option(
-    "--certificates-dir",
+    "--certificates",
     "-d",
     "certificates_dir",
     required=True,
     help="Path of certificates/ directory",
 )
 @click.option(
-    "--config-dir",
+    "--config",
     "-c",
     "config_dir",
     required=False,
@@ -95,6 +87,27 @@ def kolla_ansible(
     )
 
 
+@click.option("--release", "-r", help="OpenStack release name", required=True)
+@click.option(
+    "--inventory", "-i", "inventory_file", required=True, help="Path of Ansible inventory file"
+)
+@click.option(
+    "--passwords", "-p", "passwords_file", required=True, help="Path of passwords.yml file"
+)
+@click.option("--globals", "-g", "globals_file", required=True, help="Path of globals.yml file")
+@click.command(name="get-admin-openrc")
+def get_admin_openrc(release, inventory_file, globals_file, passwords_file):
+    """ Generate & save ./admin-openrc.sh"""
+    click.echo("Generating ./admin-openrc.sh")
+    openstack.kolla_ansible_get_admin_openrc(
+        release=release,
+        inventory_path=inventory_file,
+        globals_path=globals_file,
+        passwords_path=passwords_file,
+    )
+    click.echo("Created ./admin-openrc.sh")
+
+
 def get_openstack_group():
     """ Return the OpenStack click group """
 
@@ -105,7 +118,7 @@ def get_openstack_group():
     openstack_group.add_command(get_passwords)
     openstack_group.add_command(get_inventory_template)
     openstack_group.add_command(get_certificates)
-    # openstack_group.add_command(get_admin_openrc)
+    openstack_group.add_command(get_admin_openrc)
     openstack_group.add_command(kolla_ansible)
     # openstack_group.add_command(cli)
     return openstack_group

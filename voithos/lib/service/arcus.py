@@ -53,7 +53,7 @@ def start_client(
     cert_path=None,
     cert_key_path=None,
     http_port=80,
-    https_port=443
+    https_port=443,
 ):
     """ Start the arcus api """
     image = f"breqwatr/arcus-client:{release}"
@@ -86,7 +86,7 @@ def _create_arcus_database(cursor):
     """ Create the database named arcus if it doesn't exist """
     cursor.execute("SHOW DATABASES;")
     databases = cursor.fetchall()
-    if ('arcus',) in databases:
+    if ("arcus",) in databases:
         return False
     cursor.execute("CREATE DATABASE arcus;")
     return True
@@ -94,9 +94,9 @@ def _create_arcus_database(cursor):
 
 def _create_arcus_dbuser(cursor, password):
     """ Create the arcus user in the DB """
-    cursor.execute('SELECT user FROM mysql.user;')
+    cursor.execute("SELECT user FROM mysql.user;")
     users = cursor.fetchall()
-    if (bytearray(b'arcus'),) in users:
+    if (bytearray(b"arcus"),) in users:
         return False
     create_cmd = 'CREATE USER arcus IDENTIFIED BY "{}"'.format(password)
     cursor.execute(create_cmd)
@@ -111,4 +111,4 @@ def init_database(host, admin_user, admin_passwd, arcus_passwd):
     cursor = conn.cursor()
     created_db = _create_arcus_database(cursor)
     created_user = _create_arcus_dbuser(cursor, arcus_passwd)
-    return {'created_db': created_db, 'created_user': created_user}
+    return {"created_db": created_db, "created_user": created_user}

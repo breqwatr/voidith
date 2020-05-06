@@ -36,13 +36,30 @@ def kolla_ansible_inventory(release):
 def kolla_ansible_generate_certificates(release, passwords_path, globals_path):
     """ Genereate certificates directory """
     cwd = os.getcwd()
+    globals_vol = volume_opt(globals_path, "/etc/kolla/globals.yml")
+    password_vol = volume_opt(passwords_path, "/etc/kolla/passwords.yml")
+    certs_vol = f"-v {cwd}/certificates:/etc/kolla/certificates"
     cmd = (
-        "docker run --rm "
-        + volume_opt(globals_path, "/etc/kolla/globals.yml")
-        + volume_opt(passwords_path, "/etc/kolla/passwords.yml")
-        + f"-v {cwd}/certificates:/etc/kolla/certificates "
+        f"docker run --rm {globals_vol} {password_vol} {certs_vol} "
         f"breqwatr/kolla-ansible:{release} "
-        f"kolla-ansible certificates"
+        "kolla-ansible certificates"
+    )
+    shell(cmd)
+
+
+def kolla_ansible_get_admin_openrc(release, inventory_path, globals_path, passwords_path):
+    """ Save the admin-openrc.sh file to current working directory """
+    cwd = os.getcwd()
+    inv_vol = volume_opt(inventory_path, "/etc/kolla/inventory")
+    globals_vol = volume_opt(globals_path, "/etc/kolla/globals.yml")
+    passwords_vol = volume_opt(passwords_path, "/etc/kolla/passwords.yml")
+    cwd_vol = f"-v {cwd}:/target "
+    cmd = (
+        "docker run --rm --network host "
+        f"{inv_vol} {globals_vol} {passwords_vol} {cwd_vol} "
+        f"breqwatr/kolla-ansible:{release} "
+        'bash -c "kolla-ansible post-deploy -i /etc/kolla/inventory && '
+        'cp /etc/kolla/admin-openrc.sh /target/"'
     )
     shell(cmd)
 
