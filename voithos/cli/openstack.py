@@ -1,8 +1,11 @@
 """ OpenStack commands """
 
+import os
+
 import click
 
 import voithos.lib.openstack as openstack
+from voithos.lib.system import error
 
 
 @click.option("--release", "-r", help="OpenStack release name", required=True)
@@ -106,6 +109,47 @@ def get_admin_openrc(release, inventory_file, globals_file, passwords_file):
         passwords_path=passwords_file,
     )
     click.echo("Created ./admin-openrc.sh")
+
+
+@click.option(
+    "--release", "-r", required=False, default=None, help="OpenStack release name (OS_RELEASE)"
+)
+@click.option(
+    "--openrc",
+    "-o",
+    "openrc_path",
+    required=False,
+    default=None,
+    help="Openrc file path (OS_OPENRC_PATH)",
+)
+@click.option(
+    "--command",
+    "-c",
+    required=False,
+    default=None,
+    help="Execute this command (non-interactive mode) [optional]",
+)
+@click.option(
+    "--volume",
+    "-v",
+    required=False,
+    default=None,
+    help="Mount a file to the client container [optional]",
+)
+@click.command(name="cli")
+def cli(release, openrc_path, command, volume):
+    """ Launch then OpenStack client CLI """
+    if release is None:
+        if "OS_RELEASE" not in os.environ:
+            error("ERROR: Release not found", exit=False)
+            error("       use --release or set $OS_RELEASE", exit=True)
+        release = os.environ["OS_RELEASE"]
+    if openrc_path is None:
+        if "OS_OPENRC_PATH" not in os.environ:
+            error("ERROR: OpenRC file not found", exit=False)
+            error("       Use --openrc-path / -o or set $OS_OPENRC_PATH", exit=True)
+        openrc_path = os.environ["OS_OPENRC_PATH"]
+    openstack.cli_exec(release=release, openrc_path=openrc_path, command=command, volume=volume)
 
 
 def get_openstack_group():

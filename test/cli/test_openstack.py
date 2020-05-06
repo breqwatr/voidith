@@ -41,7 +41,14 @@ def test_openstack_get_certificates(mock_shell, mock_assert):
     runner = CliRunner()
     result = runner.invoke(
         voithos.cli.openstack.get_certificates,
-        ["--release", "train", "--passwords", "passwords.yml", "--globals", "globals.yml",],
+        [
+            "--release",
+            "train",
+            "--passwords",
+            "passwords.yml",
+            "--globals",
+            "globals.yml",
+        ],
         catch_exceptions=False,
     )
     assert result.exit_code == 0
@@ -52,7 +59,7 @@ def test_openstack_get_certificates(mock_shell, mock_assert):
 @patch("voithos.lib.docker.assert_path_exists")
 @patch("voithos.lib.openstack.shell")
 def test_openstack_get_admin_openrc(mock_shell, mock_assert):
-    """ test generating certs """
+    """ test generating admin-openrc file """
     runner = CliRunner()
     result = runner.invoke(
         voithos.cli.openstack.get_admin_openrc,
@@ -63,8 +70,28 @@ def test_openstack_get_admin_openrc(mock_shell, mock_assert):
             "globals.yml",
             "--release",
             "train",
-            "--inventory",
-            "inventory",
+            '--inventory',
+            'inventory'
+        ],
+        catch_exceptions=False,
+    )
+    assert result.exit_code == 0, result.output
+    assert mock_shell.called
+    assert mock_assert.called
+
+
+@patch("voithos.lib.docker.assert_path_exists")
+@patch("voithos.lib.openstack.shell")
+def test_openstack_cli(mock_shell, mock_assert):
+    """ test openstack cli """
+    runner = CliRunner()
+    result = runner.invoke(
+        voithos.cli.openstack.cli,
+        [
+            "--release",
+            "train",
+            "--openrc",
+            "admin-openrc.sh",
         ],
         catch_exceptions=False,
     )
@@ -76,7 +103,7 @@ def test_openstack_get_admin_openrc(mock_shell, mock_assert):
 @patch("voithos.lib.docker.assert_path_exists")
 @patch("voithos.lib.openstack.shell")
 def test_openstack_kolla_ansible(mock_shell, mock_assert):
-    """ test generating passwords """
+    """ test running kolla-ansible """
     runner = CliRunner()
     result = runner.invoke(
         voithos.cli.openstack.kolla_ansible,

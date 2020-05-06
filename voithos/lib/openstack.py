@@ -64,6 +64,20 @@ def kolla_ansible_get_admin_openrc(release, inventory_path, globals_path, passwo
     shell(cmd)
 
 
+def cli_exec(release, openrc_path, command, volume=None):
+    """ Execute <command> using breqwatr/openstack-client:<release>
+
+        Optionally, mount file(s) into the client with the volume arg
+    """
+    command = "openstack" if command is None else command
+    mount = f"-v {volume} " if volume is not None else " "
+    openrc_vol = volume_opt(openrc_path, "/admin-openrc.sh")
+    image = f"breqwatr/openstack-client:{release}"
+    run = f'bash -c "source /admin-openrc.sh && . /var/repos/env/bin/activate && {command}"'
+    cmd = f'docker run -it --rm --network host {openrc_vol} {mount} {image} bash -c "{run}"'
+    shell(cmd, print_error=False)
+
+
 def kolla_ansible_exec(
     release,
     inventory_path,
@@ -106,14 +120,14 @@ def kolla_ansible_exec(
     else:
         run_cmd = f"kolla-ansible {command} -i /etc/kolla/inventory"
         rm_arg = "--rm"
+        inv_vol = volume_opt(inventory_path, "/etc/kolla/inventory")
+        globals_vol = volume_opt(globals_path, "/etc/kolla/globals.yml")
+        passwd_vol = volume_opt(passwords_path, "/etc/kolla/passwords.yml")
+        ssh_vol = volume_opt(ssh_key_path, "/root/.ssh/id_rsa")
+        cert_vol = volume_opt(certificates_dir, "/etc/kolla/certificates")
     cmd = (
         f"docker run {rm_arg} --network host "
-        + volume_opt(inventory_path, "/etc/kolla/inventory")
-        + volume_opt(globals_path, "/etc/kolla/globals.yml")
-        + volume_opt(passwords_path, "/etc/kolla/passwords.yml")
-        + volume_opt(ssh_key_path, "/root/.ssh/id_rsa")
-        + volume_opt(certificates_dir, "/etc/kolla/certificates")
-        + config_vol
-        + f"breqwatr/kolla-ansible:{release} {run_cmd}"
+        f"{inv_vol} {globals_vol} {passwd_vol} {ssh_vol} {cert_vol} {config_vol}"
+        f"breqwatr/kolla-ansible:{release} {run_cmd}"
     )
     shell(cmd)
