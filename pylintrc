@@ -140,7 +140,15 @@ disable=print-statement,
         exception-escape,
         comprehension-escape,
         bad-continuation,
-        too-many-arguments
+        too-many-arguments,
+        too-many-locals
+
+###################################################################################################
+# DISCUSS:
+# Most of the above are defaults. The following were disabled due to how they work with Click.
+# - too-many-arguments
+# - too-many-locals
+###################################################################################################
 
 
 # Enable the message, report, category or checker with the given id(s). You can

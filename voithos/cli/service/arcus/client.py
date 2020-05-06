@@ -34,8 +34,11 @@ def pull(release):
     default=None,
     help="Path to Arcus Client's HTTPS certificate private key file",
 )
+@click.option('--http-port', 'http_port', default=80, help='HTTP listen port override')
+@click.option('--https-port', 'https_port', default=443, help='HTTPS listen port override')
 @click.command(name="start")
-def start(release, api_ip, openstack_ip, glance_https, arcus_https, cert_path, cert_key):
+def start(release, api_ip, openstack_ip, glance_https, arcus_https, cert_path, cert_key, http_port,
+          https_port):
     """ Launch the arcus-client service """
     click.echo("starting arcus client")
     if arcus_https and (cert_path is None or cert_key is None):
@@ -49,6 +52,8 @@ def start(release, api_ip, openstack_ip, glance_https, arcus_https, cert_path, c
         arcus_https=arcus_https,
         cert_path=cert_path,
         cert_key_path=cert_key,
+        http_port=http_port,
+        https_port=https_port,
     )
 
 

@@ -50,6 +50,8 @@ def start_client(
     arcus_https=False,
     cert_path=None,
     cert_key_path=None,
+    http_port=80,
+    https_port=443
 ):
     """ Start the arcus api """
     image = f"breqwatr/arcus-client:{release}"
@@ -63,15 +65,16 @@ def start_client(
     }
     env_str = _get_env_string(env_vars)
     vol_str = ""
+    ports = f" -p 0.0.0.0:{http_port}:80 "
     if cert_path is not None and cert_key_path is not None:
         cert_mount = volume_opt(cert_path, "/etc/nginx/haproxy.crt")
         priv_key_mount = volume_opt(cert_key_path, "/etc/nginx/haproxy.key")
         vol_str = f" {cert_mount} {priv_key_mount} "
+        ports += f" -p 0.0.0.0:{https_port}:443 "
     cmd = (
         "docker run -d "
         "--name arcus_client "
-        "-p 0.0.0.0:80:80 -p 0.0.0.0:443:443 "
         "--restart=always "
-        f"{vol_str} {env_str} {image}"
+        f"{ports} {vol_str} {env_str} {image}"
     )
     shell(cmd)
