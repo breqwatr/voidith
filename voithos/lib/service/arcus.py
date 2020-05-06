@@ -14,7 +14,7 @@ def _get_env_string(env_vars):
 
 
 def start_api(
-    release, fqdn, rabbit_pass, rabbit_ips_list, sql_ip, sql_password, ceph_enabled, https
+    release, fqdn, rabbit_pass, rabbit_ips_list, sql_ip, sql_password, ceph_enabled, https, port
 ):
     """ Start the arcus api """
     image = f"breqwatr/arcus-api:{release}"
@@ -34,7 +34,7 @@ def start_api(
     env_str = _get_env_string(env_vars)
     cmd = (
         "docker run -d "
-        "-p 0.0.0.0:1234:1234 "
+        f"-p 0.0.0.0:{port}:1234 "
         "--name arcus_api "
         "--restart=always "
         f"{env_str} {image}"

@@ -29,8 +29,9 @@ def pull(release):
     "--ceph/--no-ceph", required=True, default=False, help="use --ceph to enable Ceph features"
 )
 @click.option("--https/--http", default=True, required=True, help="Use --http to disable HTTPS")
+@click.option("--port", default=1234, help="Override the listen port")
 @click.command(name="start")
-def start(release, openstack_fqdn, rabbit_pass, rabbit_ip, sql_ip, sql_password, ceph, https):
+def start(release, openstack_fqdn, rabbit_pass, rabbit_ip, sql_ip, sql_password, ceph, https, port):
     """ Launch the arcus-api service """
     click.echo("starting arcus api")
     arcus.start_api(
@@ -42,6 +43,7 @@ def start(release, openstack_fqdn, rabbit_pass, rabbit_ip, sql_ip, sql_password,
         sql_password=sql_password,
         ceph_enabled=ceph,
         https=https,
+        port=port
     )
 
 
