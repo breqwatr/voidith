@@ -41,7 +41,7 @@ def test_arcus_api_pull(mock_aws, mock_shell):
     assert mock_shell.called
 
 
-@patch("voithos.lib.service.arcus.shell")
+@patch("voithos.lib.service.arcus.api.shell")
 def test_arcus_api_start(mock_shell):
     """ Test starting the arcus api service """
     runner = CliRunner()
@@ -69,7 +69,7 @@ def test_arcus_api_start(mock_shell):
     assert mock_shell.called
 
 
-@patch("voithos.lib.service.arcus.connector")
+@patch("voithos.lib.service.arcus.api.connector")
 def test_arcus_api_database_init(mock_connector):
     """ Test initializing the database """
     runner = CliRunner()

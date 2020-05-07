@@ -3,7 +3,7 @@
 import click
 
 import voithos.lib.aws.ecr as ecr
-import voithos.lib.service.arcus as arcus
+import voithos.lib.service.arcus.api as arcus_api
 
 
 @click.option("--release", "-r", required=True, help="Version of Arcus API to run")
@@ -34,7 +34,7 @@ def pull(release):
 def start(release, openstack_fqdn, rabbit_pass, rabbit_ip, sql_ip, sql_password, ceph, https, port):
     """ Launch the arcus-api service """
     click.echo("starting arcus api")
-    arcus.start_api(
+    arcus_api.start_api(
         release=release,
         fqdn=openstack_fqdn,
         rabbit_pass=rabbit_pass,
@@ -68,7 +68,7 @@ def get_api_group():
 def database_init(host, admin_user, admin_pass, arcus_pass):
     """ Initialize the Arcus database """
     click.echo("Initializing Arcus database")
-    res = arcus.init_database(
+    res = arcus_api.init_database(
         host=host, admin_user=admin_user, admin_passwd=admin_pass, arcus_passwd=arcus_pass
     )
     for key in res:

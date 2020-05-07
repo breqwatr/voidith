@@ -3,7 +3,7 @@
 import click
 
 import voithos.lib.aws.ecr as ecr
-import voithos.lib.service.arcus as arcus
+import voithos.lib.service.arcus.client as arcus_client
 from voithos.lib.system import error
 
 
@@ -53,7 +53,7 @@ def start(
     if arcus_https and (cert_path is None or cert_key is None):
         error("ERROR: Invalid HTPPS configuration for Arcus Client", exit=False)
         error("       Expected --cert-path and --cert-key when using --arcus-https", exit=True)
-    arcus.start_client(
+    arcus_client.start_client(
         release,
         api_ip,
         openstack_ip,
