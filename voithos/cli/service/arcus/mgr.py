@@ -42,10 +42,10 @@ def start(release, openstack_vip, sql_pass, sql_ip, rabbit_ips_list, rabbit_pass
 def get_mgr_group():
     """ return the arcus mgr group function """
 
-    @click.group(name="client")
-    def client_group():
+    @click.group(name="mgr")
+    def mgr_group():
         """ Arcus Manager service """
 
-    client_group.add_command(pull)
-    client_group.add_command(start)
-    return client_group
+    mgr_group.add_command(pull)
+    mgr_group.add_command(start)
+    return mgr_group
