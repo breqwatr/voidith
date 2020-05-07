@@ -92,11 +92,24 @@ def start_client(
         priv_key_mount = volume_opt(cert_key_path, "/etc/nginx/haproxy.key")
         vol_str = f" {cert_mount} {priv_key_mount} "
         ports += f" -p 0.0.0.0:{https_port}:443 "
+    daemon = "-d --name arcus_client --restart=always"
+    run = ""
+    dev_mount = ""
+    if DEV_MODE:
+        if "ARCUS_CLIENT_DIR" not in os.environ:
+            error("ERROR: must set $ARCUS_CLIENT_DIR when $VOITHOS_DEV==true", exit=True)
+        run = ("bash -c \""
+               "/env_config.py && "
+               "npm install && "
+               "service nginx start && "
+               "grunt && "
+               "grunt watch-changes\"")
+        daemon = "-it --rm"
+        client_dir = os.environ["ARCUS_CLIENT_DIR"]
+        assert_path_exists(client_dir)
+        dev_mount = f"-v {client_dir}:/app"
     cmd = (
-        "docker run -d "
-        "--name arcus_client "
-        "--restart=always "
-        f"{ports} {vol_str} {env_str} {image}"
+        f"docker run {daemon} {ports} {vol_str} {env_str} {dev_mount} {image} {run}"
     )
     shell(cmd)
 
