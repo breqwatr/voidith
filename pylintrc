@@ -141,7 +141,8 @@ disable=print-statement,
         comprehension-escape,
         bad-continuation,
         too-many-arguments,
-        too-many-locals
+        too-many-locals,
+        redefined-builtin
 
 ###################################################################################################
 # DISCUSS:

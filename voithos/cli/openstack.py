@@ -111,9 +111,7 @@ def get_admin_openrc(release, inventory_file, globals_file, passwords_file):
     click.echo("Created ./admin-openrc.sh")
 
 
-@click.option(
-    "--release", "-r", required=False, default=None, help="OpenStack release name (OS_RELEASE)"
-)
+@click.option("--release", "-r", required=True, help="OpenStack release name (OS_RELEASE)")
 @click.option(
     "--openrc",
     "-o",
@@ -136,8 +134,9 @@ def get_admin_openrc(release, inventory_file, globals_file, passwords_file):
     default=None,
     help="Mount a file to the client container [optional]",
 )
+@click.option("--debug/--no-debug", default=False, help="Show the docker command being ran")
 @click.command(name="cli")
-def cli(release, openrc_path, command, volume):
+def cli(release, openrc_path, command, volume, debug):
     """ Launch then OpenStack client CLI """
     if release is None:
         if "OS_RELEASE" not in os.environ:
@@ -149,7 +148,40 @@ def cli(release, openrc_path, command, volume):
             error("ERROR: OpenRC file not found", exit=False)
             error("       Use --openrc-path / -o or set $OS_OPENRC_PATH", exit=True)
         openrc_path = os.environ["OS_OPENRC_PATH"]
-    openstack.cli_exec(release=release, openrc_path=openrc_path, command=command, volume=volume)
+    openstack.cli_exec(
+        release=release, openrc_path=openrc_path, command=command, volume=volume, debug=debug
+    )
+
+
+@click.option("--release", "-r", required=True, help="OpenStack release name (OS_RELEASE)")
+@click.option("--openrc", required=True, default=None, help="Openrc file path (OS_OPENRC_PATH)")
+@click.option('--volume-type', 'volume_type', required=True)
+@click.option('--volume-backend', 'volume_backend', required=True)
+@click.option('--sa-user', 'sa_user', required=True)
+@click.option('--sa-password', 'sa_password', required=True)
+@click.option('--sa-project', 'sa_project', required=True)
+@click.option('--net-type', 'net_type', required=True)
+@click.option('--net-name', 'net_name', required=True)
+@click.option('--vlan-id', 'vlan_id', required=False, default="", help='use with VLAN net-type')
+@click.option('--dns', required=True)
+@click.option('--cidr', required=True)
+@click.option('--gateway', required=True)
+@click.option('--pool-start', 'pool_start', required=True)
+@click.option('--pool-end', 'pool_end', required=True)
+@click.option('--image-path', 'image_path', required=True)
+@click.option('--image-name', 'image_name', required=True)
+@click.option('--flavor-name', 'flavor_name', required=True)
+@click.option('--ram', required=True, help='MB')
+@click.option('--cpu', required=True, help='cores')
+@click.option('--disk', required=True, help='GB')
+@click.command(name="smoke-test")
+def smoke_test(release, openrc, image_path, **kwargs):
+    """ Run an initial test setup on a new cloud """
+    if kwargs['net_type'] not in ('VLAN', 'FLAT'):
+        error('--net-type should be VLAN or FLAT')
+    if kwargs['net_type'] == 'VLAN' and kwargs['vlan_id'] == "":
+        error('--vlan-id is required with --net-type VLAN', exit=True)
+    openstack.smoke_test(release, openrc, image_path, **kwargs)
 
 
 def get_openstack_group():
@@ -165,4 +197,5 @@ def get_openstack_group():
     openstack_group.add_command(get_admin_openrc)
     openstack_group.add_command(kolla_ansible)
     openstack_group.add_command(cli)
+    openstack_group.add_command(smoke_test)
     return openstack_group

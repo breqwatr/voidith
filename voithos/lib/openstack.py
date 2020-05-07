@@ -2,7 +2,7 @@
 
 import os
 
-from voithos.lib.system import shell, error
+from voithos.lib.system import shell, error, assert_path_exists
 from voithos.lib.docker import volume_opt
 
 
@@ -64,7 +64,7 @@ def kolla_ansible_get_admin_openrc(release, inventory_path, globals_path, passwo
     shell(cmd)
 
 
-def cli_exec(release, openrc_path, command, volume=None):
+def cli_exec(release, openrc_path, command, volume=None, debug=False):
     """ Execute <command> using breqwatr/openstack-client:<release>
 
         Optionally, mount file(s) into the client with the volume arg
@@ -74,8 +74,30 @@ def cli_exec(release, openrc_path, command, volume=None):
     openrc_vol = volume_opt(openrc_path, "/admin-openrc.sh")
     image = f"breqwatr/openstack-client:{release}"
     run = f'bash -c "source /admin-openrc.sh && . /var/repos/env/bin/activate && {command}"'
-    cmd = f'docker run -it --rm --network host {openrc_vol} {mount} {image} bash -c "{run}"'
-    shell(cmd, print_error=False)
+    cmd = f"docker run -it --rm --network host {openrc_vol} {mount} {image} {run}"
+    shell(cmd, print_error=False, print_cmd=debug)
+
+
+def smoke_test(release, openrc, image_path, **kwargs):
+    """ Run the smoke test """
+    assert_path_exists(image_path)
+    image_vol = volume_opt(image_path, '/image.qcow2')
+    openrc_vol = volume_opt(openrc, "/admin-openrc.sh")
+    env_var_list = []
+    for kwarg in kwargs:
+        key = kwarg.upper()
+        value = kwargs[kwarg]
+        var = f'-e {key}={value}'
+        env_var_list.append(var)
+    env_vars_str = ' '.join(env_var_list)
+    run = ('bash -c "'
+           'source /admin-openrc.sh && '
+           '. /var/repos/env/bin/activate && '
+           'bash /smoke-test.sh"')
+    cmd = ('docker run --rm '
+           f'{openrc_vol} {image_vol} {env_vars_str} '
+           f'breqwatr/openstack-client:{release} {run}')
+    print(cmd)
 
 
 def kolla_ansible_exec(
