@@ -53,7 +53,7 @@ def start(
     if arcus_https and (cert_path is None or cert_key is None):
         error("ERROR: Invalid HTPPS configuration for Arcus Client", exit=False)
         error("       Expected --cert-path and --cert-key when using --arcus-https", exit=True)
-    arcus_client.start_client(
+    arcus_client.start(
         release,
         api_ip,
         openstack_ip,

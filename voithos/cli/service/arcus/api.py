@@ -34,7 +34,7 @@ def pull(release):
 def start(release, openstack_fqdn, rabbit_pass, rabbit_ip, sql_ip, sql_password, ceph, https, port):
     """ Launch the arcus-api service """
     click.echo("starting arcus api")
-    arcus_api.start_api(
+    arcus_api.start(
         release=release,
         fqdn=openstack_fqdn,
         rabbit_pass=rabbit_pass,

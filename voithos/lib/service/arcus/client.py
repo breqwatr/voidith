@@ -7,7 +7,7 @@ from voithos.lib.system import shell, error, assert_path_exists
 from voithos.constants import DEV_MODE
 
 
-def start_client(
+def start(
     release,
     api_ip,
     openstack_ip,
@@ -42,12 +42,14 @@ def start_client(
     if DEV_MODE:
         if "ARCUS_CLIENT_DIR" not in os.environ:
             error("ERROR: must set $ARCUS_CLIENT_DIR when $VOITHOS_DEV==true", exit=True)
-        run = ("bash -c \""
-               "/env_config.py && "
-               "npm install && "
-               "service nginx start && "
-               "grunt && "
-               "grunt watch-changes\"")
+        run = (
+            'bash -c "'
+            "/env_config.py && "
+            "npm install && "
+            "service nginx start && "
+            "grunt && "
+            'grunt watch-changes"'
+        )
         daemon = "-it --rm"
         client_dir = os.environ["ARCUS_CLIENT_DIR"]
         assert_path_exists(client_dir)

@@ -9,7 +9,7 @@ from voithos.lib.system import shell, error, assert_path_exists
 from voithos.constants import DEV_MODE
 
 
-def start_api(
+def start(
     release, fqdn, rabbit_pass, rabbit_ips_list, sql_ip, sql_password, ceph_enabled, https, port
 ):
     """ Start the arcus api """
@@ -50,10 +50,12 @@ def start_api(
             "gunicorn --timeout 7200 --error-logfile=- --access-logfile '-' "
             '--reload --bind 0.0.0.0:1234 arcusapi.wsgi:app"'
         )
-    cmd = (f"docker run {daemon} "
-           f"-p 0.0.0.0:{port}:1234 "
-           "-v /etc/hosts:/etc/hosts "
-           f"{env_str} {dev_mount} {image} {run}")
+    cmd = (
+        f"docker run {daemon} "
+        f"-p 0.0.0.0:{port}:1234 "
+        "-v /etc/hosts:/etc/hosts "
+        f"{env_str} {dev_mount} {image} {run}"
+    )
     shell(cmd)
 
 

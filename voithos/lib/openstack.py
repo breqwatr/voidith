@@ -81,22 +81,26 @@ def cli_exec(release, openrc_path, command, volume=None, debug=False):
 def smoke_test(release, openrc, image_path, **kwargs):
     """ Run the smoke test """
     assert_path_exists(image_path)
-    image_vol = volume_opt(image_path, '/image.qcow2')
+    image_vol = volume_opt(image_path, "/image.qcow2")
     openrc_vol = volume_opt(openrc, "/admin-openrc.sh")
     env_var_list = []
     for kwarg in kwargs:
         key = kwarg.upper()
         value = kwargs[kwarg]
-        var = f'-e {key}={value}'
+        var = f"-e {key}={value}"
         env_var_list.append(var)
-    env_vars_str = ' '.join(env_var_list)
-    run = ('bash -c "'
-           'source /admin-openrc.sh && '
-           '. /var/repos/env/bin/activate && '
-           'bash /smoke-test.sh"')
-    cmd = ('docker run --rm '
-           f'{openrc_vol} {image_vol} {env_vars_str} '
-           f'breqwatr/openstack-client:{release} {run}')
+    env_vars_str = " ".join(env_var_list)
+    run = (
+        'bash -c "'
+        "source /admin-openrc.sh && "
+        ". /var/repos/env/bin/activate && "
+        'bash /smoke-test.sh"'
+    )
+    cmd = (
+        "docker run --rm "
+        f"{openrc_vol} {image_vol} {env_vars_str} "
+        f"breqwatr/openstack-client:{release} {run}"
+    )
     print(cmd)
 
 
