@@ -59,7 +59,10 @@ def start_api(
             "gunicorn --timeout 7200 --error-logfile=- --access-logfile '-' "
             '--reload --bind 0.0.0.0:1234 arcusapi.wsgi:app"'
         )
-    cmd = f"docker run {daemon} " f"-p 0.0.0.0:{port}:1234 " f"{env_str} {dev_mount} {image} {run}"
+    cmd = (f"docker run {daemon} "
+           f"-p 0.0.0.0:{port}:1234 "
+           "-v /etc/hosts:/etc/hosts "
+           f"{env_str} {dev_mount} {image} {run}")
     shell(cmd)
 
 
@@ -109,7 +112,10 @@ def start_client(
         assert_path_exists(client_dir)
         dev_mount = f"-v {client_dir}:/app"
     cmd = (
-        f"docker run {daemon} {ports} {vol_str} {env_str} {dev_mount} {image} {run}"
+        f"docker run "
+        f"{daemon} {ports} {env_str} "
+        f"{vol_str} {dev_mount} -v /etc/hosts:/etc/hosts "
+        f"{image} {run}"
     )
     shell(cmd)
 
