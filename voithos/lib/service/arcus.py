@@ -1,9 +1,12 @@
 """ lib for arcus services """
 
+import os
+
 import mysql.connector as connector
 
 from voithos.lib.docker import volume_opt
-from voithos.lib.system import shell
+from voithos.lib.system import shell, error, assert_path_exists
+from voithos.constants import DEV_MODE
 
 
 def _get_env_string(env_vars):
@@ -34,13 +37,29 @@ def start_api(
         "CEPH_ENABLED": str(ceph_enabled).lower(),
     }
     env_str = _get_env_string(env_vars)
-    cmd = (
-        "docker run -d "
-        f"-p 0.0.0.0:{port}:1234 "
-        "--name arcus_api "
-        "--restart=always "
-        f"{env_str} {image}"
-    )
+    daemon = "-d --restart=always --name arcus_api"
+    run = ""
+    dev_mount = ""
+    if DEV_MODE:
+        if "ARCUS_API_DIR" not in os.environ:
+            error("ERROR: must set $ARCUS_API_DIR when $VOITHOS_DEV==true", exit=True)
+        daemon = "-it --rm"
+        api_dir = os.environ["ARCUS_API_DIR"]
+        assert_path_exists(api_dir)
+        package_dir = "/usr/local/lib/python2.7/dist-packages"
+        dev_mount = (
+            f"-v {api_dir}/arcusapi/:{package_dir}/arcusapi/ "
+            f"-v {api_dir}/arcusctrl/:{package_dir}/arcusctrl "
+            f"-v {api_dir}/lib/arcuslib:{package_dir}/lib/arcuslib "
+        )
+        run = (
+            'bash -c "'
+            "/env_config.py && "
+            f"cd {package_dir} && "
+            "gunicorn --timeout 7200 --error-logfile=- --access-logfile '-' "
+            '--reload --bind 0.0.0.0:1234 arcusapi.wsgi:app"'
+        )
+    cmd = f"docker run {daemon} " f"-p 0.0.0.0:{port}:1234 " f"{env_str} {dev_mount} {image} {run}"
     shell(cmd)
 
 
