@@ -36,7 +36,7 @@ def start(
         priv_key_mount = volume_opt(cert_key_path, "/etc/nginx/haproxy.key")
         vol_str = f" {cert_mount} {priv_key_mount} "
         ports += f" -p 0.0.0.0:{https_port}:443 "
-    daemon = "-d --name arcus_client --restart=always"
+    daemon = "-d --restart=always"
     run = ""
     dev_mount = ""
     if DEV_MODE:
@@ -55,7 +55,7 @@ def start(
         assert_path_exists(client_dir)
         dev_mount = f"-v {client_dir}:/app"
     cmd = (
-        f"docker run "
+        f"docker run --name arcus_client "
         f"{daemon} {ports} {env_str} "
         f"{vol_str} {dev_mount} -v /etc/hosts:/etc/hosts "
         f"{image} {run}"

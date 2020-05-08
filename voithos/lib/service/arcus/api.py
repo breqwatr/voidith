@@ -28,7 +28,7 @@ def start(
         "CEPH_ENABLED": str(ceph_enabled).lower(),
     }
     env_str = env_string(env_vars)
-    daemon = "-d --restart=always --name arcus_api"
+    daemon = "-d --restart=always"
     run = ""
     dev_mount = ""
     if DEV_MODE:
@@ -51,7 +51,7 @@ def start(
             '--reload --bind 0.0.0.0:1234 arcusapi.wsgi:app"'
         )
     cmd = (
-        f"docker run {daemon} "
+        f"docker run --name arcus_api {daemon} "
         f"-p 0.0.0.0:{port}:1234 "
         "-v /etc/hosts:/etc/hosts "
         f"{env_str} {dev_mount} {image} {run}"
