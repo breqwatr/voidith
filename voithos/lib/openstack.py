@@ -47,6 +47,17 @@ def kolla_ansible_generate_certificates(release, passwords_path, globals_path):
     shell(cmd)
 
 
+def kolla_ansible_globals(release):
+    """ Genereate certificates directory """
+    cwd = os.getcwd()
+    cmd = (
+        f"docker run --rm -v {cwd}:/temp-dir "
+        f"breqwatr/kolla-ansible:{release} "
+        "cp /var/repos/kolla-ansible/etc/kolla/globals.yml temp-dir/"
+    )
+    shell(cmd)
+
+
 def kolla_ansible_get_admin_openrc(release, inventory_path, globals_path, passwords_path):
     """ Save the admin-openrc.sh file to current working directory """
     cwd = os.getcwd()

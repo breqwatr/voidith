@@ -40,6 +40,14 @@ def get_certificates(release, passwords_file, globals_file):
 
 
 @click.option("--release", "-r", help="OpenStack release name", required=True)
+@click.command(name="get-globals-template")
+def get_globals_template(release):
+    """ Generate a template ./globals.yml """
+    openstack.kolla_ansible_globals(release=release)
+    click.echo("Generated ./globals.yml")
+
+
+@click.option("--release", "-r", help="OpenStack release name", required=True)
 @click.option(
     "--ssh-key", "-s", "ssh_private_key_file", required=True, help="Path of SSH private key file",
 )
@@ -198,4 +206,5 @@ def get_openstack_group():
     openstack_group.add_command(kolla_ansible)
     openstack_group.add_command(cli)
     openstack_group.add_command(smoke_test)
+    openstack_group.add_command(get_globals_template)
     return openstack_group

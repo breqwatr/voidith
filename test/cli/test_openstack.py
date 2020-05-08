@@ -41,12 +41,23 @@ def test_openstack_get_certificates(mock_shell, mock_assert):
     runner = CliRunner()
     result = runner.invoke(
         voithos.cli.openstack.get_certificates,
-        ["--release", "train", "--passwords", "passwords.yml", "--globals", "globals.yml",],
+        ["--release", "train", "--passwords", "passwords.yml", "--globals", "globals.yml"],
         catch_exceptions=False,
     )
     assert result.exit_code == 0
     assert mock_shell.called
     assert mock_assert.called
+
+
+@patch("voithos.lib.openstack.shell")
+def test_openstack_get_globals_template(mock_shell):
+    """ test generating certs """
+    runner = CliRunner()
+    result = runner.invoke(
+        voithos.cli.openstack.get_globals_template, ["--release", "train"], catch_exceptions=False
+    )
+    assert result.exit_code == 0
+    assert mock_shell.called
 
 
 @patch("voithos.lib.docker.assert_path_exists")
@@ -80,7 +91,7 @@ def test_openstack_cli(mock_shell, mock_assert):
     runner = CliRunner()
     result = runner.invoke(
         voithos.cli.openstack.cli,
-        ["--release", "train", "--openrc", "admin-openrc.sh",],
+        ["--release", "train", "--openrc", "admin-openrc.sh"],
         catch_exceptions=False,
     )
     assert result.exit_code == 0, result.output
