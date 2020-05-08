@@ -101,7 +101,7 @@ def smoke_test(release, openrc, image_path, **kwargs):
         f"{openrc_vol} {image_vol} {env_vars_str} "
         f"breqwatr/openstack-client:{release} {run}"
     )
-    print(cmd)
+    shell(cmd)
 
 
 def kolla_ansible_exec(
