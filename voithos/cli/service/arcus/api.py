@@ -28,7 +28,7 @@ def pull(release):
 @click.option(
     "--ceph/--no-ceph", required=True, default=False, help="use --ceph to enable Ceph features"
 )
-@click.option("--https/--http", default=True, required=True, help="Use --http to disable HTTPS")
+@click.option("--https/--http", default=True, required=True, help="Does OpenStack use HTTPS or HTTP")
 @click.option("--port", default=1234, help="Override the listen port")
 @click.command(name="start")
 def start(release, openstack_fqdn, rabbit_pass, rabbit_ip, sql_ip, sql_password, ceph, https, port):
