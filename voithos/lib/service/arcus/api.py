@@ -47,6 +47,7 @@ def start(
             'bash -c "'
             "/env_config.py && "
             f"cd {package_dir} && "
+            "pip install -e . && "
             "gunicorn --timeout 7200 --error-logfile=- --access-logfile '-' "
             '--reload --bind 0.0.0.0:1234 arcusapi.wsgi:app"'
         )
