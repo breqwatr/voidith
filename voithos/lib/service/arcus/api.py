@@ -37,16 +37,9 @@ def start(
         daemon = "-it --rm"
         api_dir = os.environ["ARCUS_API_DIR"]
         assert_path_exists(api_dir)
-        package_dir = "/usr/local/lib/python2.7/dist-packages"
-        dev_mount = (
-            f"-v {api_dir}/arcusapi/:{package_dir}/arcusapi/ "
-            f"-v {api_dir}/arcusctrl/:{package_dir}/arcusctrl "
-            f"-v {api_dir}/lib/arcuslib:{package_dir}/lib/arcuslib "
-        )
         run = (
             'bash -c "'
             "/env_config.py && "
-            f"cd {package_dir} && "
             "pip install -e . && "
             "gunicorn --timeout 7200 --error-logfile=- --access-logfile '-' "
             '--reload --bind 0.0.0.0:1234 arcusapi.wsgi:app"'
