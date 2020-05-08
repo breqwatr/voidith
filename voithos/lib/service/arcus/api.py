@@ -53,7 +53,7 @@ def start(
     cmd = (
         f"docker run --name arcus_api {daemon} "
         f"-p 0.0.0.0:{port}:1234 "
-        "-v /etc/hosts:/etc/hosts "
+        "-v /etc/hosts:/etc/hosts -v /var/log/arcus-api:/var/log/arcusweb "
         f"{env_str} {dev_mount} {image} {run}"
     )
     shell(cmd)

@@ -55,7 +55,7 @@ def start(
         assert_path_exists(client_dir)
         dev_mount = f"-v {client_dir}:/app"
     cmd = (
-        f"docker run --name arcus_client "
+        f"docker run --name arcus_client -v /var/log/arcus-cli:/var/log/nginx"
         f"{daemon} {ports} {env_str} "
         f"{vol_str} {dev_mount} -v /etc/hosts:/etc/hosts "
         f"{image} {run}"
