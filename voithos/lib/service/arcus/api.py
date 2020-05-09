@@ -4,13 +4,22 @@ import os
 
 import mysql.connector as connector
 
-from voithos.lib.docker import env_string
+from voithos.lib.docker import env_string, volume_opt
 from voithos.lib.system import shell, error, assert_path_exists
 from voithos.constants import DEV_MODE
 
 
 def start(
-    release, fqdn, rabbit_pass, rabbit_ips_list, sql_ip, sql_password, ceph_enabled, https, port
+    release,
+    fqdn,
+    rabbit_pass,
+    rabbit_ips_list,
+    sql_ip,
+    sql_password,
+    ceph_enabled,
+    ceph_dir,
+    https,
+    port,
 ):
     """ Start the arcus api """
     image = f"breqwatr/arcus-api:{release}"
@@ -31,6 +40,9 @@ def start(
     daemon = "-d --restart=always"
     run = ""
     dev_mount = ""
+    ceph_mount = ""
+    if ceph_enabled:
+        ceph_mount = volume_opt(ceph_dir, "/etc/ceph")
     if DEV_MODE:
         if "ARCUS_API_DIR" not in os.environ:
             error("ERROR: must set $ARCUS_API_DIR when $VOITHOS_DEV==true", exit=True)
@@ -48,7 +60,7 @@ def start(
         f"docker run --name arcus_api {daemon} "
         f"-p 0.0.0.0:{port}:1234 "
         "-v /etc/hosts:/etc/hosts -v /var/log/arcus-api:/var/log/arcusweb "
-        f"{env_str} {dev_mount} {image} {run}"
+        f"{env_str} {ceph_mount} {dev_mount} {image} {run}"
     )
     shell(cmd)
 

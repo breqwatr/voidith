@@ -4,6 +4,7 @@ import click
 
 import voithos.lib.aws.ecr as ecr
 import voithos.lib.service.arcus.api as arcus_api
+from voithos.lib.system import error
 
 
 @click.option("--release", "-r", required=True, help="Version of Arcus API to run")
@@ -28,12 +29,34 @@ def pull(release):
 @click.option(
     "--ceph/--no-ceph", required=True, default=False, help="use --ceph to enable Ceph features"
 )
-@click.option("--https/--http", default=True, required=True, help="Does OpenStack use HTTPS or HTTP")
+@click.option(
+    "--ceph-dir",
+    "ceph_dir",
+    required=False,
+    default=None,
+    help="directory with ceph.conf and keyring files",
+)
+@click.option(
+    "--https/--http", default=True, required=True, help="Does OpenStack use HTTPS or HTTP"
+)
 @click.option("--port", default=1234, help="Override the listen port")
 @click.command(name="start")
-def start(release, openstack_fqdn, rabbit_pass, rabbit_ip, sql_ip, sql_password, ceph, https, port):
+def start(
+    release,
+    openstack_fqdn,
+    rabbit_pass,
+    rabbit_ip,
+    sql_ip,
+    sql_password,
+    ceph,
+    ceph_dir,
+    https,
+    port,
+):
     """ Launch the arcus-api service """
     click.echo("starting arcus api")
+    if ceph and ceph_dir is None:
+        error('ERROR: --ceph-dir is required with --ceph')
     arcus_api.start(
         release=release,
         fqdn=openstack_fqdn,
@@ -42,6 +65,7 @@ def start(release, openstack_fqdn, rabbit_pass, rabbit_ip, sql_ip, sql_password,
         sql_ip=sql_ip,
         sql_password=sql_password,
         ceph_enabled=ceph,
+        ceph_dir=ceph_dir,
         https=https,
         port=port,
     )

@@ -41,8 +41,9 @@ def test_arcus_api_pull(mock_aws, mock_shell):
     assert mock_shell.called
 
 
+@patch("voithos.lib.docker.assert_path_exists")
 @patch("voithos.lib.service.arcus.api.shell")
-def test_arcus_api_start(mock_shell):
+def test_arcus_api_start(mock_shell, mock_assert):
     """ Test starting the arcus api service """
     runner = CliRunner()
     result = runner.invoke(
@@ -61,12 +62,14 @@ def test_arcus_api_start(mock_shell):
             "--sql-password",
             "fake-password",
             "--ceph",
-            "--https",
+            "--ceph-dir",
+            "/etc/ceph" "--https",
         ],
         catch_exceptions=False,
     )
     assert result.exit_code == 0, result.output
     assert mock_shell.called
+    assert mock_assert.called
 
 
 @patch("voithos.lib.service.arcus.api.connector")
