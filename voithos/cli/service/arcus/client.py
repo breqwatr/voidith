@@ -18,7 +18,6 @@ def pull(release):
 @click.option("--release", "-r", required=True, help="Version of Arcus API to run")
 @click.option("--api-ip", "api_ip", required=True, help="IP of Arcus API")
 @click.option("--openstack-ip", "openstack_ip", required=True, help="IP/FQDN of OpenStack")
-@click.option("--glance-https/--glance-http", default=True, help="Does Glance use https?")
 @click.option(
     "--glance-https/--glance-http", "glance_https", default=True, help="Does Glance use HTTPS?"
 )
