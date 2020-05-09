@@ -42,6 +42,8 @@ def start(
     dev_mount = ""
     ceph_mount = ""
     if ceph_enabled:
+        if ceph_dir is None:
+            error("ERROR: --ceph-dir is required for --ceph", exit=True)
         ceph_mount = volume_opt(ceph_dir, "/etc/ceph")
     if DEV_MODE:
         if "ARCUS_API_DIR" not in os.environ:

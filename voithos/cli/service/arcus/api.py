@@ -4,7 +4,6 @@ import click
 
 import voithos.lib.aws.ecr as ecr
 import voithos.lib.service.arcus.api as arcus_api
-from voithos.lib.system import error
 
 
 @click.option("--release", "-r", required=True, help="Version of Arcus API to run")
@@ -55,8 +54,6 @@ def start(
 ):
     """ Launch the arcus-api service """
     click.echo("starting arcus api")
-    if ceph and ceph_dir is None:
-        error('ERROR: --ceph-dir is required with --ceph')
     arcus_api.start(
         release=release,
         fqdn=openstack_fqdn,
