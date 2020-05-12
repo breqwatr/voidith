@@ -75,5 +75,5 @@ def compat_path(file_path):
     new_path = file_path.replace("\\\\", "\\")
     new_path = new_path.replace("\\", "/")
     new_path = new_path.replace(":", "")
-    new_path = f"/{new_path}"
+    new_path = f"//{new_path}"
     return new_path
