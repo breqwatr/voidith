@@ -57,11 +57,11 @@ def start(
         assert_path_exists(client_dir)
         dev_mount = f"-v {client_dir}:/app"
     name = "arcus_client"
+    shell(f"docker rm -f {name} 2>/dev/null || true")
     cmd = (
         f"docker run --name {name} -v /var/log/arcus-client:/var/log/nginx "
         f"{daemon} {ports} {env_str} "
         f"{vol_str} {dev_mount} -v /etc/hosts:/etc/hosts "
         f"{image} {run}"
     )
-    shell(f"docker rm -f {name} 2>/dev/null || true")
     shell(cmd)

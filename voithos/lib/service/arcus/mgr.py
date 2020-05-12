@@ -22,5 +22,7 @@ def start(release, openstack_vip, sql_pass, sql_ip, rabbit_ips_list, rabbit_pass
         "ENABLE_CEPH": str(enable_ceph).lower(),
     }
     env_str = env_string(env_vars)
-    cmd = f"docker run -d --restart=always --name arcus_mgr --network=host {env_str} {image}"
+    name = "arcus_mgr"
+    shell(f"docker rm -f {name} 2>/dev/null || true")
+    cmd = f"docker run -d --restart=always --name {name} --network=host {env_str} {image}"
     shell(cmd)

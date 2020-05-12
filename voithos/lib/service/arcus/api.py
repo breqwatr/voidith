@@ -62,13 +62,13 @@ def start(
             '--reload --bind 0.0.0.0:1234 arcusapi.wsgi:app"'
         )
     name = "arcus_api"
+    shell(f"docker rm -f {name} 2>/dev/null || true")
     cmd = (
         f"docker run --name {name} {daemon} "
         f"-p 0.0.0.0:{port}:1234 "
         "-v /etc/hosts:/etc/hosts -v /var/log/arcus-api:/var/log/arcusweb "
         f"{env_str} {ceph_mount} {dev_mount} {image} {run}"
     )
-    shell(f"docker rm -f {name} 2>/dev/null || true")
     shell(cmd)
 
 
