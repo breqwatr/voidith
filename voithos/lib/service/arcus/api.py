@@ -4,8 +4,8 @@ import os
 
 import mysql.connector as connector
 
-from voithos.lib.docker import env_string, volume_opt, compat_path
-from voithos.lib.system import shell, error, assert_path_exists
+from voithos.lib.docker import env_string, volume_opt
+from voithos.lib.system import shell, error, compat_path
 from voithos.constants import DEV_MODE
 
 
