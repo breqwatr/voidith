@@ -42,6 +42,9 @@ def start(
     if DEV_MODE:
         if "ARCUS_CLIENT_DIR" not in os.environ:
             error("ERROR: must set $ARCUS_CLIENT_DIR when $VOITHOS_DEV==true", exit=True)
+        client_dir = os.environ["ARCUS_CLIENT_DIR"]
+        if " " in client_dir:
+            error(f"ERROR: Spaces are not supported in client dir path {client_dir}", exit=True)
         run = (
             'bash -c "'
             "/env_config.py && "
@@ -51,13 +54,14 @@ def start(
             'grunt watch-changes"'
         )
         daemon = "-it --rm"
-        client_dir = os.environ["ARCUS_CLIENT_DIR"]
         assert_path_exists(client_dir)
         dev_mount = f"-v {client_dir}:/app"
+    name = "arcus_client"
     cmd = (
-        f"docker run --name arcus_client -v /var/log/arcus-client:/var/log/nginx "
+        f"docker run --name {name} -v /var/log/arcus-client:/var/log/nginx "
         f"{daemon} {ports} {env_str} "
         f"{vol_str} {dev_mount} -v /etc/hosts:/etc/hosts "
         f"{image} {run}"
     )
+    shell(f"docker rm -f {name} 2>/dev/null || true")
     shell(cmd)

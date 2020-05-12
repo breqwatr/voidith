@@ -48,9 +48,12 @@ def start(
     if DEV_MODE:
         if "ARCUS_API_DIR" not in os.environ:
             error("ERROR: must set $ARCUS_API_DIR when $VOITHOS_DEV==true", exit=True)
-        daemon = "-it --rm"
         api_dir = os.environ["ARCUS_API_DIR"]
+        if " " in api_dir:
+            error("ERROR: Spaces not supported in $ARCUS_API_DIR: {arcus_api_dir}", exit=True)
+        daemon = "-it --rm"
         assert_path_exists(api_dir)
+        dev_mount = f"-v {api_dir}:/app"
         run = (
             'bash -c "'
             "/env_config.py && "
@@ -58,12 +61,14 @@ def start(
             "gunicorn --timeout 7200 --error-logfile=- --access-logfile '-' "
             '--reload --bind 0.0.0.0:1234 arcusapi.wsgi:app"'
         )
+    name = "arcus_api"
     cmd = (
-        f"docker run --name arcus_api {daemon} "
+        f"docker run --name {name} {daemon} "
         f"-p 0.0.0.0:{port}:1234 "
         "-v /etc/hosts:/etc/hosts -v /var/log/arcus-api:/var/log/arcusweb "
         f"{env_str} {ceph_mount} {dev_mount} {image} {run}"
     )
+    shell(f"docker rm -f {name} 2>/dev/null || true")
     shell(cmd)
 
 
