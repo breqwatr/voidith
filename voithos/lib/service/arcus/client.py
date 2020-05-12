@@ -3,7 +3,7 @@
 import os
 
 from voithos.lib.docker import volume_opt, env_string
-from voithos.lib.system import shell, error, assert_path_exists
+from voithos.lib.system import shell, error, compat_path
 from voithos.constants import DEV_MODE
 
 
@@ -42,9 +42,7 @@ def start(
     if DEV_MODE:
         if "ARCUS_CLIENT_DIR" not in os.environ:
             error("ERROR: must set $ARCUS_CLIENT_DIR when $VOITHOS_DEV==true", exit=True)
-        client_dir = os.environ["ARCUS_CLIENT_DIR"]
-        if " " in client_dir:
-            error(f"ERROR: Spaces are not supported in client dir path {client_dir}", exit=True)
+        client_dir = compat_path(os.environ["ARCUS_CLIENT_DIR"])
         run = (
             'bash -c "'
             "/env_config.py && "
@@ -54,7 +52,6 @@ def start(
             'grunt watch-changes"'
         )
         daemon = "-it --rm"
-        assert_path_exists(client_dir)
         dev_mount = f"-v {client_dir}:/app"
     name = "arcus_client"
     shell(f"docker rm -f {name} 2>/dev/null || true")

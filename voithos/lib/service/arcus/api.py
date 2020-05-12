@@ -4,7 +4,7 @@ import os
 
 import mysql.connector as connector
 
-from voithos.lib.docker import env_string, volume_opt
+from voithos.lib.docker import env_string, volume_opt, compat_path
 from voithos.lib.system import shell, error, assert_path_exists
 from voithos.constants import DEV_MODE
 
@@ -48,11 +48,8 @@ def start(
     if DEV_MODE:
         if "ARCUS_API_DIR" not in os.environ:
             error("ERROR: must set $ARCUS_API_DIR when $VOITHOS_DEV==true", exit=True)
-        api_dir = os.environ["ARCUS_API_DIR"]
-        if " " in api_dir:
-            error("ERROR: Spaces not supported in $ARCUS_API_DIR: {arcus_api_dir}", exit=True)
+        api_dir = compat_path(os.environ["ARCUS_API_DIR"])
         daemon = "-it --rm"
-        assert_path_exists(api_dir)
         dev_mount = f"-v {api_dir}:/app"
         run = (
             'bash -c "'
