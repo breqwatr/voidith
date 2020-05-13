@@ -51,7 +51,7 @@ tox -e lint
 
 ### Applying the styles
 
-Use Black to enforce the style guide. It's configuration is in `./pyproject.toml`
+Use Black to enforce the style guide. Its configuration is in `./pyproject.toml`
 
 ```bash
 # Example of re-styling one file
