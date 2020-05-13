@@ -61,8 +61,8 @@ def start(
         )
     name = "arcus_api"
     shell(f"docker rm -f {name} 2>/dev/null || true")
-    log_mount = volume_opt("/var/log/arcus-api", "/var/log/arcusweb", require=False)
-    hosts_mount = volume_opt("/etc/hosts", "/etc/hosts", require=False)
+    log_mount = "-v /var/log/arcus-api:/var/log/arcusweb"
+    hosts_mount = "-v /etc/hosts:/etc/hosts"
     cmd = (
         f"docker run --name {name} {daemon} "
         f"-p 0.0.0.0:{port}:1234 "
