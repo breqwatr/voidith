@@ -22,6 +22,17 @@ pip install git+https://github.com/breqwatr/voithos.git
 
 ## For Developers
 
+### Environment variables
+
+```bash
+# Enable dev mode
+export VOITHOS_DEV=true
+
+# Overwrite image code with local code
+export ARCUS_API_DIR=<path to api checkout>
+export ARCUS_CLIENT_DIR=<path to client checkout>
+```
+
 ### Running the tests
 
 ```bash
