@@ -63,17 +63,3 @@ def set_file_contents(file_path, contents):
     """ Write contents to the file at file_path """
     with open(file_path, "w+") as file_:
         file_.write(contents)
-
-
-def compat_path(file_path):
-    """ Return a windows-compatible path """
-    if " " in file_path:
-        error(f"ERROR: Spaces not supported in file path: {file_path}", exit=True)
-    assert_path_exists(file_path)
-    if file_path[1] != ":":
-        return file_path
-    new_path = file_path.replace("\\\\", "\\")
-    new_path = new_path.replace("\\", "/")
-    new_path = new_path.replace(":", "")
-    new_path = f"//{new_path}"
-    return new_path

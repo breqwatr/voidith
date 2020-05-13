@@ -5,7 +5,7 @@ import os
 import mysql.connector as connector
 
 from voithos.lib.docker import env_string, volume_opt
-from voithos.lib.system import shell, error, compat_path
+from voithos.lib.system import shell, error, assert_path_exists
 from voithos.constants import DEV_MODE
 
 
@@ -48,9 +48,10 @@ def start(
     if DEV_MODE:
         if "ARCUS_API_DIR" not in os.environ:
             error("ERROR: must set $ARCUS_API_DIR when $VOITHOS_DEV==true", exit=True)
-        api_dir = compat_path(os.environ["ARCUS_API_DIR"])
+        api_dir = os.environ["ARCUS_API_DIR"]
+        assert_path_exists(api_dir)
         daemon = "-it --rm"
-        dev_mount = f"-v {api_dir}:/app"
+        dev_mount = volume_opt(api_dir, '/app')
         run = (
             'bash -c "'
             "/env_config.py && "
@@ -60,10 +61,12 @@ def start(
         )
     name = "arcus_api"
     shell(f"docker rm -f {name} 2>/dev/null || true")
+    log_mount = volume_opt('/var/log/arcus-api', '/var/log/arcusweb', require=False)
+    hosts_mount = volume_opt('/etc/hosts', '/etc/hosts', require=False)
     cmd = (
         f"docker run --name {name} {daemon} "
         f"-p 0.0.0.0:{port}:1234 "
-        "-v /etc/hosts:/etc/hosts -v /var/log/arcus-api:/var/log/arcusweb "
+        f"{hosts_mount} {log_mount}"
         f"{env_str} {ceph_mount} {dev_mount} {image} {run}"
     )
     shell(cmd)
