@@ -51,7 +51,7 @@ def start(
         api_dir = os.environ["ARCUS_API_DIR"]
         assert_path_exists(api_dir)
         daemon = "-it --rm"
-        dev_mount = volume_opt(api_dir, '/app')
+        dev_mount = volume_opt(api_dir, "/app")
         run = (
             'bash -c "'
             "/env_config.py && "
@@ -61,8 +61,8 @@ def start(
         )
     name = "arcus_api"
     shell(f"docker rm -f {name} 2>/dev/null || true")
-    log_mount = volume_opt('/var/log/arcus-api', '/var/log/arcusweb', require=False)
-    hosts_mount = volume_opt('/etc/hosts', '/etc/hosts', require=False)
+    log_mount = volume_opt("/var/log/arcus-api", "/var/log/arcusweb", require=False)
+    hosts_mount = volume_opt("/etc/hosts", "/etc/hosts", require=False)
     cmd = (
         f"docker run --name {name} {daemon} "
         f"-p 0.0.0.0:{port}:1234 "

@@ -53,11 +53,11 @@ def start(
             'grunt watch-changes"'
         )
         daemon = "-it --rm"
-        dev_mount = volume_opt(client_dir, '/app')
+        dev_mount = volume_opt(client_dir, "/app")
     name = "arcus_client"
     shell(f"docker rm -f {name} || true")
     log_mount = volume_opt("var/log/arcus-client", "/var/log/nginx", require=False)
-    hosts_mount = volume_opt('/etc/hosts', '/etc/hosts', require=False)
+    hosts_mount = volume_opt("/etc/hosts", "/etc/hosts", require=False)
     cmd = (
         f"docker run --name {name}"
         f"{daemon} {ports} {env_str} "
