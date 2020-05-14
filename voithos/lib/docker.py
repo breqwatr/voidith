@@ -13,7 +13,7 @@ def volume_opt(src, dest, require=True):
     if require:
         assert_path_exists(src)
     absolute_path = get_absolute_path(src)
-    return f"-v \"{absolute_path}:{dest}\" "
+    return f'-v "{absolute_path}:{dest}" '
 
 
 def env_string(env_vars):

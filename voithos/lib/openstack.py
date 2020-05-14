@@ -151,7 +151,7 @@ def kolla_ansible_exec(
     config_vol = " "
     if config_dir is not None:
         config_vol = volume_opt(config_dir, "/etc/kolla/config")
-    rm_arg = ''
+    rm_arg = ""
     inv_vol = volume_opt(inventory_path, "/etc/kolla/inventory")
     globals_vol = volume_opt(globals_path, "/etc/kolla/globals.yml")
     passwd_vol = volume_opt(passwords_path, "/etc/kolla/passwords.yml")

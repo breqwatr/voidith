@@ -195,7 +195,7 @@ def smoke_test(release, openrc, image_path, **kwargs):
 @click.option("--release", "-r", required=True, help="OpenStack release name (OS_RELEASE)")
 @click.option("--keep/--delete-local", default=True, help="Keep or delete local images")
 @click.argument("registry")
-@click.command(name='sync-images-to-registry')
+@click.command(name="sync-images-to-registry")
 def sync_local_registry(release, keep, registry):
     """ Pull OpenStack images, push local registry """
     openstack.sync_local_registry(release, keep, registry)
