@@ -128,3 +128,21 @@ def test_openstack_kolla_ansible(mock_shell, mock_assert):
     assert result.exit_code == 0, result.output
     assert mock_shell.called
     assert mock_assert.called
+
+
+@patch("voithos.lib.openstack.shell")
+def test_sync_local_registry(mock_shell):
+    """ test running local registry sync """
+    runner = CliRunner()
+    result = runner.invoke(
+        voithos.cli.openstack.sync_local_registry,
+        [
+            "--release",
+            "train",
+            "--keep",
+            "registry.example.com:5000",
+        ],
+        catch_exceptions=False,
+    )
+    assert result.exit_code == 0, result.output
+    assert mock_shell.called

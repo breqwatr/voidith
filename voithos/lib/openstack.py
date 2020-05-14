@@ -2,8 +2,11 @@
 
 import os
 
+from click import echo
+
 from voithos.lib.system import shell, error, assert_path_exists
 from voithos.lib.docker import volume_opt
+from voithos.constants import KOLLA_IMAGE_REPOS
 
 
 def kolla_ansible_genpwd(release):
@@ -169,3 +172,22 @@ def kolla_ansible_exec(
         f"breqwatr/kolla-ansible:{release} {run_cmd}"
     )
     shell(cmd)
+
+
+def sync_local_registry(release, keep, registry):
+    """ Pull Kolla docker images and push them to local registry """
+    if release not in KOLLA_IMAGE_REPOS:
+        error(f"ERROR: release {release} is not supported", exit=True)
+    total_images = len(KOLLA_IMAGE_REPOS[release])
+    index = 1
+    for repo in KOLLA_IMAGE_REPOS[release]:
+        dh_image = f"breqwatr/{repo}:{release}"
+        echo(f"Progress: {index}/{total_images} - Image: {dh_image}")
+        local_image = f"{registry}/{dh_image}"
+        shell(f"docker pull {dh_image}")
+        shell(f"docker tag {dh_image} {local_image}")
+        shell(f"docker push {local_image}")
+        if not keep:
+            echo("Deleting local image")
+            shell(f"docker rmi {dh_image}")
+            shell(f"docker rmi {local_image}")

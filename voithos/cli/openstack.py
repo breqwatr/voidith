@@ -192,6 +192,15 @@ def smoke_test(release, openrc, image_path, **kwargs):
     openstack.smoke_test(release, openrc, image_path, **kwargs)
 
 
+@click.option("--release", "-r", required=True, help="OpenStack release name (OS_RELEASE)")
+@click.option("--keep/--delete-local", default=True, help="Keep or delete local images")
+@click.argument("registry")
+@click.command(name='sync-images-to-registry')
+def sync_local_registry(release, keep, registry):
+    """ Pull OpenStack images, push local registry """
+    openstack.sync_local_registry(release, keep, registry)
+
+
 def get_openstack_group():
     """ Return the OpenStack click group """
 
@@ -207,4 +216,5 @@ def get_openstack_group():
     openstack_group.add_command(cli)
     openstack_group.add_command(smoke_test)
     openstack_group.add_command(get_globals_template)
+    openstack_group.add_command(sync_local_registry)
     return openstack_group
