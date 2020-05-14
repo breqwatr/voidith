@@ -61,7 +61,7 @@ def start(
     cmd = (
         f"docker run --name {name} "
         f"{daemon} {ports} {env_str} "
-        f"{cert_vol_mounts} {dev_mount} {log_mount} {hosts_mount}"
+        f"{cert_vol_mounts} {dev_mount} {log_mount} {hosts_mount} "
         f"{image} {run}"
     )
     shell(cmd)

@@ -57,7 +57,7 @@ def start(
             "/env_config.py && "
             "pip install -e . && "
             "gunicorn --timeout 7200 --error-logfile=- --access-logfile '-' "
-            '--reload --bind 0.0.0.0:1234 arcusapi.wsgi:app"'
+            '--reload --bind 0.0.0.0:1234 arcusapi.wsgi:app" '
         )
     name = "arcus_api"
     shell(f"docker rm -f {name} 2>/dev/null || true")
@@ -66,7 +66,7 @@ def start(
     cmd = (
         f"docker run --name {name} {daemon} "
         f"-p 0.0.0.0:{port}:1234 "
-        f"{hosts_mount} {log_mount}"
+        f"{hosts_mount} {log_mount} "
         f"{env_str} {ceph_mount} {dev_mount} {image} {run}"
     )
     shell(cmd)
