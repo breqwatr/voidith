@@ -64,6 +64,8 @@ def test_arcus_api_start(mock_shell, mock_assert):
             "--ceph",
             "--ceph-dir",
             "/etc/ceph" "--https",
+            "--secret",
+            "secretKey",
         ],
         catch_exceptions=False,
     )

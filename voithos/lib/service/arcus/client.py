@@ -1,5 +1,5 @@
 """ lib for arcus services """
-
+import sys
 import os
 
 from voithos.lib.docker import volume_opt, env_string
@@ -15,6 +15,8 @@ def start(
     arcus_https=False,
     cert_path=None,
     cert_key_path=None,
+    http_port=80,
+    https_port=443,
 ):
     """ Start the arcus api """
     image = f"breqwatr/arcus-client:{release}"
@@ -25,6 +27,8 @@ def start(
         "ARCUS_USE_HTTPS": arcus_https,
         "GLANCE_HTTPS": str(glance_https).lower(),
         "VERSION": release,
+        "ARCUS_CLIENT_HTTP_PORT": http_port,
+        "ARCUS_CLIENT_HTTPS_PORT": https_port,
     }
     env_str = env_string(env_vars)
     cert_vol_mounts = ""
@@ -46,18 +50,17 @@ def start(
             "npm install && "
             "service nginx start && "
             "grunt && "
-            'grunt watch-changes"'
+            'tail -f /dev/null"'
         )
-        daemon = "-it --rm"
+        sys.stdout.write("TO REBUILD, EXECUTE:\n docker exec -it arcus_client grunt rebuild\n")
         dev_mount = volume_opt(client_dir, "/app")
     name = "arcus_client"
     shell(f"docker rm -f {name} || true")
     log_mount = "-v /var/log/arcus-client:/var/log/nginx"
     hosts_mount = "-v /etc/hosts:/etc/hosts"
-    host_network = "--network host"
     cmd = (
         f"docker run --name {name} "
-        f"{daemon} {host_network} {env_str} "
+        f"{daemon} --network host {env_str} "
         f"{cert_vol_mounts} {dev_mount} {log_mount} {hosts_mount} "
         f"{image} {run}"
     )

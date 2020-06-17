@@ -44,6 +44,8 @@ def start(
     arcus_https,
     cert_path,
     cert_key,
+    http_port,
+    https_port,
 ):
     """ Launch the arcus-client service """
     click.echo("starting arcus client")
@@ -58,6 +60,8 @@ def start(
         arcus_https=arcus_https,
         cert_path=cert_path,
         cert_key_path=cert_key,
+        http_port=http_port,
+        https_port=https_port,
     )
 
 
