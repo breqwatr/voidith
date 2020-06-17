@@ -59,7 +59,7 @@ def start(
             "/env_config.py && "
             "pip install -e . && "
             "gunicorn --workers 4 --error-logfile=- --access-logfile '-' "
-            '--reload --bind 0.0.0.0:1234 arcusapi.wsgi:app" '
+            '--reload ' f"--bind 0.0.0.0:{port}" ' arcusapi.wsgi:app" '
         )
     name = "arcus_api"
     shell(f"docker rm -f {name} 2>/dev/null || true")
@@ -67,7 +67,7 @@ def start(
     hosts_mount = "-v /etc/hosts:/etc/hosts"
     cmd = (
         f"docker run --name {name} {daemon} "
-        f"-p 0.0.0.0:{port}:1234 "
+        f"--network host "
         f"{hosts_mount} {log_mount} "
         f"{env_str} {ceph_mount} {dev_mount} {image} {run}"
     )
