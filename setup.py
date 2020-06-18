@@ -24,6 +24,8 @@ setup(
         "black",
         "pytest",
         "mysql-connector",
+        "pyyaml",
+        "ceph-deploy",
         "requests",
     ],
     entry_points="""

@@ -2,6 +2,7 @@
 
 import voithos.lib.docker as docker
 from voithos.lib.system import shell
+import yaml
 
 
 def ceph_ansible_exec(
@@ -31,3 +32,32 @@ def zap_disk(disk):
     """ Erase filesystem from a given disk """
     shell(f"wipefs -a {disk}")
     shell(f"dd if=/dev/zero of={disk} bs=4096k count=100")
+
+
+def ceph_destroy(inventory):
+    """ Uninstall ceph and remove ceph related data"""
+    ceph_hosts = _get_parsed_ceph_hosts(inventory)
+    for key, ceph_host in ceph_hosts.items():
+        host_ip = ceph_host["ansible_host"]
+        shell(f"ceph-deploy purge {host_ip}")
+        shell(f"ceph-deploy purgedata {host_ip}")
+        for osd in ceph_host["devices"]:
+            cmd = (
+                f"ssh {host_ip} wipefs -af {osd} && "
+                + f"dd if=/dev/zero of={osd} bs=4096k count=100"
+            )
+            shell(cmd)
+        if "dedicated_devices" in ceph_host:
+            for dedicated_device in ceph_host["dedicated_devices"]:
+                print(dedicated_device)
+
+
+def _get_parsed_ceph_hosts(inventory):
+    """ Provides osd hosts data """
+    try:
+        with open(inventory) as inventory_file:
+            inventory_file_data = inventory_file.read()
+    except FileNotFoundError:
+        print("Please check path and name of inventory file")
+    parsed_inventory = yaml.load(inventory_file_data, Loader=yaml.FullLoader)
+    return parsed_inventory["all"]["children"]["osds"]["hosts"]
