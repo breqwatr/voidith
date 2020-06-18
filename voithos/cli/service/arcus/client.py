@@ -5,6 +5,7 @@ import click
 import voithos.lib.aws.ecr as ecr
 import voithos.lib.service.arcus.client as arcus_client
 from voithos.lib.system import error
+from voithos.constants import DEV_MODE
 
 
 @click.option("--release", "-r", required=True, help="Version of Arcus API to run")
@@ -65,6 +66,9 @@ def start(
     )
 
 
+@click.command(name="rebuild"):
+    arcus_client.start(
+
 def get_client_group():
     """ return the arcus group function """
 
@@ -74,4 +78,6 @@ def get_client_group():
 
     client_group.add_command(pull)
     client_group.add_command(start)
+    if DEV_MODE:
+        client_group.add_command(rebuild)
     return client_group
