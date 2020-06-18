@@ -59,7 +59,9 @@ def start(
             "/env_config.py && "
             "pip install -e . && "
             "gunicorn --workers 4 --error-logfile=- --access-logfile '-' "
-            '--reload ' f"--bind 0.0.0.0:{port}" ' arcusapi.wsgi:app" '
+            "--reload "
+            f"--bind 0.0.0.0:{port}"
+            ' arcusapi.wsgi:app" '
         )
     name = "arcus_api"
     shell(f"docker rm -f {name} 2>/dev/null || true")

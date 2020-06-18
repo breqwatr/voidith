@@ -65,3 +65,7 @@ def start(
         f"{image} {run}"
     )
     shell(cmd)
+
+
+def rebuild():
+    shell("docker exec -it arcus_client grunt rebuild")
