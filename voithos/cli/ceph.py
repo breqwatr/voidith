@@ -52,7 +52,7 @@ def zap_disk(disk, force):
 @click.option("--inventory", "-i", required=True, help="Ceph-Ansible inventory file path")
 @click.command(name="ceph-destroy")
 def ceph_destroy(inventory):
-    """ Uninstall ceph and erase all  ceph related data"""
+    """ Uninstall ceph and erase all ceph related data"""
     ceph.ceph_destroy(inventory)
 
 

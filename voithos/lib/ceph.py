@@ -50,7 +50,11 @@ def ceph_destroy(inventory):
             shell(cmd)
         if "dedicated_devices" in ceph_host:
             for dedicated_device in ceph_host["dedicated_devices"]:
-                print(dedicated_device)
+                cmd = (
+                    f"ssh {host_ip} wipefs -a {dedicated_device} && "
+                    + f"dd if=/dev/zero of={dedicated_device} bs=4096k count=100"
+                )
+                shell(cmd)
 
 
 def _get_parsed_ceph_hosts(inventory):
