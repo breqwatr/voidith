@@ -68,9 +68,6 @@ def start(
 
 @click.command(name="rebuild")
 def rebuild():
-    if DEV_MODE is not True:
-        error("ERROS: Dev mode is disabled")
-        return
     arcus_client.rebuild()
 
 
@@ -83,5 +80,6 @@ def get_client_group():
 
     client_group.add_command(pull)
     client_group.add_command(start)
-    client_group.add_command(rebuild)
+    if DEV_MODE:
+        client_group.add_command(rebuild)
     return client_group
