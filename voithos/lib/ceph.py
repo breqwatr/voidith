@@ -41,9 +41,10 @@ def ceph_destroy(inventory):
         host_ip = ceph_host["ansible_host"]
         shell(f"ceph-deploy purge {host_ip}")
         shell(f"ceph-deploy purgedata {host_ip}")
+        shell(f"ssh {host_ip} 'ls /dev/mapper/ceph-* | xargs -I% -- dmsetup remove %'")
         for osd in ceph_host["devices"]:
             cmd = (
-                f"ssh {host_ip} wipefs -af {osd} && "
+                f"ssh {host_ip} wipefs -a {osd} && "
                 + f"dd if=/dev/zero of={osd} bs=4096k count=100"
             )
             shell(cmd)
