@@ -2,13 +2,11 @@
 from unittest.mock import patch
 
 from click.testing import CliRunner
-
-import voithos.cli.ceph
-import voithos.lib.ceph
+import voithos.cli.service.registry
 
 
 def test_registry_group():
-    """ test the ceph group cli call """
+    """ test the registry group cli call """
     runner = CliRunner()
     result = runner.invoke(voithos.cli.service.registry.get_registry_group())
     assert result.exit_code == 0
@@ -16,7 +14,7 @@ def test_registry_group():
 
 @patch("voithos.lib.service.registry.shell")
 def test_registry_start(mock_shell):
-    """ test ceph-ansible cli call """
+    """ test registry cli call """
     runner = CliRunner()
     result = runner.invoke(
         voithos.cli.service.registry.start,
@@ -29,7 +27,7 @@ def test_registry_start(mock_shell):
 
 @patch("voithos.lib.service.registry.requests")
 def test_registry_list_images(mock_requests):
-    """ test ceph-ansible cli call """
+    """ test registry cli call """
     runner = CliRunner()
     result = runner.invoke(
         voithos.cli.service.registry.list_images,
