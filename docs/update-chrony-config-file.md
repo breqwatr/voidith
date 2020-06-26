@@ -11,7 +11,7 @@ cat /etc/kolla/chrony/config.json
             "source": "/var/lib/kolla/config_files/chrony.conf",
             "dest": "/etc/chrony/chrony.conf",
             "owner": "chrony",
-            "perm": "0600"
+            "perm": "0666"
         }
     ],
     "permissions": [
