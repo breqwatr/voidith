@@ -1,4 +1,4 @@
-""" Tests for registry service """
+""" Tests for PXE service """
 from unittest.mock import patch
 
 from click.testing import CliRunner
@@ -6,7 +6,7 @@ from click.testing import CliRunner
 import voithos.cli.service.pxe
 
 
-def test_registry_group():
+def test_pxe_group():
     """ test the pxe group cli call """
     runner = CliRunner()
     result = runner.invoke(voithos.cli.service.pxe.get_pxe_group())
@@ -14,7 +14,7 @@ def test_registry_group():
 
 
 @patch("voithos.lib.service.pxe.shell")
-def test_registry_start(mock_shell):
+def test_pxe_start(mock_shell):
     """ test ceph-ansible cli call """
     runner = CliRunner()
     result = runner.invoke(
