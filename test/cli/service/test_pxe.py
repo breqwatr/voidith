@@ -14,8 +14,7 @@ def test_registry_group():
 
 
 @patch("voithos.lib.service.pxe.shell")
-@patch("voithos.lib.service.pxe.ecr")
-def test_registry_start(mock_ecr, mock_shell):
+def test_registry_start(mock_shell):
     """ test ceph-ansible cli call """
     runner = CliRunner()
     result = runner.invoke(
@@ -32,6 +31,5 @@ def test_registry_start(mock_ecr, mock_shell):
         ],
         catch_exceptions=False,
     )
-    #assert mock_ecr.pull.call_count == 1
-    #assert mock_shell.call_count == 1
+    assert mock_shell.call_count == 2
     assert result.exit_code == 0, result.output
