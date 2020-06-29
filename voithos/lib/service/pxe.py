@@ -6,7 +6,6 @@ from voithos.lib.system import shell
 def start(interface, dhcp_start, dhcp_end, release="stable"):
     """ Start the PXE service """
     image = f"breqwatr/pxe:{release}"
-    shell(f"docker pull {image}")
     env_vars = {
         "INTERFACE": interface,
         "DHCP_RANGE_START": dhcp_start,

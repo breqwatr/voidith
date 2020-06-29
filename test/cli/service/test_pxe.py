@@ -31,5 +31,5 @@ def test_registry_start(mock_shell):
         ],
         catch_exceptions=False,
     )
-    assert mock_shell.call_count == 2
+    assert mock_shell.call_count == 1
     assert result.exit_code == 0, result.output
