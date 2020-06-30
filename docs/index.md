@@ -54,4 +54,4 @@ pip install .
 - [**Installing OpenStack**](/openstack-install.html):
   Private clouds providing virtualisation, SDN, and more
 - [**Installing Arcus**](/arcus-install.html): Breqwatr's OpenStack self-service web portal
-- [**Configure Grafana And Prometheus](/grafana-prometheus-config.html): Monitoring solution
+- [**Configure Grafana And Prometheus**](/grafana-prometheus-config.html): Monitoring solution
