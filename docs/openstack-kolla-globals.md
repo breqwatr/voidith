@@ -202,6 +202,18 @@ enable_cinder_backup: no
 enable_iscsid: no
 ```
 
+## Prometheus
+
+```yaml
+enable_prometheus: yes
+```
+
+## Grafana
+
+```yaml
+enable_grafana: yes
+```
+
 ## Horizon
 
 Only enable Horizon if you won't be putting Arcus on ports 80 and 443 of the control nodes.
