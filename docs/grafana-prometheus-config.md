@@ -4,7 +4,8 @@ create graphs.
 
 ## SMTP Configuration
 SMTP configuration is needed to setup email alerts through Grafana. Put these configs in
-`/etc/kolla/grafana/grafana.ini` and restart grafana container.
+`/etc/kolla/grafana/grafana.ini` on all the servers on which grafana containers are running
+and restart those containers using `docker restart grafana`.
 ```yaml
 [smtp]                                                           
 enabled =true                   
@@ -20,6 +21,16 @@ from_name = Grafana
 # EHLO identity in SMTP dialog (defaults to instance_name)
 ehlo_identity =  
 ```
+
+## Grafana Domain Configuration
+Kolla-ansible doesn't configure domain address by default. So when we get an alert through email,
+it has a tab that should redirect to grafana alert webui address. If the domain isn't configured,
+it will redirect to `localhost:3000` instead of `grafana-webui-ip:3000`. In order to configure that
+open `/etc/kolla/grafana/grafana.ini` and put `domain = <api_interface_address>` under `[server]`.
+`<api_interface_address>` will be same as `http_addr` configured under `[server]. Do this on all
+the servers on which grafana containers are running and restart containers using
+`docker restart grafana`.
+
 
 ## TLS Configuration
 If tls is enabled in your deployment then add `verify: false` under `default` in
@@ -138,7 +149,7 @@ click on `Save` button
     * When: `min()`
     * OF: `query (A, 5m, now)`
     * Click on `IS ABOVE` and choose `IS BELOW`
-    * Add minimun bytes of free memory to trigger alert.
+    * Add minimun bytes of free memory to trigger alert. Multiply with `1073741824` for GBs.
   * In `Notifications` section:
     * Next to `Send to`, click on `+` symbol and choose your notification channel.
     * In message form enter the alert message
@@ -156,7 +167,7 @@ click on `Save` button
     * When: `min()`
     * OF: `query (A, 5m, now)`
     * Click on `IS ABOVE` and choose `IS BELOW`
-    * Add minimun bytes of free disk to trigger alert.
+    * Add minimun bytes of free disk to trigger alert. Multiply with `1073741824` for GBs.
   * In `Notifications` section:
     * Next to `Send to`, click on `+` symbol and choose your notification channel.
     * In message form enter the alert message
