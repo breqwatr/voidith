@@ -27,7 +27,7 @@ Kolla-ansible doesn't configure domain address by default. So when we get an ale
 it has a tab that should redirect to grafana alert webui address. If the domain isn't configured,
 it will redirect to `localhost:3000` instead of `grafana-webui-ip:3000`. In order to configure that
 open `/etc/kolla/grafana/grafana.ini` and put `domain = <api_interface_address>` under `[server]`.
-`<api_interface_address>` will be same as `http_addr` configured under `[server]. Do this on all
+`<api_interface_address>` will be same as `http_addr` configured under `[server]`. Do this on all
 the servers on which grafana containers are running and restart containers using
 `docker restart grafana`.
 
@@ -38,7 +38,7 @@ If tls is enabled in your deployment then add `verify: false` under `default` in
 container
 
 ## Access Grafana Webui
-Access grafana webui using <external-vip>:3000 or <internal-vip>:3000. Username is `admin` and
+Access grafana webui using `<external-vip>:3000` or `<internal-vip>:3000`. Username is `admin` and
 it's password can be found by running `cat /etc/kolla/grafana/grafana.ini | grep admin_password`
 
 ## Invite Users
