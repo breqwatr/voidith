@@ -69,6 +69,41 @@ delimited list of each monitor node's IP address with no ports. Example:
 
 ## Creating ceph.client.\<service\>.keyring files
 
+### Creating CephX Keys
+
+CephX keys are required on OpenStack's Cinder, Nova, and Glance services to
+interact with a secure Ceph cluster. These keys are created using the `ceph`
+command-line. They can later be piped to files for use with Kolla-Ansible.
+First check the current keyrings by running:
+```bash
+ceph auth ls
+```
+
+### Create new keys
+
+Create keys for Cinder, Glance, and Nova. Grant them the capabilities required
+for OpenStack against the volumes and images pools.
+
+```bash
+ceph auth get-or-create client.glance
+ceph auth caps client.glance \
+  mon 'allow r' \
+  mds 'allow r' \
+  osd 'allow rwx pool=volumes, allow rwx pool=images, allow class-read object_prefix rbd_children'
+
+ceph auth get-or-create client.cinder
+ceph auth caps client.cinder\
+  mon 'allow r' \
+  mds 'allow r' \
+  osd 'allow rwx pool=volumes, allow rwx pool=images, allow class-read object_prefix rbd_children'
+
+ceph auth get-or-create client.nova
+ceph auth caps client.nova \
+  mon 'allow r' \
+  mds 'allow r' \
+  osd 'allow rwx pool=volumes, allow rwx pool=images, allow class-read object_prefix rbd_children'
+```
+
 ### Gather information from Ceph monitor nodes
 
 On the Ceph monitor nodes, print the cinder, glance, and nova keyring text.

@@ -16,7 +16,7 @@ Use the following command to deploy OpenStack:
 
 voithos openstack kolla-ansible deploy \
   --release train \
-  --ssh-private-key ~/.ssh/id_rsa \
+  --ssh-key ~/.ssh/id_rsa \
   --globals globals.yml \
   --passwords passwords.yml \
   --inventory inventory \

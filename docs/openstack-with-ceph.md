@@ -26,6 +26,6 @@ Ceph already be installed. If you haven't installed Ceph yet, follow the
 1. [**Bootstrap the OpenStack servers**](/openstack-kolla-bootstrap.html)
 1. [**Pull Docker images to each node**](/openstack-kolla-pull.html)
 1. [**Initialize OpenStack's service containers**](/openstack-kolla-deploy.html)
-1. [**Update Chrony config file**](/openstack-kolla-chrony-config.html) - `chrony/config.json`
+1. [**Update Chrony config file**](/update-chrony-config-file.html) - `chrony/config.json`
 1. [** Generate the admin OpenRC file**](/openstack-kolla-admin-openrc.html) - `admin-openrc.sh`
 1. [**Run the smoke-tests**](/openstack-smoke-tests.html)

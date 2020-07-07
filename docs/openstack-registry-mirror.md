@@ -18,7 +18,7 @@ synchronized for the purpose of updates.
 voithos openstack sync-images-to-registry --release <openstack release> <proto://registry ip:port>
 
 # sync-openstack-images example
-voithos service registry sync-openstack-images -r train http://10.10.10.9:5000
+voithos openstack sync-images-to-registry -r train http://10.10.10.9:5000
 ```
 
 If you need to sync a specific image, for instance to update one service,

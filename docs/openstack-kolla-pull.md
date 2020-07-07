@@ -10,7 +10,7 @@ missing images without getting stuck with a half-deployed cloud.
 ```bash
 voithos openstack kolla-ansible pull \
   --release train \
-  --ssh-private-key ~/.ssh/id_rsa \
+  --ssh-key ~/.ssh/id_rsa \
   --globals globals.yml \
   --passwords passwords.yml \
   --inventory inventory \

@@ -82,7 +82,8 @@ need to put `container_package_name: docker-ce` in this file.
 voithos ceph ceph-ansible \
   --inventory <path to inventory file> \
   --group-vars <path to group_vars directory> \
-  --ssh-key <path to ssh private key file (usually id_rsa)>
+  --ssh-key <path to ssh private key file (usually id_rsa) \
+  -r (ceph release)
 ```
 
 
