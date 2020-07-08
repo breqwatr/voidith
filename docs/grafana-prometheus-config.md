@@ -34,8 +34,8 @@ the servers on which grafana containers are running and restart containers using
 
 ## TLS Configuration
 If tls is enabled in your deployment then add `verify: false` under `default` in
-`/etc/kolla/prometheus-openstack-exporter/clouds.yml` and restart prometheus-openstack-exporter
-container
+`/etc/kolla/prometheus-openstack-exporter/clouds.yml` and restart prometheus_openstack_exporter
+container using `docker restart prometheus_openstack_exporter`
 
 ## Access Grafana Webui
 Access grafana webui using `<external-vip>:3000` or `<internal-vip>:3000`. Username is `admin` and
