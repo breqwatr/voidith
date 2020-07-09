@@ -1,7 +1,9 @@
 """ lib for arcus services """
 
 import os
+import sys
 
+import requests
 import mysql.connector as connector
 
 from voithos.lib.docker import env_string, volume_opt
@@ -93,7 +95,7 @@ def _create_arcus_dbuser(cursor, password):
     users = cursor.fetchall()
     if (bytearray(b"arcus"),) in users:
         return False
-    create_cmd = 'CREATE USER arcus IDENTIFIED BY "{}"'.format(password)
+    create_cmd = f'CREATE USER arcus IDENTIFIED BY "{password}"'.format(password)
     cursor.execute(create_cmd)
     grant_cmd = 'GRANT ALL privileges ON arcus.* TO "arcus";'
     cursor.execute(grant_cmd)
@@ -107,3 +109,61 @@ def init_database(host, admin_user, admin_passwd, arcus_passwd):
     created_db = _create_arcus_database(cursor)
     created_user = _create_arcus_dbuser(cursor, arcus_passwd)
     return {"created_db": created_db, "created_user": created_user}
+
+
+def _get_token(api_url, username, password):
+    """ Get openstack token """
+    token_url = f'{api_url}/auth/token'
+    req_data = {
+        'username': username,
+        'password': password,
+        'domain_name': "default"}
+    token_response = requests.post(token_url, json=req_data, verify=False)
+    return token_response.headers["X-Subject-Token"]
+
+
+def _get_projects(fqdn, token):
+    """ Get the projects visible to this scope """
+    projects_url = f"{fqdn}/auth/projects"
+    projects_headers = {'X-Auth-Token': token}
+    projects_response = requests.get(projects_url, headers=projects_headers, verify=False)
+    return projects_response.json()["projects"]
+
+
+def _get_http_auth_headers(username, password, api_url):
+    """ Return the headers for admin scope requests """
+    token = _get_token(api_url, username, password)
+    projects = _get_projects(api_url, token)
+    admin_project = next((proj for proj in projects if proj["name"] == "admin"), None)
+    if admin_project is None:
+        sys.stderr.write("ERROR: 'admin' project must exist in this cloud\n")
+        sys.exit(1)
+    return {"X-Auth-Token": token, "X-Project-ID": admin_project["id"]}
+
+
+def set_service_account(auth_url, username, password, api_url):
+    """ Set/create the openstack service account for Arcus API """
+    headers = _get_http_auth_headers(username, password, api_url)
+    intgs_url = f"{api_url}/integrations"
+    list_resp = requests.get(intgs_url, headers=headers, verify=False)
+    intgs = list_resp.json()["integrations"]
+    sa_intg = next((intg for intg in intgs if intg["type"] == "Openstacksa"), None)
+    sa_exists = sa_intg is not None
+    sa_data = {
+        "type": "Openstacksa",
+        "fields": {
+            "display_name": "Openstack Service Account",
+            "username": username,
+            "password": password,
+            "auth_url": auth_url
+        }
+    }
+    if sa_exists:
+        print("Updating existing SA record.")
+        intg_id = sa_intg["id"]
+        sa_data["id"] = intg_id
+        patch_url = f"{intgs_url}/{intg_id}"
+        requests.patch(patch_url, headers=headers, json=sa_data, verify=False)
+        return
+    print("No SA record found. Inserting new one.")
+    requests.post(intgs_url, headers=headers, json=sa_data, verify=False)

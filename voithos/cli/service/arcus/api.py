@@ -71,19 +71,6 @@ def start(
     )
 
 
-def get_api_group():
-    """ return the arcus group function """
-
-    @click.group(name="api")
-    def api_group():
-        """ Arcus HTTP API service """
-
-    api_group.add_command(pull)
-    api_group.add_command(start)
-    api_group.add_command(database_init)
-    return api_group
-
-
 @click.option("--host", required=True, help="MariaDB IP or FQDN")
 @click.option("--admin-user", required=True, help="Admin user for creating the new DB")
 @click.option("--admin-pass", required=True, help="Amin user password")
@@ -97,3 +84,30 @@ def database_init(host, admin_user, admin_pass, arcus_pass):
     )
     for key in res:
         click.echo(f"{key} {res[key]}")
+
+
+@click.option("--auth-url", "-o", "auth_url", required=True, help="OpenStack Auth URL")
+@click.option("--username", "-u", required=True, help="OpenStack SA username")
+@click.option("--password", "-p", required=True, help="Openstack SA password")
+@click.option("--api-url", "-a", "api_url", required=True, help="Arcus API address (with port)")
+@click.command(name="set-service-account")
+def set_service_account(auth_url, username, password, api_url):
+    """ Set/create the openstack service account for Arcus API """
+    if not api_url.startswith("http"):
+        click.echo("Arcus API URL must start with protocol (http/https)")
+        return
+    arcus_api.set_service_account(auth_url, username, password, api_url)
+
+
+def get_api_group():
+    """ return the arcus group function """
+
+    @click.group(name="api")
+    def api_group():
+        """ Arcus HTTP API service """
+
+    api_group.add_command(pull)
+    api_group.add_command(start)
+    api_group.add_command(database_init)
+    api_group.add_command(set_service_account)
+    return api_group

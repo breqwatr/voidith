@@ -63,7 +63,8 @@ def test_arcus_api_start(mock_shell, mock_assert):
             "fake-password",
             "--ceph",
             "--ceph-dir",
-            "/etc/ceph" "--https",
+            "/etc/ceph",
+            "--https",
             "--secret",
             "secretKey",
         ],
@@ -94,3 +95,26 @@ def test_arcus_api_database_init(mock_connector):
     )
     assert result.exit_code == 0, result.output
     assert mock_connector.connect.called
+
+
+@patch("voithos.lib.service.arcus.api.requests")
+def test_arcus_api_set_service_account(mock_requests):
+    """ Test setting the service account """
+    runner = CliRunner()
+    result = runner.invoke(
+        voithos.cli.service.arcus.api.set_service_account,
+        [
+            "--auth-url",
+            "http://1.2.3.4:5000/v3",
+            "--username",
+            "example",
+            "--password",
+            "examplepass",
+            "--api-url",
+            "https://1.2.3.4:5000"
+        ],
+        catch_exceptions=False,
+    )
+    assert result.exit_code == 1, result.output
+    assert mock_requests.get.called
+    assert mock_requests.patch.called or mock_requests.post.called
