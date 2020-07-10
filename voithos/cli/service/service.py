@@ -6,6 +6,7 @@ import voithos.cli.service.grafana as grafana
 import voithos.cli.service.registry as registry
 import voithos.cli.service.pxe as pxe
 
+
 def get_service_group():
     """ Return the service click group """
 

@@ -9,9 +9,10 @@ def create(user, password, https, ip, port):
     node_config_file = "voithos/lib/files/grafana/node_config.json"
     assert_path_exists(node_config_file)
     json_file_path = get_absolute_path(node_config_file)
-    https_or_http = "https" if https else "http"
+    proto = "https" if https else "http"
+    insecure = "-k" if https else ""
     cmd = (
-        f"curl \'{https_or_http}://{user}:{password}@{ip}:{port}/api/dashboards/import\' "
-        f"-X POST -H \'Content-Type: application/json;charset=UTF-8\' -d @{json_file_path}"
+        f"curl {insecure} '{proto}://{user}:{password}@{ip}:{port}/api/dashboards/import' "
+        f"-X POST -H 'Content-Type: application/json;charset=UTF-8' -d @{json_file_path}"
     )
     shell(cmd)
