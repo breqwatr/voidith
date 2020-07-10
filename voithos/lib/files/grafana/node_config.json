@@ -691,7 +691,7 @@
                 "steppedLine": false,
                 "targets": [
                     {
-                        "expr": "node_network_up{job=\"node\", interface=~\"eno.*\"}",
+                        "expr": "node_network_up{job=\"node\", interface=~\"en.*\"}",
                         "interval": "",
                         "legendFormat": "",
                         "refId": "A"
