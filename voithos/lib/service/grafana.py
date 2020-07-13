@@ -1,18 +1,22 @@
 """ Operates grafana dashboard service """
-import json
-import os
-from voithos.lib.system import shell, assert_path_exists, get_absolute_path
+import pathlib
+import requests
+from voithos.lib.system import assert_path_exists
 
 
 def create(user, password, https, ip, port):
     """ Creates dashboards """
-    node_config_file = "voithos/lib/files/grafana/node_config.json"
-    assert_path_exists(node_config_file)
-    json_file_path = get_absolute_path(node_config_file)
+    current_file_parent_dir = pathlib.Path(__file__).parent.absolute()
+    json_file_path = current_file_parent_dir / "../files/grafana/node_config.json"
+    assert_path_exists(json_file_path)
     proto = "https" if https else "http"
-    insecure = "-k" if https else ""
-    cmd = (
-        f"curl {insecure} '{proto}://{user}:{password}@{ip}:{port}/api/dashboards/import' "
-        f"-X POST -H 'Content-Type: application/json;charset=UTF-8' -d @{json_file_path}"
-    )
-    shell(cmd)
+    url = f"{proto}://{ip}:{port}/api/dashboards/import"
+    with open(json_file_path) as json_file:
+        post_request = requests.post(
+            url,
+            verify=False,
+            auth=(user, password),
+            headers={"Content-Type": "application/json"},
+            data=json_file,
+        )
+        print(post_request.text)

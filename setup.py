@@ -36,4 +36,6 @@ setup(
         "Programming Language :: Python :: 3",
         "Natural Language :: English",
     ],
+    package_data={"voithos": ["lib/files/grafana/*.json"]},
+    include_package_data=True,
 )
