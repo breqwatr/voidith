@@ -453,7 +453,7 @@
                 },
                 "yaxes": [
                     {
-                        "format": "short",
+                        "format": "bytes",
                         "label": null,
                         "logBase": 1,
                         "max": null,
@@ -862,7 +862,7 @@
                 "yaxes": [
                     {
                         "$$hashKey": "object:98",
-                        "format": "short",
+                        "format": "percent",
                         "label": null,
                         "logBase": 1,
                         "max": null,
