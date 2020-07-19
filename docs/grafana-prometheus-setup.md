@@ -1,11 +1,11 @@
-# Grafana Dashboards and Alerts Setup
+# Grafana Graphs and Alerts Setup
 As you have done the initial setup for grafana and prometheus in the previous section,
  it's time to test out graphs and alerts for cloud servers resources. There are two ways
  to do that.
 * Use voithos command
 * Do it manually
 
-# Voithos command for graphs and alerts creation
+# Voithos Command for Graphs and Alerts Creation
 By running this command, you will create all the graphs and alerts mentioned in the manual
  section. You can change graphs and alerts settings manually afterwards if you want to try
  different settings.
@@ -23,7 +23,7 @@ voithos service grafana dashboard-create \
  --password <admin-password>
 ```  
 
-# Maual creation of dashboards and alerts
+# Manual Creation of Graphs and Alerts
 
 ## Create Dashboard
 * Hover over `Dashboards` symbol (2nd symbol) on the left hand side and click on `Manage`.

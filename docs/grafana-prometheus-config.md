@@ -56,5 +56,5 @@ For setting up email alert, first we have to create a notification channel
 * Add comma separated email addresses.
 * Click on `Send Test` and save if it sends a test email.
 
-**Note**: If you will be creating graphs and alerts using a voithos script, create a
+**Note**: If you will be creating graphs and alerts using a voithos command, create a
 default notification channel to which all the script created alerts will be sent. 
