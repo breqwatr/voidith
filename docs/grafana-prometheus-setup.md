@@ -1,19 +1,19 @@
 # Grafana Dashboards and Alerts Setup
 As you have done the initial setup for grafana and prometheus in the previous section,
- it's time to test out graphss and alerts for cloud servers resources. There are two ways 
+ it's time to test out graphs and alerts for cloud servers resources. There are two ways
  to do that.
-* Use voithos script
+* Use voithos command
 * Do it manually
 
-# Voithos script for graphs and alerts creation
-By running this script, you will create all the graphs and alerts mentioned in the manual
+# Voithos command for graphs and alerts creation
+By running this command, you will create all the graphs and alerts mentioned in the manual
  section. You can change graphs and alerts settings manually afterwards if you want to try
  different settings.
 ```bash
 # ip: ip address to access grafana.
 # port: port being used by grafana.
-# http/https: Is it using http or https
-# password: admin-user password that can be found in passwords.yml file
+# http/https: Is it using http or https?
+# password: admin-user password that can be found in passwords.yml file.
 
 voithos service grafana dashboard-create \
  --ip <grafana-ip> \
