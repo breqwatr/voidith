@@ -21,6 +21,7 @@ setup(
         "click",
         "boto3",
         "flake8",
+        "jinja2",
         "pylint",
         "pytest",
         "mysql-connector",
@@ -36,6 +37,11 @@ setup(
         "Programming Language :: Python :: 3",
         "Natural Language :: English",
     ],
-    package_data={"voithos": ["lib/files/grafana/*.json"]},
+    package_data={
+        "voithos": [
+            "lib/files/grafana/*.json",
+            "lib/files/horizon/*"
+        ]
+    },
     include_package_data=True,
 )
