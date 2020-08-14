@@ -22,7 +22,7 @@ def start(
     try:
         Path(conf_dir).mkdir(parents=True, exist_ok=True)
     except PermissionError:
-        error("ERROR: Permission denied creating /etc/kolla/horizon. Try sudo?", exit=True)
+        error(f"ERROR: Permission denied creating {conf_dir}. Try sudo?", exit=True)
     jinja2.apply_template(
         jinja2_file="horizon/horizon.json.j2",
         output_file=f"{conf_dir}/config.json",
