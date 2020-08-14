@@ -1,21 +1,20 @@
-{% set python_path = '/usr/share/openstack-dashboard'  %}
 
-Listen 0.0.0.0:8088
+Listen {{ip_address}}:{{port}}
 
 ServerSignature Off
 ServerTokens Prod
 TraceEnable off
 
-<VirtualHost *:8088>
-    LogLevel warn
-    ErrorLog /var/log/kolla/horizon/horizon.log
+<VirtualHost *:{{port}}>
+    LogLevel debug
+    ErrorLog /var/log/kolla/horizon/v-horizon.log
     LogFormat "%{X-Forwarded-For}i %l %u %t \"%r\" %>s %b %D \"%{Referer}i\" \"%{User-Agent}i\"" logformat
-    CustomLog /var/log/kolla/horizon/horizon-access.log logformat
+    CustomLog /var/log/kolla/horizon/v-horizon-access.log logformat
 
     WSGIScriptReloading On
-    WSGIDaemonProcess horizon-http processes=5 threads=1 user=horizon group=horizon display-name=%{GROUP} python-path={{ python_path }}
+    WSGIDaemonProcess horizon-http processes=2 threads=1 user=horizon group=horizon display-name=%{GROUP} python-path=/usr/share/openstack-dashboard
     WSGIProcessGroup horizon-http
-    WSGIScriptAlias / {{ python_path }}/openstack_dashboard/wsgi.py
+    WSGIScriptAlias / /usr/share/openstack-dashboard/openstack_dashboard/wsgi/django.wsgi
     WSGIPassAuthorization On
     WSGIApplicationGroup %{GLOBAL}
 
@@ -27,17 +26,9 @@ TraceEnable off
     <Location "/static">
         SetHandler None
     </Location>
-
-{% if horizon_enable_tls_backend  %}
-    SSLEngine On
-    SSLCertificateFile /etc/horizon/certs/horizon-cert.pem
-    SSLCertificateKeyFile /etc/horizon/certs/horizon-key.pem
-{% endif %}
 </VirtualHost>
 
-{% if horizon_enable_tls_backend %}
-Header edit Location ^http://(.*)$ https://$1
-{% endif %}
+# Header edit Location ^http://(.*)$ https://$1
 
 <IfModule mod_deflate.c>
     # Compress HTML, CSS, JavaScript, Json, Text, XML and fonts
