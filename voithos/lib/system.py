@@ -1,8 +1,10 @@
 """ Shared functions that operate outside of python on the local system """
 
 import pathlib
+import socket
 import subprocess
 import sys
+from contextlib import closing
 
 
 def shell(cmd, print_error=True, print_cmd=True):
@@ -63,3 +65,10 @@ def set_file_contents(file_path, contents):
     """ Write contents to the file at file_path """
     with open(file_path, "w+") as file_:
         file_.write(contents)
+
+
+def is_port_open(host, port):
+    """ Return true of false if a port is open """
+    with closing(socket.socket(socket.AF_INET, socket.SOCK_STREAM)) as sock:
+        is_open = sock.connect_ex((host, port)) == 0
+    return is_open

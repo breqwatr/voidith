@@ -4,6 +4,7 @@ import click
 
 import voithos.lib.aws.ecr as ecr
 import voithos.lib.service.arcus.api as arcus_api
+import voithos.cli.service.arcus.integrations as integrations
 
 
 @click.option("--release", "-r", required=True, help="Version of Arcus API to run")
@@ -110,4 +111,5 @@ def get_api_group():
     api_group.add_command(start)
     api_group.add_command(database_init)
     api_group.add_command(set_service_account)
+    api_group.add_command(integrations.get_integrations_group())
     return api_group

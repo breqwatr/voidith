@@ -224,17 +224,6 @@ openstack role add --user arcusadmin --project admin _member_
 openstack role add --user arcusadmin --domain default admin
 ```
 
-### Set the SA in Arcus
-
-```bash
-voithos service arcus api set-service-account \
-  --api-url https://<external vip>/api \
-  --username arcusadmin \
-  --password <password> \
-  --auth-url https://<external vip/fqdn>:5000/v3
-```
-
-
 ---
 
 

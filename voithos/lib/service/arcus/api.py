@@ -133,7 +133,7 @@ def _get_projects(fqdn, token):
     return projects_response.json()["projects"]
 
 
-def _get_http_auth_headers(username, password, api_url):
+def get_http_auth_headers(username, password, api_url):
     """ Return the headers for admin scope requests """
     token = _get_token(api_url, username, password)
     projects = _get_projects(api_url, token)
@@ -145,7 +145,7 @@ def _get_http_auth_headers(username, password, api_url):
 
 def set_service_account(auth_url, username, password, api_url):
     """ Set/create the openstack service account for Arcus API """
-    headers = _get_http_auth_headers(username, password, api_url)
+    headers = get_http_auth_headers(username, password, api_url)
     intgs_url = f"{api_url}/integrations"
     list_resp = requests.get(intgs_url, headers=headers, verify=False)
     intgs = list_resp.json()["integrations"] if "integrations" in list_resp.json() else []
