@@ -104,11 +104,19 @@ def integrations_list(api_addr, username, password):
         click.echo("--------")
 
 
-@click.argument("integration_id")
+@click.option("--api-addr", "-a", "api_addr", required=True, help="address with protocol & port")
+@click.option("--username", "-u", required=True, help="OpenStack administrator username")
+@click.option("--password", "-p", required=True, help="OpenStack administrator password")
+@click.option("--id", "-i", 'intg_id', required=True, help="ID of the integration to edit")
 @click.command(name="delete")
-def integrations_delete(integration_id):
+def integrations_delete(api_addr, username, password, intg_id):
     """ Delete an integration """
-    return integration_id
+    _validate_addr(api_addr)
+    success = intgs.delete_integration(api_addr, username, password, intg_id)
+    if success:
+        click.echo("Successfully deleted Integration")
+    else:
+        error("Failed to delete Integration")
 
 
 @click.option("--api-addr", "-a", "api_addr", required=True, help="address with protocol & port")
@@ -135,9 +143,26 @@ def integrations_create(api_addr, username, password, intg_type, fields):
         error("Failed to create Integration")
 
 
+@click.option("--api-addr", "-a", "api_addr", required=True, help="address with protocol & port")
+@click.option("--username", "-u", required=True, help="OpenStack administrator username")
+@click.option("--password", "-p", required=True, help="OpenStack administrator password")
+@click.option("--id", "-i", 'intg_id', required=True, help="ID of the integration to edit")
+@click.option(
+    "--field",
+    "-f",
+    "fields",
+    multiple=True,
+    nargs=2,
+    help="Format: --field <key1> '<value1>' --field <key2> '<value2>'")
 @click.command(name="update")
-def integrations_update():
+def integrations_update(api_addr, username, password, intg_id, fields):
     """ Update an integration properties """
+    _validate_addr(api_addr)
+    success = intgs.update_integration(api_addr, username, password, intg_id, fields)
+    if success:
+        click.echo("Successfully updated Integration")
+    else:
+        error("Failed to update Integration")
 
 
 def get_integrations_group():
@@ -151,4 +176,5 @@ def get_integrations_group():
     integrations_group.add_command(integrations_list)
     integrations_group.add_command(integrations_delete)
     integrations_group.add_command(integrations_create)
+    integrations_group.add_command(integrations_update)
     return integrations_group
