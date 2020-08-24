@@ -6,13 +6,13 @@ import voithos.lib.service.arcus.integrations as intgs
 
 
 def _validate_addr(api_addr):
-    """ Ensure that the privided API addr has a port and protocol """
+    """ Ensure that the provided API addr has a port and protocol """
     example = "example: http://preview.breqwatr.com:1234"
     # require that the protocol be specified
     if "http" not in api_addr or "//" not in api_addr:
         error(f"ERROR: --api-addr requires protocol - {example}", exit=True)
     # require that the port be specified
-    if ":" not in api_addr:
+    if ":" not in api_addr.replace("://", ""):
         error(f"ERROR: --api-addr requires port - {example}", exit=True)
     # Check if the specified port is actually up to avoid ugly stack traces
     split_addr = api_addr.split("//")[1].split(":")
