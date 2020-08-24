@@ -80,16 +80,30 @@ def test_arcus_api_integration_list(mock_requests, mock_is_port_open, mock_api):
     assert mock_api.get_http_auth_headers.called
 
 
-def test_arcus_api_integration_delete():
+@patch("voithos.lib.service.arcus.integrations.api")
+@patch("voithos.cli.service.arcus.integrations.is_port_open")
+@patch("voithos.lib.service.arcus.integrations.requests")
+def test_arcus_api_integration_delete(mock_requests, mock_is_port_open, mock_api):
     """ test the arcus api integrations delete cli call """
     runner = CliRunner()
-    integration_id = "000"
     result = runner.invoke(
         voithos.cli.service.arcus.integrations.integrations_delete,
-        integration_id,
+        [
+            "--api-addr",
+            "http://10.10.111.222:1234",
+            "--username",
+            "example",
+            "--password",
+            "example",
+            "--id",
+            "0000"
+        ],
         catch_exceptions=False
     )
     assert result.exit_code == 0
+    assert mock_requests.delete.called
+    assert mock_is_port_open.called
+    assert mock_api.get_http_auth_headers.called
 
 
 @patch("voithos.cli.service.arcus.integrations.is_port_open")
