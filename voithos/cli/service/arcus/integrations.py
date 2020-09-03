@@ -25,18 +25,17 @@ def _validate_addr(api_addr):
 def _validate_type(api_addr, type_name):
     """ Ensure that the given type name exists """
     types = intgs.list_types(api_addr)
-    matching_type = next((t for t in types if t['type'] == type_name), None)
+    matching_type = next((t for t in types if t["type"] == type_name), None)
     if matching_type is None:
         error(
-            f"ERROR: The given type '{type_name}' is not valid. Type is case sensitive.",
-            exit=True
+            f"ERROR: The given type '{type_name}' is not valid. Type is case sensitive.", exit=True
         )
 
 
 def _print_validate_fields_error(intg_type):
     """ Print the required fields - intg_type is the return from intgs.show_type """
     error("ERROR: The following fields (and only these fields) must be used with --field / -f")
-    for name in intg_type['fields'].keys():
+    for name in intg_type["fields"].keys():
         error(f"  {name}")
     error("... Correct the fields and try again", exit=True)
 
@@ -45,7 +44,7 @@ def _validate_fields(api_addr, intg_type_name, input_fields):
     """ Ensure that the required fields are present """
     # Pull a list of the required fields from the integration type
     intg_type = intgs.show_type(api_addr, intg_type_name)
-    reqd_fields = intg_type['fields'].keys()
+    reqd_fields = intg_type["fields"].keys()
     num_expected_fields = len(reqd_fields)
     num_input_fields = len(input_fields)
     if num_expected_fields != num_input_fields:
@@ -65,7 +64,7 @@ def integrations_list_types(api_addr):
     types = intgs.list_types(api_addr)
     for intg_type in types:
         click.echo(intg_type["type"])
-        for field in intg_type['fields']:
+        for field in intg_type["fields"]:
             click.echo(f"  {field}: {intg_type['fields'][field]}")
 
 
@@ -80,7 +79,7 @@ def integrations_show_type(api_addr, type_name):
         error(f"ERROR: type {type_name} is not valid")
         return
     click.echo(intg_type["type"])
-    for field in intg_type['fields']:
+    for field in intg_type["fields"]:
         click.echo(f"  {field}: {intg_type['fields'][field]}")
 
 
@@ -98,7 +97,7 @@ def integrations_list(api_addr, username, password):
         click.echo(f"display_name: {elem['display_name']}")
         click.echo(f"links:        {elem['links']}")
         click.echo("fields:")
-        intg_type = intgs.show_type(api_addr, elem['type'])
+        intg_type = intgs.show_type(api_addr, elem["type"])
         fields = intg_type["fields"]
         for field in fields:
             click.echo(f"  {field}:   {elem[field]}")
@@ -108,7 +107,7 @@ def integrations_list(api_addr, username, password):
 @click.option("--api-addr", "-a", "api_addr", required=True, help="address with protocol & port")
 @click.option("--username", "-u", required=True, help="OpenStack administrator username")
 @click.option("--password", "-p", required=True, help="OpenStack administrator password")
-@click.option("--id", "-i", 'intg_id', required=True, help="ID of the integration to edit")
+@click.option("--id", "-i", "intg_id", required=True, help="ID of the integration to edit")
 @click.command(name="delete")
 def integrations_delete(api_addr, username, password, intg_id):
     """ Delete an integration """
@@ -130,7 +129,8 @@ def integrations_delete(api_addr, username, password, intg_id):
     "fields",
     multiple=True,
     nargs=2,
-    help="Format: --field <key1> '<value1>' --field <key2> '<value2>'")
+    help="Format: --field <key1> '<value1>' --field <key2> '<value2>'",
+)
 @click.command(name="create")
 def integrations_create(api_addr, username, password, intg_type, fields):
     """ Create a new integration """
@@ -147,7 +147,7 @@ def integrations_create(api_addr, username, password, intg_type, fields):
 @click.option("--api-addr", "-a", "api_addr", required=True, help="address with protocol & port")
 @click.option("--username", "-u", required=True, help="OpenStack administrator username")
 @click.option("--password", "-p", required=True, help="OpenStack administrator password")
-@click.option("--id", "-i", 'intg_id', required=True, help="ID of the integration to edit")
+@click.option("--id", "-i", "intg_id", required=True, help="ID of the integration to edit")
 @click.option("--links-csv", "links_csv", default=None, help="Reset this integrations links")
 @click.option(
     "--field",
@@ -155,7 +155,8 @@ def integrations_create(api_addr, username, password, intg_type, fields):
     "fields",
     multiple=True,
     nargs=2,
-    help="Format: --field <key1> '<value1>' --field <key2> '<value2>'")
+    help="Format: --field <key1> '<value1>' --field <key2> '<value2>'",
+)
 @click.command(name="update")
 def integrations_update(api_addr, username, password, intg_id, fields, links_csv):
     """ Update an integration properties """
@@ -176,6 +177,7 @@ def integrations_update(api_addr, username, password, intg_id, fields, links_csv
 @click.argument("integration_id")
 def get_integrations_group():
     """ Returns the integrations group """
+
     @click.group(name="integrations")
     def integrations_group():
         """ Integrate Arcus API with 3rd party tools """

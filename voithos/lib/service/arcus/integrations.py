@@ -58,13 +58,13 @@ def update_integration(api_addr, username, password, intg_id, fields, links=None
     if not intg_obj:
         return False
     intg_data = {
-        'id': intg_id,
-        'type': intg_obj['type'],
-        'fields': {},
-        'links': intg_obj['links'] if links is None else links
+        "id": intg_id,
+        "type": intg_obj["type"],
+        "fields": {},
+        "links": intg_obj["links"] if links is None else links,
     }
     for field in fields:
-        intg_data['fields'][field[0]] = field[1]
+        intg_data["fields"][field[0]] = field[1]
     headers = api.get_http_auth_headers(username, password, api_addr)
     resp = requests.patch(
         f"{api_addr}/integrations/{intg_id}", headers=headers, json=intg_data, verify=False
