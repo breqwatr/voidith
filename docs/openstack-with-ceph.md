@@ -27,5 +27,12 @@ Ceph already be installed. If you haven't installed Ceph yet, follow the
 1. [**Pull Docker images to each node**](/openstack-kolla-pull.html)
 1. [**Initialize OpenStack's service containers**](/openstack-kolla-deploy.html)
 1. [**Update Chrony config file**](/update-chrony-config-file.html) - `chrony/config.json`
-1. [** Generate the admin OpenRC file**](/openstack-kolla-admin-openrc.html) - `admin-openrc.sh`
-1. [**Run the smoke-tests**](/openstack-smoke-tests.html)
+1. [**Generate the admin OpenRC file**](/openstack-kolla-admin-openrc.html) - `admin-openrc.sh`
+
+## Arcus Configurations
+
+If you'll be using the Arcus self-service portal, you can integrate it with your Ceph cluster.
+
+- [**Install Arcus**](/arcus-install.html)
+- [**Integrate Arcus with Ceph**](/arcus-ceph-integration.html)
+

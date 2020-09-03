@@ -96,6 +96,7 @@ def integrations_list(api_addr, username, password):
     for elem in intg_list:
         click.echo(f"id:           {elem['id']}")
         click.echo(f"display_name: {elem['display_name']}")
+        click.echo(f"links:        {elem['links']}")
         click.echo("fields:")
         intg_type = intgs.show_type(api_addr, elem['type'])
         fields = intg_type["fields"]
@@ -147,6 +148,7 @@ def integrations_create(api_addr, username, password, intg_type, fields):
 @click.option("--username", "-u", required=True, help="OpenStack administrator username")
 @click.option("--password", "-p", required=True, help="OpenStack administrator password")
 @click.option("--id", "-i", 'intg_id', required=True, help="ID of the integration to edit")
+@click.option("--links-csv", "links_csv", default=None, help="Reset this integrations links")
 @click.option(
     "--field",
     "-f",
@@ -155,16 +157,23 @@ def integrations_create(api_addr, username, password, intg_type, fields):
     nargs=2,
     help="Format: --field <key1> '<value1>' --field <key2> '<value2>'")
 @click.command(name="update")
-def integrations_update(api_addr, username, password, intg_id, fields):
+def integrations_update(api_addr, username, password, intg_id, fields, links_csv):
     """ Update an integration properties """
     _validate_addr(api_addr)
-    success = intgs.update_integration(api_addr, username, password, intg_id, fields)
+    links = None if links_csv is None else links_csv.split(",")
+    success = intgs.update_integration(api_addr, username, password, intg_id, fields, links=links)
     if success:
         click.echo("Successfully updated Integration")
     else:
         error("Failed to update Integration")
 
 
+@click.option("--api-addr", "-a", "api_addr", required=True, help="address with protocol & port")
+@click.option("--username", "-u", required=True, help="OpenStack administrator username")
+@click.option("--password", "-p", required=True, help="OpenStack administrator password")
+@click.option("--add", "add_ids", multiple=True, help="link ID to add - repeatable")
+@click.option("--delete", "delete_ids", multiple=True, help="link ID to remove - repeatable")
+@click.argument("integration_id")
 def get_integrations_group():
     """ Returns the integrations group """
     @click.group(name="integrations")

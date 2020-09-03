@@ -11,6 +11,7 @@ Breqwatr prefers to deploy it on the OpenStack control nodes so it leverages Ope
 you've done the same, then the `--api-addr` used throughout this document is likely:
 `http://<openstack-vip>:1234`.
 
+
 ## Show the Ceph integration-type
 
 ```bash

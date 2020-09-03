@@ -42,17 +42,26 @@ def create_integration(api_addr, username, password, intg_type, fields):
     return resp.status_code == 201
 
 
-def update_integration(api_addr, username, password, intg_id, fields):
-    """ Update an integration """
+def _find_integration(api_addr, username, password, intg_id, exit=False):
     intg_list = list_integrations(api_addr, username, password)
-    intg_data = next((i for i in intg_list if i["id"] == intg_id), None)
-    if intg_data is None:
-        error(f"ERROR: Failed to find an integration with ID = {intg_id}")
+    intg_obj = next((i for i in intg_list if i["id"] == intg_id), None)
+    if intg_obj is None:
+        error(f"ERROR: Failed to find an integration with ID = {intg_id}", exit=exit)
+        if not exit:
+            return False
+    return intg_obj
+
+
+def update_integration(api_addr, username, password, intg_id, fields, links=None):
+    """ Update an integration """
+    intg_obj = _find_integration(api_addr, username, password, intg_id, exit=False)
+    if not intg_obj:
         return False
     intg_data = {
         'id': intg_id,
-        'type': intg_data['type'],
-        'fields': {}
+        'type': intg_obj['type'],
+        'fields': {},
+        'links': intg_obj['links'] if links is None else links
     }
     for field in fields:
         intg_data['fields'][field[0]] = field[1]
