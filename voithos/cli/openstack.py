@@ -218,6 +218,10 @@ def download_image(image, output):
         return
     openstack.download_image(image, output_path=output)
 
+@click.command(name="purge-gnocchi-resource")
+def purge_gnocchi_resource():
+    """ Delete all existing gnocchi resources"""
+    openstack.purge_gnocchi_resources()
 
 def get_image_group():
     """ Return the image group """
@@ -243,6 +247,7 @@ def get_openstack_group():
     openstack_group.add_command(get_admin_openrc)
     openstack_group.add_command(kolla_ansible)
     openstack_group.add_command(cli)
+    openstack_group.add_command(purge_gnocchi_resource)
     openstack_group.add_command(smoke_test)
     openstack_group.add_command(get_globals_template)
     openstack_group.add_command(sync_local_registry)

@@ -7,6 +7,9 @@ import voithos.lib.aws.s3 as s3
 from voithos.lib.system import shell, error, assert_path_exists
 from voithos.lib.docker import volume_opt
 from voithos.constants import KOLLA_IMAGE_REPOS
+from gnocchiclient.v1 import client as gnocchi
+from keystoneauth1 import session
+from keystoneauth1.identity import v3
 
 
 SUPPORTED_IMAGES = ["windows2012", "windows2016", "windows2019", "cirros", "ubuntu1804"]
@@ -220,3 +223,29 @@ def download_image(image, output_path=None):
     bucket = "breqwatr-private-vm-images"
     echo(f"Downloading {path}, please wait. This may take a while...")
     s3.download(path, bucket, filename)
+
+
+def purge_gnocchi_resources():
+    """ Purge all gnocchi resources"""
+    gnocchi_client = _get_gnocchiclient()
+    all_resources = gnocchi_client.resource.list()
+    for resource in all_resources:
+        query_str = "id={}".format(resource["id"])
+        gnocchi_client.resource.batch_delete(query=query_str)
+
+
+def _get_gnocchiclient():
+    """Return a project scoped gnocchi client"""
+    if not all (env in os.environ for env in ("OS_PROJECT_NAME", "OS_USER_DOMAIN_NAME", "OS_PROJECT_DOMAIN_NAME", "OS_AUTH_URL", "OS_USERNAME", "OS_PASSWORD")):
+        error("ERROR: RC file not sourced", exit=True)
+    auth = v3.Password(
+        auth_url=os.environ["OS_AUTH_URL"],
+        username=os.environ["OS_USERNAME"],
+        password=os.environ["OS_PASSWORD"],
+        project_name=os.environ["OS_PROJECT_NAME"],
+        user_domain_name=os.environ["OS_USER_DOMAIN_NAME"],
+        project_domain_name=os.environ["OS_PROJECT_DOMAIN_NAME"],
+    )
+    new_session = session.Session(auth=auth, verify=False)
+    gnocchi_client = gnocchi.Client(session=new_session)
+    return gnocchi_client
