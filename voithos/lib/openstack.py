@@ -236,7 +236,17 @@ def purge_gnocchi_resources():
 
 def _get_gnocchiclient():
     """Return a project scoped gnocchi client"""
-    if not all (env in os.environ for env in ("OS_PROJECT_NAME", "OS_USER_DOMAIN_NAME", "OS_PROJECT_DOMAIN_NAME", "OS_AUTH_URL", "OS_USERNAME", "OS_PASSWORD")):
+    if not all(
+        env in os.environ
+        for env in (
+            "OS_PROJECT_NAME",
+            "OS_USER_DOMAIN_NAME",
+            "OS_PROJECT_DOMAIN_NAME",
+            "OS_AUTH_URL",
+            "OS_USERNAME",
+            "OS_PASSWORD",
+        )
+    ):
         error("ERROR: RC file not sourced", exit=True)
     auth = v3.Password(
         auth_url=os.environ["OS_AUTH_URL"],

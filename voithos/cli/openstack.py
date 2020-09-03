@@ -218,10 +218,12 @@ def download_image(image, output):
         return
     openstack.download_image(image, output_path=output)
 
+
 @click.command(name="purge-gnocchi-resource")
 def purge_gnocchi_resource():
     """ Delete all existing gnocchi resources"""
     openstack.purge_gnocchi_resources()
+
 
 def get_image_group():
     """ Return the image group """
