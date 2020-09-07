@@ -221,3 +221,11 @@ Only enable Horizon if you won't be putting Arcus on ports 80 and 443 of the con
 ```yaml
 enable_horizon: yes
 ```
+
+## Gnocchi
+Gnocchi depends on ceilometer for polling metrics. Enable both gnocchi and ceilometer.
+
+```yaml
+enable_ceilometer
+enable_gnocchi
+```

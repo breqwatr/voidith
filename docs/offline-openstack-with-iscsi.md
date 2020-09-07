@@ -27,5 +27,6 @@ Depending on the storage backend you're using, the procedure varies.
 1. [**Bootstrap the OpenStack servers**](/openstack-kolla-bootstrap.html)
 1. [**Pull Docker images to each node**](/openstack-kolla-pull.html)
 1. [**Initialize OpenStack's service containers**](/openstack-kolla-deploy.html)
-1. [** Generate the admin OpenRC file**](/openstack-kolla-admin-openrc.html) - `admin-openrc.sh`
+1. [**Generate the admin OpenRC file**](/openstack-kolla-admin-openrc.html) - `admin-openrc.sh`
+1. [**Configure default archive policy**](/openstack-gnocchi-config.html) - 'usage and metering'
 1. [**Run the smoke-tests**](/openstack-smoke-tests.html)

@@ -28,6 +28,7 @@ Ceph already be installed. If you haven't installed Ceph yet, follow the
 1. [**Initialize OpenStack's service containers**](/openstack-kolla-deploy.html)
 1. [**Update Chrony config file**](/update-chrony-config-file.html) - `chrony/config.json`
 1. [**Generate the admin OpenRC file**](/openstack-kolla-admin-openrc.html) - `admin-openrc.sh`
+1. [**Configure default archive policy**](/openstack-gnocchi-config.html) - 'usage and metering'
 
 ## Arcus Configurations
 
