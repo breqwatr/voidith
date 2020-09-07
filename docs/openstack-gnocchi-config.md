@@ -1,7 +1,7 @@
 # Create custom archive policy
 If arcus metering is enabled on this cloud then a custom archive policy is required.
 
-##Source admin-rc file
+## Source admin-rc file
 ```
 source /etc/kolla/admin-openrc.sh
 ```

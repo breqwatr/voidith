@@ -27,7 +27,8 @@ Ceph-backed clusters should have already created some files here, as specified i
 
 ### Metric polling
 By default ceilometer polls many metrics and doesn't poll `volume.size`. This file contains the
-names of metrics of interest.
+names of metrics of interest from arcus usage and metering perspective. `vcpus` and `memory` is
+polled by nova every hour so we don't need to put it in polling.yaml.
 
 ```
 # config/ceilometer/polling.yaml
