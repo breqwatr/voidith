@@ -66,8 +66,7 @@
                 "dashLength": 10,
                 "dashes": false,
                 "datasource": "Prometheus",
-                "fill": 1,
-                "fillGradient": 0,
+                "fill": 0,
                 "gridPos": {
                     "h": 8,
                     "w": 12,
@@ -86,7 +85,7 @@
                     "values": false
                 },
                 "lines": true,
-                "linewidth": 1,
+                "linewidth": 2,
                 "nullPointMode": "null",
                 "options": {
                     "dataLinks": []
@@ -164,8 +163,7 @@
                 "dashLength": 10,
                 "dashes": false,
                 "datasource": "Prometheus",
-                "fill": 1,
-                "fillGradient": 0,
+                "fill": 0,
                 "gridPos": {
                     "h": 8,
                     "w": 12,
@@ -184,7 +182,7 @@
                     "values": false
                 },
                 "lines": true,
-                "linewidth": 1,
+                "linewidth": 2,
                 "nullPointMode": "null",
                 "options": {
                     "dataLinks": []
@@ -294,8 +292,7 @@
                 "dashLength": 10,
                 "dashes": false,
                 "datasource": "Prometheus",
-                "fill": 1,
-                "fillGradient": 0,
+                "fill": 0,
                 "gridPos": {
                     "h": 8,
                     "w": 12,
@@ -314,7 +311,7 @@
                     "values": false
                 },
                 "lines": true,
-                "linewidth": 1,
+                "linewidth": 2,
                 "nullPointMode": "null",
                 "options": {
                     "dataLinks": []
@@ -392,8 +389,7 @@
                 "dashLength": 10,
                 "dashes": false,
                 "datasource": "Prometheus",
-                "fill": 1,
-                "fillGradient": 0,
+                "fill": 0,
                 "gridPos": {
                     "h": 8,
                     "w": 12,
@@ -412,7 +408,7 @@
                     "values": false
                 },
                 "lines": true,
-                "linewidth": 1,
+                "linewidth": 2,
                 "nullPointMode": "null",
                 "options": {
                     "dataLinks": []
@@ -520,8 +516,7 @@
                 "dashLength": 10,
                 "dashes": false,
                 "datasource": "Prometheus",
-                "fill": 1,
-                "fillGradient": 0,
+                "fill": 0,
                 "gridPos": {
                     "h": 8,
                     "w": 12,
@@ -540,7 +535,7 @@
                     "values": false
                 },
                 "lines": true,
-                "linewidth": 1,
+                "linewidth": 2,
                 "nullPointMode": "null",
                 "options": {
                     "dataLinks": []
@@ -656,8 +651,7 @@
                 "dashLength": 10,
                 "dashes": false,
                 "datasource": "Prometheus",
-                "fill": 1,
-                "fillGradient": 0,
+                "fill": 0,
                 "gridPos": {
                     "h": 8,
                     "w": 12,
@@ -676,7 +670,7 @@
                     "values": false
                 },
                 "lines": true,
-                "linewidth": 1,
+                "linewidth": 2,
                 "nullPointMode": "null",
                 "options": {
                     "dataLinks": []
@@ -792,8 +786,7 @@
                 "dashLength": 10,
                 "dashes": false,
                 "datasource": "Prometheus",
-                "fill": 1,
-                "fillGradient": 0,
+                "fill": 0,
                 "gridPos": {
                     "h": 8,
                     "w": 12,
@@ -812,7 +805,7 @@
                     "values": false
                 },
                 "lines": true,
-                "linewidth": 1,
+                "linewidth": 2,
                 "nullPointMode": "null",
                 "options": {
                     "dataLinks": []
@@ -926,8 +919,7 @@
                 "dashLength": 10,
                 "dashes": false,
                 "datasource": "Prometheus",
-                "fill": 1,
-                "fillGradient": 0,
+                "fill": 0,
                 "gridPos": {
                     "h": 8,
                     "w": 12,
@@ -946,7 +938,7 @@
                     "values": false
                 },
                 "lines": true,
-                "linewidth": 1,
+                "linewidth": 2,
                 "nullPointMode": "null",
                 "options": {
                     "dataLinks": []
@@ -1060,8 +1052,7 @@
                 "dashLength": 10,
                 "dashes": false,
                 "datasource": "Prometheus",
-                "fill": 1,
-                "fillGradient": 0,
+                "fill": 0,
                 "gridPos": {
                     "h": 8,
                     "w": 12,
@@ -1080,7 +1071,7 @@
                     "values": false
                 },
                 "lines": true,
-                "linewidth": 1,
+                "linewidth": 2,
                 "nullPointMode": "null",
                 "options": {
                     "dataLinks": []
@@ -1166,7 +1157,7 @@
         },
         "timepicker": {},
         "timezone": "",
-        "title": "Nodes",
+        "title": "Servers",
         "uid": null,
         "variables": {
             "list": []
