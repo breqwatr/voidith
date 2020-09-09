@@ -29,13 +29,32 @@ def pull(release):
     multiple=True,
     help="IP(s) of RabbitMQ service. Repeat for each IP.",
 )
+@click.option(
+    "--kolla-ansible-dir", required=True, help="Full directory path containing kolla-ansible files"
+)
 @click.command(name="start")
-def start(release, openstack_vip, sql_pass, sql_ip, rabbit_ips_list, rabbit_pass, ceph):
+def start(
+    release,
+    openstack_vip,
+    sql_pass,
+    sql_ip,
+    rabbit_ips_list,
+    rabbit_pass,
+    ceph,
+    kolla_ansible_dir,
+):
     """ Launch the arcus-mgr service """
     click.echo("starting arcus manager")
     enable_ceph = "true" if ceph else "false"
     arcus_mgr.start(
-        release, openstack_vip, sql_pass, sql_ip, rabbit_ips_list, rabbit_pass, enable_ceph
+        release,
+        openstack_vip,
+        sql_pass,
+        sql_ip,
+        rabbit_ips_list,
+        rabbit_pass,
+        enable_ceph,
+        kolla_ansible_dir,
     )
 
 
