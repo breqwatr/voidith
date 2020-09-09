@@ -15,7 +15,7 @@ def pull(release):
 
 
 @click.option("--release", "-r", required=True, help="Version of Arcus API to run")
-@click.option("--openstack-vip", "openstack_vip", required=True, help="VIP for OpenStack")
+@click.option("--openstack-vip", "openstack_vip", required=True, help="Internal VIP for OpenStack")
 @click.option("--sql-pass", "sql_pass", required=True, help="SQL password for arcus user")
 @click.option("--sql-ip", "sql_ip", required=True, help="IP Address of SQL")
 @click.option("--rabbit-pass", required=True, help="RabbitMQ password")
