@@ -40,7 +40,8 @@ def test_arcus_mgr_pull(mock_aws, mock_shell):
 
 
 @patch("voithos.lib.service.arcus.mgr.shell")
-def test_arcus_mgr_start(mock_shell):
+@patch("voithos.lib.service.arcus.mgr.volume_opt")
+def test_arcus_mgr_start(mock_shell, mock_volume_opt):
     """ Test starting the arcus mgr service """
     runner = CliRunner()
     result = runner.invoke(
@@ -58,9 +59,12 @@ def test_arcus_mgr_start(mock_shell):
             "1.2.3.4",
             "--rabbit-pass",
             "4.5.6.7",
-            "--ceph",
+            "--no-ceph",
+            "--kolla-ansible-dir",
+            "/etc/arcus-mgr"
         ],
         catch_exceptions=False,
     )
     assert result.exit_code == 0, result.output
     assert mock_shell.called
+    assert mock_volume_opt.called
