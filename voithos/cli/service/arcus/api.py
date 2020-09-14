@@ -27,16 +27,6 @@ def pull(release):
 @click.option("--sql-ip", required=True, help="IP/VIP of SQL service")
 @click.option("--sql-password", required=True, help="password for SQL service")
 @click.option(
-    "--ceph/--no-ceph", required=True, default=False, help="use --ceph to enable Ceph features"
-)
-@click.option(
-    "--ceph-dir",
-    "ceph_dir",
-    required=False,
-    default=None,
-    help="directory with ceph.conf and keyring files",
-)
-@click.option(
     "--https/--http", default=True, required=True, help="Does OpenStack use HTTPS or HTTP"
 )
 @click.option("--port", default=1234, help="Override the listen port")
@@ -49,8 +39,6 @@ def start(
     rabbit_ip,
     sql_ip,
     sql_password,
-    ceph,
-    ceph_dir,
     https,
     port,
     secret,
@@ -64,8 +52,6 @@ def start(
         rabbit_ips_list=rabbit_ip,
         sql_ip=sql_ip,
         sql_password=sql_password,
-        ceph_enabled=ceph,
-        ceph_dir=ceph_dir,
         https=https,
         port=port,
         secret=secret,

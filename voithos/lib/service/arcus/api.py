@@ -17,8 +17,6 @@ def start(
     rabbit_ips_list,
     sql_ip,
     sql_password,
-    ceph_enabled,
-    ceph_dir,
     https,
     port,
     secret,
@@ -36,7 +34,6 @@ def start(
         "SQL_USERNAME": "arcus",
         "SQL_PASSWORD": sql_password,
         "SQL_IP": sql_ip,
-        "CEPH_ENABLED": str(ceph_enabled).lower(),
         "ARCUS_INTEGRATION_SECRET": secret,
     }
     env_str = env_string(env_vars)
@@ -44,10 +41,6 @@ def start(
     run = ""
     dev_mount = ""
     ceph_mount = ""
-    if ceph_enabled:
-        if ceph_dir is None:
-            error("ERROR: --ceph-dir is required for --ceph", exit=True)
-        ceph_mount = volume_opt(ceph_dir, "/etc/ceph")
     network = "--network host"
     if DEV_MODE:
         if "ARCUS_API_DIR" not in os.environ:
