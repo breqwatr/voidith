@@ -25,7 +25,6 @@ iSCSI. These are ideally dedicated storage nodes, but can also be hyperconverged
 1. [**Pull Docker images to each node**](/openstack-kolla-pull.html)
 1. [**Initialize OpenStack's service containers**](/openstack-kolla-deploy.html)
 1. [**Generate the admin OpenRC file**](/openstack-kolla-admin-openrc.html) - `admin-openrc.sh`
-1. [**Configure default archive policy**](/openstack-gnocchi-config.html) - `usage and metering`
 
 
 ## Arcus Configurations
@@ -33,6 +32,10 @@ iSCSI. These are ideally dedicated storage nodes, but can also be hyperconverged
 Arcus is Breqwatr's OpenStack self-service web portal.
 
 - [**Install Arcus**](/arcus-install.html)
+
+To collect pricing data correctly, Arcus requires a particular default archive policy be set.
+
+- [**Configure default metering archive policy**](/openstack-gnocchi-config.html)
 
 
 ## Monitoring

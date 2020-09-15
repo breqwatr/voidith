@@ -28,7 +28,6 @@ Ceph already be installed. If you haven't installed Ceph yet, follow the
 1. [**Initialize OpenStack's service containers**](/openstack-kolla-deploy.html)
 1. [**Update Chrony config file**](/update-chrony-config-file.html) - `chrony/config.json`
 1. [**Generate the admin OpenRC file**](/openstack-kolla-admin-openrc.html) - `admin-openrc.sh`
-1. [**Configure default archive policy**](/openstack-gnocchi-config.html) - `usage and metering`
 
 
 ## Arcus Configurations
@@ -36,6 +35,10 @@ Ceph already be installed. If you haven't installed Ceph yet, follow the
 Arcus is Breqwatrs OpenStack self-service portal.
 
 - [**Install Arcus**](/arcus-install.html)
+
+To collect pricing data correctly, Arcus requires a particular default archive policy be set.
+
+- [**Configure default metering archive policy**](/openstack-gnocchi-config.html)
 
 Arcus can be integrated with Ceph to enable additional functionality such as reporting and in-place
 snapshot restores.
