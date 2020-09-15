@@ -8,6 +8,7 @@ iSCSI. These are ideally dedicated storage nodes, but can also be hyperconverged
 
 1. [**Create the LVM volume group**](/openstack-lvm.html)
 
+
 ## Install OpenStack
 
 1. (optional) Deploy a local Docker registry
@@ -25,3 +26,19 @@ iSCSI. These are ideally dedicated storage nodes, but can also be hyperconverged
 1. [**Initialize OpenStack's service containers**](/openstack-kolla-deploy.html)
 1. [**Generate the admin OpenRC file**](/openstack-kolla-admin-openrc.html) - `admin-openrc.sh`
 1. [**Configure default archive policy**](/openstack-gnocchi-config.html) - `usage and metering`
+
+
+## Arcus Configurations
+
+Arcus is Breqwatr's OpenStack self-service web portal.
+
+- [**Install Arcus**](/arcus-install.html)
+
+
+## Monitoring
+
+Breqwatr's OpenStack setup supports containerized monitoring tools to watch the OpenStack servers.
+
+- [**Install Prometheus and Grafana**](/grafana-prometheus-config.html)
+- [**Configure Graphs and Alerts**](/grafana-graphs-alerts.html)
+~

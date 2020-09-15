@@ -132,7 +132,7 @@ Arcus Client (arcus-client) is the web UI built to leverage the Arcus API.
 Pull the image from Breqwatr's private registry
 
 ```bash
-voithos service arcus client pull --release 7.5
+voithos service arcus client pull --release 9.1
 ```
 
 Start the client. When prompted for the API IP, enter the address the API will listen on, even if
@@ -148,7 +148,7 @@ voithos service arcus client start --help
 
 ## Arcus API
 
-Arcus API (arcus-api)is the orchestration agent that operates against OpenStack Ceph, and other
+Arcus API (arcus-api)is the orchestration agent that operates against OpenStack, Ceph, and other
 private cloud services.
 
 Initialize the database
@@ -170,7 +170,7 @@ voithos service arcus api database-init \
 Pull the image from Breqwatr's private registry
 
 ```bash
-voithos service arcus api pull --release 7.5
+voithos service arcus api pull --release 9.1
 ```
 
 Start the service
@@ -197,7 +197,7 @@ Arcus Manager (arcus-mgr) is a distributed task-runner that operates Arcus's per
 Pull the image from Breqwatr's private registry
 
 ```bash
-voithos service arcus mgr pull --release 7.5
+voithos service arcus mgr pull --release 9.1
 ```
 
 Launch the arcus-mgr service

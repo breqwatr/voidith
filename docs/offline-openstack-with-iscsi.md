@@ -29,4 +29,25 @@ Depending on the storage backend you're using, the procedure varies.
 1. [**Initialize OpenStack's service containers**](/openstack-kolla-deploy.html)
 1. [**Generate the admin OpenRC file**](/openstack-kolla-admin-openrc.html) - `admin-openrc.sh`
 1. [**Configure default archive policy**](/openstack-gnocchi-config.html) - `usage and metering`
-1. [**Run the smoke-tests**](/openstack-smoke-tests.html)
+
+
+## Arcus Configurations
+
+Arcus is Breqwatr's self-service web portal.
+
+- [**Install Arcus**](/arcus-install.html)
+
+Arcus can optionally be integrated with the following iSCSI storage appliances to enable additional
+functionality:
+
+- Pure Storage
+- Dell EMC's Unity
+
+
+
+## Monitoring
+
+Breqwatr's OpenStack setup supports containerized monitoring tools to watch the OpenStack servers.
+
+- [**Install Prometheus and Grafana**](/grafana-prometheus-config.html)
+- [**Configure Graphs and Alerts**](/grafana-graphs-alerts.html)

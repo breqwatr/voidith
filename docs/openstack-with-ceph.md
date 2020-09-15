@@ -30,10 +30,22 @@ Ceph already be installed. If you haven't installed Ceph yet, follow the
 1. [**Generate the admin OpenRC file**](/openstack-kolla-admin-openrc.html) - `admin-openrc.sh`
 1. [**Configure default archive policy**](/openstack-gnocchi-config.html) - `usage and metering`
 
+
 ## Arcus Configurations
 
-If you'll be using the Arcus self-service portal, you can integrate it with your Ceph cluster.
+Arcus is Breqwatrs OpenStack self-service portal.
 
 - [**Install Arcus**](/arcus-install.html)
+
+Arcus can be integrated with Ceph to enable additional functionality such as reporting and in-place
+snapshot restores.
+
 - [**Integrate Arcus with Ceph**](/arcus-ceph-integration.html)
 
+
+## Monitoring
+
+Breqwatr's OpenStack setup supports containerized monitoring tools to watch the OpenStack servers.
+
+- [**Install Prometheus and Grafana**](/grafana-prometheus-config.html)
+- [**Configure Graphs and Alerts**](/grafana-graphs-alerts.html)
