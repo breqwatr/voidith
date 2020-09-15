@@ -26,9 +26,9 @@ Ceph-backed clusters should have already created some files here, as specified i
 ## config/ceilometer/polling.yaml
 
 ### Metric polling
-By default ceilometer polls many metrics and doesn't poll `volume.size`. This file contains the
-names of metrics of interest from arcus usage and metering perspective. `vcpus` and `memory` is
-polled by nova every hour so we don't need to put it in polling.yaml.
+
+This configuration is strictly required for the Arcus self-service portal.
+The `polling.yaml` file defines the metrics required by the Arcus self-service portal.
 
 ```
 # config/ceilometer/polling.yaml
@@ -47,11 +47,11 @@ sources:
 ## config/ceilometer/pipeline.yaml
 
 ### Pipeline
-Default archive policy used by metrics is `low`. If arcus metering will be used on this cloud,
-then custom archive-policy will be used with different granularities and retention periods.
-`metering-policy` will be the name of archive policy we shall create after deployment. It can be
-replaced with some other name. Just use that name while creating custom archive policy after
-deployment.
+
+This configuration is strictly required for the Arcus self-service portal.
+
+The `pipeline.yaml` file configures Ceilometer to the the custom metering policy
+"`metering-policy`", a dependency of Arcus.
 
 ```
 # config/ceilometer/pipeline.yaml
