@@ -40,7 +40,11 @@ def start(
     run = ""
     dev_mount = ""
     network = "--network host"
+    log_mount = "-v /var/log/arcus-client:/var/log/nginx"
+    hosts_mount = "-v /etc/hosts:/etc/hosts"
     if DEV_MODE:
+        log_mount = ""
+        hosts_mount = ""
         if "ARCUS_CLIENT_DIR" not in os.environ:
             error("ERROR: must set $ARCUS_CLIENT_DIR when $VOITHOS_DEV==true", exit=True)
         client_dir = os.environ["ARCUS_CLIENT_DIR"]
@@ -59,8 +63,6 @@ def start(
         dev_mount = volume_opt(client_dir, "/app")
     name = "arcus_client"
     shell(f"docker rm -f {name} || true")
-    log_mount = "-v /var/log/arcus-client:/var/log/nginx"
-    hosts_mount = "-v /etc/hosts:/etc/hosts"
     cmd = (
         f"docker run --name {name} "
         f"{daemon} {network} {env_str} "

@@ -42,7 +42,11 @@ def start(
     dev_mount = ""
     ceph_mount = ""
     network = "--network host"
+    log_mount = "-v /var/log/arcus-api:/var/log/arcusweb"
+    hosts_mount = "-v /etc/hosts:/etc/hosts"
     if DEV_MODE:
+        log_mount = ""
+        hosts_mount = ""
         if "ARCUS_API_DIR" not in os.environ:
             error("ERROR: must set $ARCUS_API_DIR when $VOITHOS_DEV==true", exit=True)
         api_dir = os.environ["ARCUS_API_DIR"]
@@ -61,8 +65,6 @@ def start(
         )
     name = "arcus_api"
     shell(f"docker rm -f {name} 2>/dev/null || true")
-    log_mount = "-v /var/log/arcus-api:/var/log/arcusweb"
-    hosts_mount = "-v /etc/hosts:/etc/hosts"
     cmd = (
         f"docker run --name {name} {daemon} {network} "
         f"{hosts_mount} {log_mount} "

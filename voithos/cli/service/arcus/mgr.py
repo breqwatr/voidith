@@ -32,6 +32,7 @@ def pull(release):
 @click.option(
     "--kolla-ansible-dir", required=True, help="Full directory path containing kolla-ansible files"
 )
+@click.option("--cloud-name", required=True, help="Description of this cloud for alert emails")
 @click.command(name="start")
 def start(
     release,
@@ -42,6 +43,7 @@ def start(
     rabbit_pass,
     ceph,
     kolla_ansible_dir,
+    cloud_name,
 ):
     """ Launch the arcus-mgr service """
     click.echo("starting arcus manager")
@@ -55,6 +57,7 @@ def start(
         rabbit_pass,
         enable_ceph,
         kolla_ansible_dir,
+        cloud_name,
     )
 
 

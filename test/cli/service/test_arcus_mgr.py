@@ -61,7 +61,9 @@ def test_arcus_mgr_start(mock_shell, mock_volume_opt):
             "4.5.6.7",
             "--no-ceph",
             "--kolla-ansible-dir",
-            "/etc/arcus-mgr"
+            "/etc/arcus-mgr",
+            "--cloud-name",
+            "test cloud for unit tests"
         ],
         catch_exceptions=False,
     )
