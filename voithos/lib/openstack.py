@@ -12,7 +12,14 @@ from keystoneauth1 import session
 from keystoneauth1.identity import v3
 
 
-SUPPORTED_IMAGES = ["windows2012", "windows2016", "windows2019", "cirros", "ubuntu1804"]
+SUPPORTED_IMAGES = [
+    "windows10",
+    "windows2012",
+    "windows2016",
+    "windows2019",
+    "cirros",
+    "ubuntu1804",
+]
 
 
 def kolla_ansible_genpwd(release):
