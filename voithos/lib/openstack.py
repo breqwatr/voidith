@@ -13,12 +13,15 @@ from keystoneauth1.identity import v3
 
 
 SUPPORTED_IMAGES = [
+    "cirros",
+    "rhel-6.10",
+    "rhel-7.8",
+    "rhel-8.2",
+    "ubuntu1804",
     "windows10",
     "windows2012",
     "windows2016",
     "windows2019",
-    "cirros",
-    "ubuntu1804",
 ]
 
 
