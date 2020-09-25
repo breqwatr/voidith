@@ -86,7 +86,7 @@
                 },
                 "lines": true,
                 "linewidth": 2,
-                "nullPointMode": "null",
+                "nullPointMode": "connected",
                 "options": {
                     "dataLinks": []
                 },
@@ -183,7 +183,7 @@
                 },
                 "lines": true,
                 "linewidth": 2,
-                "nullPointMode": "null",
+                "nullPointMode": "connected",
                 "options": {
                     "dataLinks": []
                 },
@@ -312,7 +312,7 @@
                 },
                 "lines": true,
                 "linewidth": 2,
-                "nullPointMode": "null",
+                "nullPointMode": "connected",
                 "options": {
                     "dataLinks": []
                 },
@@ -409,7 +409,7 @@
                 },
                 "lines": true,
                 "linewidth": 2,
-                "nullPointMode": "null",
+                "nullPointMode": "connected",
                 "options": {
                     "dataLinks": []
                 },
@@ -536,7 +536,7 @@
                 },
                 "lines": true,
                 "linewidth": 2,
-                "nullPointMode": "null",
+                "nullPointMode": "connected",
                 "options": {
                     "dataLinks": []
                 },
@@ -671,7 +671,7 @@
                 },
                 "lines": true,
                 "linewidth": 2,
-                "nullPointMode": "null",
+                "nullPointMode": "connected",
                 "options": {
                     "dataLinks": []
                 },
@@ -806,7 +806,7 @@
                 },
                 "lines": true,
                 "linewidth": 2,
-                "nullPointMode": "null",
+                "nullPointMode": "connected",
                 "options": {
                     "dataLinks": []
                 },
@@ -820,7 +820,7 @@
                 "steppedLine": false,
                 "targets": [
                     {
-                        "expr": "(avg by (instance) (irate(node_cpu_seconds_total{job=\"node\",mode=\"idle\"}[5m])) * 100)",
+                        "expr": "(avg by (instance) (irate(node_cpu_seconds_total{job=\"node\",mode=\"idle\"}[30m])) * 100)",
                         "interval": "",
                         "legendFormat": "",
                         "refId": "A"
@@ -939,7 +939,7 @@
                 },
                 "lines": true,
                 "linewidth": 2,
-                "nullPointMode": "null",
+                "nullPointMode": "connected",
                 "options": {
                     "dataLinks": []
                 },
@@ -953,7 +953,7 @@
                 "steppedLine": false,
                 "targets": [
                     {
-                        "expr": "irate((node_network_receive_bytes_total{device=~\"en.*\"}[5m]))",
+                        "expr": "irate((node_network_receive_bytes_total{device=~\"en.*\"}[30m]))",
                         "interval": "",
                         "legendFormat": "",
                         "refId": "A"
@@ -1072,7 +1072,7 @@
                 },
                 "lines": true,
                 "linewidth": 2,
-                "nullPointMode": "null",
+                "nullPointMode": "connected",
                 "options": {
                     "dataLinks": []
                 },
@@ -1086,7 +1086,7 @@
                 "steppedLine": false,
                 "targets": [
                     {
-                        "expr": "irate((node_network_transmit_bytes_total{device=~\"en.*\"}[5m]))",
+                        "expr": "irate((node_network_transmit_bytes_total{device=~\"en.*\"}[30m]))",
                         "interval": "",
                         "legendFormat": "",
                         "refId": "A"
