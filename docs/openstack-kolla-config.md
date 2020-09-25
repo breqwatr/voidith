@@ -201,6 +201,10 @@ group_name_attribute = ou
 group_member_attribut = member
 group_desc_attribute = description
 
+# In big domains with nested OUs you may also need:
+query_scope = sub
+page_size = 0
+
 # debug levels of 0,255, and 4095 are common, with 4095 the most verbose
 debug_level = 0
 ```
