@@ -43,6 +43,8 @@ click on `Save` button
 * Click save button (4th symbol) on top right corner and save it.
 
 ## Example Queries
+**Note**: Time period for any query using irate function must be atleast more than twice the
+`scrape_interval`.
 
 ### CPU Idle
 * **Query:** (avg by (instance) (irate(node_cpu_seconds_total{job="node",mode="idle"}[5m])) * 100)

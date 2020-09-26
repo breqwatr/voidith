@@ -29,6 +29,13 @@ open `/etc/kolla/grafana/grafana.ini` and put `domain = <api_interface_address>`
 the servers on which grafana containers are running and restart containers using
 `docker restart grafana`.
 
+## Prometheus Scrape interval
+Scrape interval is time period after which an exporter collects data. Lower scrape interval can
+put stress on resources. By default it collects data after every one minute. For changing
+`scrape_interval`, open `/etc/kolla/prometheus-server/prometheus.yml`. Change the value of
+`scrape_interval` under `global` and under `scrape_configs` if any of the exporter has
+`scrape_interval` variable defined.
+
 
 ## TLS Configuration
 If tls is enabled in your deployment then add `verify: false` under `default` in
