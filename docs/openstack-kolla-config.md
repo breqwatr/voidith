@@ -181,8 +181,8 @@ scrape_configs:
   - job_name: elasticsearch_exporter
     static_configs:
       - targets:
-        - '10.1.0.13:9108'
-
+        - '<control host 1 api ip address>:9108'
+        - '<control host n api ip address>:9108'
 
 alerting:
   alertmanagers:
