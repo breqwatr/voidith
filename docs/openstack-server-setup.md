@@ -32,6 +32,14 @@ scenario, aim to have a bit higher than the compute node requirements.
   Cinder will consume these drives using the LVM plugin.
 
 
+## Hardware Virtualization Support
+
+When deploying on metal servers, it is assumed that hardware virtualization is 
+supported by the chosen processors and enabled in the BIOS of each compute node.
+
+It can save some trouble to verify this is enabled before installation.
+
+
 ## Networking Configuration
 
 Ubuntu 18.04 uses [Netplan](https://netplan.io/examples) to configure interface
