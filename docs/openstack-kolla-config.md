@@ -184,6 +184,14 @@ scrape_configs:
         - '<control host 1 api ip address>:9108'
         - '<control host n api ip address>:9108'
 
+  - job_name: ceph_mgr_exporter
+    # Add this job only if prometheus_ceph_mgr_exporter is enabled in globals file.
+    honor_labels: true
+    static_configs:
+      - targets:
+        - '<monitoring host 1 api ip address>:9283'
+        - '<monitoring host n api ip address>:9283'
+
 alerting:
   alertmanagers:
   - static_configs:
