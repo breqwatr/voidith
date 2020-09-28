@@ -112,6 +112,85 @@ Neutron requires that the permitted VLAN range be defined on the physical provid
 network_vlan_ranges = physnet1:1:4094
 ```
 
+## config/prometheus/prometheus.yml
+Default scrape interval is 60 seconds. That means prometheus server will fetch monitoring data
+from it's exporters after every one minute. It might put stress on server resources depending
+on your servers specs. In order to use higher scrape interval we can configure
+`prometheus.yml` before deployment. Replace values enclosed in `<>` with actual values.
+Consult inventory file for checking what hosts belong to monitoring, control and networking.
+All exporters are enabled by default. If any of the exporter is disabled in globals file,
+don't put it's configs under `scrape_configs`. Elasticsearch exporter is enabled when elasticsearch
+is enabled. Don't put it's configs under `scrape_configs` if elasticsearch isn't enabled.
+
+```
+# config/prometheus/prometheus.yml
+global:
+  scrape_interval: <scrape-interval>s
+  scrape_timeout: 10s
+  evaluation_interval: 15s
+  external_labels:
+    monitor: 'kolla'
+
+scrape_configs:
+  - job_name: prometheus
+    static_configs:
+      - targets:
+        - '<monitoring host 1 api ip address>:9091'
+        - '<monitoring host n api ip address>:9091'
+
+  - job_name: node
+    static_configs:
+      - targets:
+        # All openstack nodes participate in this job
+        - '<openstack host 1 api ip address>:9100'
+        - '<openstack host n api ip address>:9100'
+
+  - job_name: mysqld
+    static_configs:
+      - targets:
+        - '<control host 1 api ip address>:9104'
+        - '<control host n api ip address>:9104'
+
+  - job_name: haproxy
+    static_configs:
+      - targets:
+        - '<network host 1 api ip address>:9101'
+        - '<network host n api ip address>:9101'
+
+  - job_name: memcached
+    static_configs:
+      - targets:
+        - '<control host 1 api ip address>:9150'
+        - '<control host n api ip address>:9150'
+
+  - job_name: cadvisor
+    static_configs:
+      # All openstack nodes participate in this job
+      - targets:
+        - '<openstack host 1 api ip address>:18080'
+        - '<openstack host n api ip address>:18080'
+
+
+  - job_name: openstack_exporter
+    honor_labels: true
+    static_configs:
+      - targets:
+        - '<monitoring host 1 api ip address>:9198'
+        - '<monitoring host n api ip address>:9198'
+
+  - job_name: elasticsearch_exporter
+    static_configs:
+      - targets:
+        - '10.1.0.13:9108'
+
+
+alerting:
+  alertmanagers:
+  - static_configs:
+    - targets:
+        - '<control host 1 api ip address>:9093'
+        - '<control host n api ip address>:9093'
+```
 
 ## config/keystone/keystone.conf
 
