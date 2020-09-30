@@ -93,6 +93,10 @@ def _create_arcus_dbuser(cursor, password):
     cursor.execute(create_cmd)
     grant_cmd = 'GRANT ALL privileges ON arcus.* TO "arcus";'
     cursor.execute(grant_cmd)
+    grant_cinder = 'GRANT ALL privileges ON cinder.* TO "arcus";'
+    cursor.execute(grant_cinder)
+    grant_nova = 'GRANT ALL privileges ON nova.* TO "arcus";'
+    cursor.execute(grant_nova)
     return True
 
 
