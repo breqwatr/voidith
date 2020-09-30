@@ -21,5 +21,5 @@ def env_string(env_vars):
     env_str = ""
     for env_var in env_vars:
         value = env_vars[env_var]
-        env_str += f" -e {env_var}={value} "
+        env_str += f" -e {env_var}='{value}' "
     return env_str
