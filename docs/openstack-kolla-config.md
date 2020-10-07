@@ -270,7 +270,10 @@ user_tree_dn = ou=Users,dc=example,dc=org
 group_tree_dn = ou=Groups,dc=example,dc=org
 
 # Use a group to determine which users have access
-user_filter = (memberOf=cn=grp-openstack,CN=Users,DC=ad,DC=local)
+#   including :1.2.840.113556.1.4.1941: enables nested AD group search
+user_filter = (memberOf:1.2.840.113556.1.4.1941:=cn=grp-openstack,CN=Users,DC=ad,DC=local)
+# If you included the nested search filter, also consider setting (default False):
+group_ad_nesting = True
 
 # Active Directory uses the following object classes & attributes
 user_objectclass = person
