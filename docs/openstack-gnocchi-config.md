@@ -10,8 +10,8 @@ source /etc/kolla/admin-openrc.sh
 Use archive policy name used in step [**Write Kolla-Ansible's config/ files**](/openstack-kolla-config.html)
 ```
 openstack metric archive-policy create metering-policy \
- -d "granularity:00:05:00","timespan: 6 hours" \
- -d "granularity:01:00:00","timespan: 365 days" -m mean
+ -d "granularity:00:05:00","timespan: 2 hours" \
+ -d "granularity:01:00:00","timespan: 33 days" -m mean
 ```
 
 ## Delete default archive policy rule
