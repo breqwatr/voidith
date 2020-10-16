@@ -61,10 +61,13 @@ def start(
 
 @click.option("--release", "-r", required=True, help="Version of Arcus API to run")
 @click.command(name="update")
-def update(release,):
+def update(
+    release,
+):
     """ Update arcus api """
     click.echo("Updating arcus api to version: {}".format(release))
     arcus_common.update(release, "api")
+
 
 @click.option("--host", required=True, help="MariaDB IP or FQDN")
 @click.option("--admin-user", required=True, help="Admin user for creating the new DB")

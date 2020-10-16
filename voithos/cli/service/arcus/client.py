@@ -69,7 +69,9 @@ def start(
 
 @click.option("--release", "-r", required=True, help="Version of Arcus Client to run")
 @click.command(name="update")
-def update(release,):
+def update(
+    release,
+):
     """ Update arcus client """
     click.echo("Updating arcus client to version: {}".format(release))
     arcus_common.update(release, "client")

@@ -40,11 +40,6 @@ setup(
         "Programming Language :: Python :: 3",
         "Natural Language :: English",
     ],
-    package_data={
-        "voithos": [
-            "lib/files/grafana/*.json",
-            "lib/files/horizon/*"
-        ]
-    },
+    package_data={"voithos": ["lib/files/grafana/*.json", "lib/files/horizon/*"]},
     include_package_data=True,
 )
