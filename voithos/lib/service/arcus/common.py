@@ -2,8 +2,8 @@
 
 import click
 import datetime
-import voithos.lib.docker as docker
 import inspect
+import voithos.lib.docker as docker
 import voithos.lib.service.arcus.api as arcus_api
 import voithos.lib.service.arcus.client as arcus_client
 import voithos.lib.service.arcus.mgr as arcus_mgr

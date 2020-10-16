@@ -37,24 +37,27 @@ def image_exists(image_name, image_tag):
     error("ERROR: Image: {} not found. Please pull {} before running update command.".format(arcus_image, arcus_image), exit=True)
 
 def get_container_inspect_info(container_name):
+    """  Returns container inspect info"""
     docker_client = docker.from_env()
     _container_exists(container_name)
     container_info = docker_client.api.inspect_container(container_name)
     return container_info
 
 def get_container_env_variables(container_name):
-    """ Check if container exists and return container env variables """
+    """ Checks if container exists and returns container env variables """
     container_info = get_container_inspect_info(container_name)
     return container_info["Config"]["Env"]
 
 
 def get_container_image_tag(container_name):
+    """ Returns image tag of container """
     docker_client = docker.from_env()
     _container_exists(container_name)
     image_tag = docker_client.api.inspect_container(container_name)["Config"]["Image"].split(":")[1]
     return image_tag
 
 def _container_exists(container_name):
+    """ Checks and throws error if container doesn't exist """
     docker_client = docker.from_env()
     containers_list = docker_client.containers.list()
     exist = any(container.name == container_name for container in containers_list)
@@ -62,6 +65,7 @@ def _container_exists(container_name):
         error("ERROR: Container: {} not found".format(container_name), exit=True)
 
 def container_action(container_name, operation, **kwargs):
+    """ Runs docker operations """
     docker_client = docker.from_env()
     action_method = getattr(docker_client.api, operation)
     action_method(container_name, **kwargs)
