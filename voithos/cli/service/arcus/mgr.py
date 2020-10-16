@@ -4,7 +4,7 @@ import click
 
 import voithos.lib.aws.ecr as ecr
 import voithos.lib.service.arcus.mgr as arcus_mgr
-
+import voithos.lib.service.arcus.common as arcus_common
 
 @click.option("--release", "-r", required=True, help="Version of Arcus API to run")
 @click.command(name="pull")
@@ -61,6 +61,13 @@ def start(
     )
 
 
+@click.option("--release", "-r", required=True, help="Version of Arcus Mgr to run")
+@click.command(name="update")
+def update(release,):
+    """ Update arcus mgr """
+    click.echo("Updating arcus mgr to version: {}".format(release))
+    arcus_common.update(release, "mgr")
+
 def get_mgr_group():
     """ return the arcus mgr group function """
 
@@ -70,4 +77,5 @@ def get_mgr_group():
 
     mgr_group.add_command(pull)
     mgr_group.add_command(start)
+    mgr_group.add_command(update)
     return mgr_group

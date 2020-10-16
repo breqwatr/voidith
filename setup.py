@@ -20,6 +20,7 @@ setup(
     install_requires=[
         "click",
         "boto3",
+        "docker",
         "flake8",
         "gnocchiclient",
         "jinja2",

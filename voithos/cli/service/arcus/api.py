@@ -4,6 +4,7 @@ import click
 
 import voithos.lib.aws.ecr as ecr
 import voithos.lib.service.arcus.api as arcus_api
+import voithos.lib.service.arcus.common as arcus_common
 import voithos.cli.service.arcus.integrations as integrations
 
 
@@ -58,6 +59,13 @@ def start(
     )
 
 
+@click.option("--release", "-r", required=True, help="Version of Arcus API to run")
+@click.command(name="update")
+def update(release,):
+    """ Update arcus api """
+    click.echo("Updating arcus api to version: {}".format(release))
+    arcus_common.update(release, "api")
+
 @click.option("--host", required=True, help="MariaDB IP or FQDN")
 @click.option("--admin-user", required=True, help="Admin user for creating the new DB")
 @click.option("--admin-pass", required=True, help="Amin user password")
@@ -95,6 +103,7 @@ def get_api_group():
 
     api_group.add_command(pull)
     api_group.add_command(start)
+    api_group.add_command(update)
     api_group.add_command(database_init)
     api_group.add_command(set_service_account)
     api_group.add_command(integrations.get_integrations_group())

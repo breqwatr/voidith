@@ -62,7 +62,7 @@ def start(
         sys.stdout.write("TO REBUILD, EXECUTE:\n docker exec -it arcus_client grunt rebuild\n")
         dev_mount = volume_opt(client_dir, "/app")
     name = "arcus_client"
-    shell(f"docker rm -f {name} || true")
+    shell(f"docker rm -f {name} 2>/dev/null || true")
     cmd = (
         f"docker run --name {name} "
         f"{daemon} {network} {env_str} "
