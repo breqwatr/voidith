@@ -197,3 +197,22 @@ Chrony will handle NTP for the OpenStack servers, so disable the NTP service in 
 systemctl disable ntp
 ```
 
+
+## Set Swappiness
+
+You don't want Linux using the swap disk before it really must.
+
+Apply the change immediately by running: `echo 5 > /proc/sys/vm/swappiness`
+
+Have the setting also apply at reboot: At the end of /etc/sysctl.conf set 
+
+```
+vm.swappiness=5
+```
+
+If you want to clear your swap currently used, and you're sure you won't hurt anything right now, you can run:
+```
+swapoff -a; swapon -a
+```
+
+
