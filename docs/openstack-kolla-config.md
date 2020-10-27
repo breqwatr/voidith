@@ -40,7 +40,6 @@ sources:
         - cpu
         - memory.usage
         - volume.size
-        - compute.instance.booting.time
 ```
 
 
@@ -59,7 +58,11 @@ The `pipeline.yaml` file configures Ceilometer to the the custom metering policy
 sources:
     - name: meter_source
       meters:
-          - "*"
+          - cpu
+          - vcpus
+          - memory
+          - memory.usage
+          - volume.size
       sinks:
           - meter_sink
 sinks:
