@@ -206,7 +206,10 @@ enable_iscsid: no
 
 ```yaml
 enable_prometheus: yes
+# Prometheus cli flags
+#prometheus_cmdline_extras: "<-flag1> <flag1-value> <-flag2> <flag2-value>"
 ```
+For supported flags in prometheus v1.8, check [**this**](/prometheus-flags.html)
 
 ## Grafana
 
