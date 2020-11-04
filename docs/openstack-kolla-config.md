@@ -115,6 +115,37 @@ Neutron requires that the permitted VLAN range be defined on the physical provid
 network_vlan_ranges = physnet1:1:4094
 ```
 
+
+## config/neutron/dnsmasq.conf
+
+### Network Associated Search Domain
+Put entries to associate network with search domains along with default log-facility path.
+Those network will use search domain associated with them in this file instead of default
+search domain.
+```
+# config/neutron/dnsmasq.conf
+log-facility=/var/log/kolla/neutron/dnsmasq.log
+domain=<search-domain-name-1>, <network-address-1>
+.
+.
+.
+domain=<search-domain-name-n>, <network-address-n>
+```
+
+
+## config/neutron/neutron-dhcp-agent.conf
+
+## Default Search Domain
+Add dns_name config in order set deafult search domain. This search domain will be used by
+All networks except ones that are defined in config/neutron/dnsmasq.conf.
+```
+# config/neutron/neutron-dhcp-agent.conf
+# Don't forget to add "." at the end of serach domain name.
+[DEFAULT]
+dns_domain = <search-domain>.
+```
+
+
 ## config/prometheus/prometheus.yml
 Default scrape interval is 60 seconds. That means prometheus server will fetch monitoring data
 from it's exporters after every one minute. It might put stress on server resources depending
