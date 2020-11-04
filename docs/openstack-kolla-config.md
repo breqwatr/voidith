@@ -120,7 +120,7 @@ network_vlan_ranges = physnet1:1:4094
 
 ### Network Associated Search Domain
 Put entries to associate network with search domains along with default log-facility path.
-Those network will use search domain associated with them in this file instead of default
+Those networks will use search domains associated with them in this file instead of default
 search domain.
 ```
 # config/neutron/dnsmasq.conf
@@ -135,9 +135,9 @@ domain=<search-domain-name-n>, <network-address-n>
 
 ## config/neutron/neutron-dhcp-agent.conf
 
-## Default Search Domain
-Add dns_name config in order set deafult search domain. This search domain will be used by
-All networks except ones that are defined in config/neutron/dnsmasq.conf.
+### Default Search Domain
+Add dns_name config in order to set deafult search domain. This search domain will be used by
+all networks except ones that are defined in config/neutron/dnsmasq.conf.
 ```
 # config/neutron/neutron-dhcp-agent.conf
 # Don't forget to add "." at the end of serach domain name.
