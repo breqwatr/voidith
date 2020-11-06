@@ -1,7 +1,8 @@
 """ lib for arcus services """
 
+import click
 import os
-
+import re
 import requests
 import mysql.connector as connector
 
@@ -87,18 +88,22 @@ def _create_arcus_dbuser(cursor, password):
     """ Create the arcus user in the DB """
     cursor.execute("SELECT user FROM mysql.user;")
     users = cursor.fetchall()
+    db_names = ["arcus", "cinder", "nova", "keystone"]
     if (bytearray(b"arcus"),) in users:
+        cursor.execute("SHOW GRANTS FOR arcus;")
+        arcus_access = cursor.fetchall()
+        for db in db_names:
+            access_pattern = f".*GRANT ALL PRIVILEGES ON `{db}`.*'arcus'.*".format(db)
+            if not any(re.match(access_pattern, str(access_tuple)) for access_tuple in arcus_access):
+                click.echo("Granting {} db access to arcus user".format(db))
+                grant_command = f'GRANT ALL privileges ON {db}.* TO "arcus";'.format(db)
+                cursor.execute(grant_command)
         return False
     create_cmd = f'CREATE USER arcus IDENTIFIED BY "{password}"'.format(password)
     cursor.execute(create_cmd)
-    grant_cmd = 'GRANT ALL privileges ON arcus.* TO "arcus";'
-    cursor.execute(grant_cmd)
-    grant_cinder = 'GRANT ALL privileges ON cinder.* TO "arcus";'
-    cursor.execute(grant_cinder)
-    grant_nova = 'GRANT ALL privileges ON nova.* TO "arcus";'
-    cursor.execute(grant_nova)
-    grant_keystone = 'GRANT ALL privileges ON keystone.* TO "arcus";'
-    cursor.execute(grant_keystone)
+    for db in db_names:
+        grant_cmd = f'GRANT ALL privileges ON {db}.* TO "arcus";'.format(db)
+        cursor.execute(grant_cmd)
     return True
 
 
