@@ -207,8 +207,14 @@ enable_iscsid: no
 ```yaml
 enable_prometheus: yes
 # Prometheus cli flags
-#prometheus_cmdline_extras: "<-flag1> <flag1-value> <-flag2> <flag2-value>"
+prometheus_cmdline_extras: "-storage.local.retention 360h -storage.local.target-heap-size 2147483648"
 ```
+Values assigned to flags above are default values. Retention time can be changed
+according to requirement. Default value of heap size is fine for 4 or 5 nodes cloud.
+Increase it according to number of nodes sending data to prometheus-server. It's just an estimate.
+In order to calculate it precisely, we need to know total number of timeseries.
+For more information check https://prometheus.io/docs/prometheus/1.8/storage/#settings-for-high-numbers-of-time-series
+
 For supported flags in prometheus v1.8, check [**this**](/prometheus-flags.html)
 
 ## Grafana
