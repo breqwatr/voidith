@@ -76,7 +76,7 @@ sinks:
 
 ### Resource Reservations
 
-To prevent OpenStack from starving your hosts of resources, you should set asside some. This is
+To prevent OpenStack from starving your hosts of resources, you should set aside some. This is
 particularly important in hyperconverged deployments.
 
 ```
@@ -99,6 +99,20 @@ a 5:1 CPU overcommit ratio to be safe in production.
 [DEFAULT]
 cpu_allocation_ratio = 5
 ram_allocation_ratio = 1
+```
+
+## config/nova/nova-api.conf
+
+### Disable Ephemral Disk Usage
+
+Add these configs to prevent Openstack from using hypervisor's root disk.
+It won't allow user to create instance using ephemeral disk.
+
+```
+# config/nova/nova-api.conf
+
+[DEFAULT]
+max_local_block_devices = 0
 ```
 
 
