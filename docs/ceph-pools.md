@@ -61,3 +61,21 @@ ceph osd pool create images <volumes pg count>
 ceph osd pool set images size <replica count>
 ceph osd pool application enable images rbd
 ```
+
+## Configure PG Autoscale
+
+Since the Nautilous release, Ceph will autoscale its PG count. 
+Ensure that autoscale is enabled and set the weights:
+
+```
+# autoscale is on by default. To manually enable it:
+ceph osd pool set volumes pg_autoscale_mode on
+ceph osd pool set images pg_autoscale_mode on
+
+# Setting the weights
+ceph osd pool set volumes target_size_ratio .8
+ceph osd pool set images target_size_ratio .15
+
+# Display the status
+ceph osd pool autoscale-status
+```
