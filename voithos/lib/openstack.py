@@ -143,7 +143,8 @@ def kolla_ansible_exec(
     certificates_dir,
     config_dir,
     command,
-    tag=None
+    tag=None,
+    overrides=None
 ):
     """ Execute kolla-ansible commands """
     valid_cmds = [
@@ -184,8 +185,12 @@ def kolla_ansible_exec(
         run_cmd = f"kolla-ansible {command} -i /etc/kolla/inventory"
         rm_arg = "--rm"
     tag_opt = "" if tag is None else f"--tag {tag}"
+    override_vol_mnt = ""
+    if overrides is not None:
+        override_vol_mnt = volume_opt(overrides, '/overrides')
+        run_cmd = f"bash -c 'cp -r overrides/* / && {run_cmd}'"
     cmd = (
-        f"docker run {rm_arg} --network host "
+        f"docker run {rm_arg} --network host {override_vol_mnt} "
         "-e PY_COLORS=1 -e ANSIBLE_FORCE_COLOR=1 "
         f"{inv_vol} {globals_vol} {passwd_vol} {ssh_vol} {cert_vol} {config_vol}"
         f"breqwatr/kolla-ansible:{release} {run_cmd} {tag_opt}"
