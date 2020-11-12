@@ -143,6 +143,7 @@ def kolla_ansible_exec(
     certificates_dir,
     config_dir,
     command,
+    tag=None
 ):
     """ Execute kolla-ansible commands """
     valid_cmds = [
@@ -182,11 +183,12 @@ def kolla_ansible_exec(
     else:
         run_cmd = f"kolla-ansible {command} -i /etc/kolla/inventory"
         rm_arg = "--rm"
+    tag_opt = "" if tag is None else f"--tag {tag}"
     cmd = (
         f"docker run {rm_arg} --network host "
         "-e PY_COLORS=1 -e ANSIBLE_FORCE_COLOR=1 "
         f"{inv_vol} {globals_vol} {passwd_vol} {ssh_vol} {cert_vol} {config_vol}"
-        f"breqwatr/kolla-ansible:{release} {run_cmd}"
+        f"breqwatr/kolla-ansible:{release} {run_cmd} {tag_opt}"
     )
     shell(cmd)
 

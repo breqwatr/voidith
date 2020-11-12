@@ -73,6 +73,7 @@ def get_globals_template(release):
     default=None,
     help="Path of config/ directory  [optional]",
 )
+@click.option("--tag", "-t", help="Optional Ansible playbook tag", default=None)
 @click.argument("command")
 @click.command(name="kolla-ansible")
 def kolla_ansible(
@@ -84,6 +85,7 @@ def kolla_ansible(
     certificates_dir,
     config_dir,
     command,
+    tag,
 ):
     """ Execute Kolla-Ansible command  """
     openstack.kolla_ansible_exec(
@@ -95,6 +97,7 @@ def kolla_ansible(
         certificates_dir=certificates_dir,
         config_dir=config_dir,
         command=command,
+        tag=tag
     )
 
 
