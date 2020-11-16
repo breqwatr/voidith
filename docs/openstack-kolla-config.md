@@ -23,6 +23,20 @@ Ceph-backed clusters should have already created some files here, as specified i
 ---
 
 
+## config/elasticsearch/elasticsearch.yml
+
+## Field data cache
+Field data cache is memory used while sorting or computing aggregation on a field.
+Define the percentage of node heap size used by field data cache. Default value is
+40%.
+
+```
+# config/elasticseach/elasticsearch.yml
+---
+indices.fielddata.cache.size: 10%
+```
+
+
 ## config/ceilometer/polling.yaml
 
 ### Metric polling

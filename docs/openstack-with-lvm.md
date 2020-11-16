@@ -44,4 +44,4 @@ Breqwatr's OpenStack setup supports containerized monitoring tools to watch the 
 
 - [**Install Prometheus and Grafana**](/grafana-prometheus-config.html)
 - [**Configure Graphs and Alerts**](/grafana-graphs-alerts.html)
-
+- [**Configure Kibana**](/kibana-setup.html)

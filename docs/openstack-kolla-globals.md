@@ -238,3 +238,18 @@ Gnocchi depends on ceilometer for polling metrics. Enable both gnocchi and ceilo
 enable_ceilometer: yes
 enable_gnocchi: yes
 ```
+
+## Central Logging
+
+Central logging deploys elasticsearch and kibana. If enabling elasticsearch_curator, you can also
+set soft and hard retention time. Indices are closed after soft retention period and deleted after
+hard retention period.
+```yaml
+enable_central_logging: "yes"
+enable_elasticsearch_curator: "yes"
+elasticsearch_curator_soft_retention_period_days: 15
+elasticsearch_curator_hard_retention_period_days: 15
+```
+Older checkouts of kolla-ansible stable/train weren't supporting elasticsearch curator.
+If you are installing elasticsearch curator on an existing cloud, please ensure that
+elasticsearch curator hosts are defined in inventory in next step.
