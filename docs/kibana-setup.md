@@ -1,7 +1,7 @@
 # Kibana Setup
 
 ## Access dashboard
-Access kibana dashboard using <external-vip>:5601 or <internal-vip>:5601, whichever is applicable.
+Access kibana dashboard using `<external-vip>:5601` or `<internal-vip>:5601`, whichever is applicable.
 It will ask for username and password. Default user is `kibana`. You can get `kibana` user
 in passwords.yml by running `cat /etc/kolla/passwords.yml | grep kibana_password`
 
