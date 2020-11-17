@@ -102,6 +102,20 @@ reserved_host_cpus = 4
 reserved_host_disk_mb = 5242880
 ```
 
+### Build retries
+
+When using iSCSI you usually need this. With ceph it isn't required.
+
+```
+# config/nova/nova-compute.conf
+
+[DEFAULT]
+# block_device_allocate_retries_interval default is 3
+block_device_allocate_retries_interval = 30
+# block_device_allocate_retries default is 60
+block_device_allocate_retries = 180
+```
+
 ### Overcommit ratios
 
 We don't suggest overcommitting RAM, else you invite the OOM killer to your environment. We find
