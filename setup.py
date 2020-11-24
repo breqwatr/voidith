@@ -30,6 +30,7 @@ setup(
         "mysql-connector",
         "requests",
         "tqdm",
+        "pyvmomi"
     ],
     entry_points="""
         [console_scripts]
