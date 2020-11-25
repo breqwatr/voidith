@@ -35,14 +35,20 @@ def get_connection():
     username = os.environ["VMWARE_USERNAME"]
     password = os.environ["VMWARE_PASSWORD"]
     ip_addr = os.environ["VMWARE_IP_ADDR"]
+    if hasattr(ssl, 'SSLCertVerificationError'):
+        # older versions of python3 don't have SSLCertVerificationError. 3.8 does.
+        SSLVerificationError = ssl.SSLCertVerificationError
+    else:
+        # Instead 3.6 uses SSLEOFError. OSError throws instead of SSLEOFError, too
+        SSLVerificationError = ssl.SSLError
     try:
         conn = connect.SmartConnect(host=ip_addr, user=username, pwd=password)
-    except ssl.SSLCertVerificationError:
+    except SSLVerificationError:
         try:
             ctx = ssl.SSLContext(ssl.PROTOCOL_TLSv1)
             ctx.verify_mode = ssl.CERT_NONE
             conn = connect.SmartConnect(host=ip_addr, user=username, pwd=password, sslContext=ctx)
-        except ssl.SSLEOFError:
+        except (ssl.SSLEOFError, OSError):
             conn = connect.SmartConnectNoSSL(host=ip_addr, user=username, pwd=password)
     return conn
 
