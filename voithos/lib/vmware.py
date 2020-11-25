@@ -39,7 +39,7 @@ def get_connection():
         # older versions of python3 don't have SSLCertVerificationError. 3.8 does.
         SSLVerificationError = ssl.SSLCertVerificationError
     else:
-        # Instead 3.6 uses SSLEOFError. OSError throws instead of SSLEOFError, too
+        # Instead 3.6 uses SSLError. OSError throws instead of SSLEOFError, too
         SSLVerificationError = ssl.SSLError
     try:
         conn = connect.SmartConnect(host=ip_addr, user=username, pwd=password)
