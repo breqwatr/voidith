@@ -30,7 +30,8 @@ setup(
         "mysql-connector",
         "requests",
         "tqdm",
-        "pyvmomi"
+        "pyvmomi",
+        "hurry.filesize"
     ],
     entry_points="""
         [console_scripts]

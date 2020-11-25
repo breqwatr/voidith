@@ -78,6 +78,14 @@ def show_vm(name, output):
         _print_csv(vms)
 
 
+@click.argument("vm_uuid")
+@click.option("--output-dir", "-o", "dest_dir", default=".", help="Optional destination directory")
+@click.command(name='download-vm')
+def download_vm(vm_uuid, dest_dir):
+    """ Download a VM with a given UUID """
+    vmware.download_vm(vm_uuid, dest_dir)
+
+
 def get_vmware_group():
     """ Return the VMware click group """
 
@@ -86,4 +94,5 @@ def get_vmware_group():
         """ VMWare utilities """
 
     vmware_group.add_command(show_vm)
+    vmware_group.add_command(download_vm)
     return vmware_group

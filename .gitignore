@@ -9,3 +9,4 @@ breqwatr_deployment_tool.egg-info/
 .tox/
 .coverage
 ceph-deploy-ceph.log
+*.vmdk
