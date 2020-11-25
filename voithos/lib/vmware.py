@@ -206,8 +206,8 @@ def get_ready_nfc_lease(vm):
 
 def get_export_disk_devices(nfc_lease):
     """ Return the devices that can be saved """
-    # Export device URL object have filenames but not UUIDs so we have to download all at once
-    # Only count devices that cane be downloaded (targetId) and are not ISO files (dev.disk)
+    # Export device URL objects have filenames but not UUIDs so we have to download all at once
+    # Only count devices that can be downloaded (targetId) and are not ISO files (dev.disk)
     return list(dev for dev in nfc_lease.info.deviceUrl if dev.targetId and dev.disk)
 
 
