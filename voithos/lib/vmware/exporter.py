@@ -133,4 +133,4 @@ class VMWareExporter:
                     # TO DO: Try swapping len(block) with self.chunk_size for speed
                     self.print_progress(len(block))
                     # update the export progress in VMWare
-                    self.vmware_mgr.lease.HttpNfcLeaseProgress(10)
+                    self.lease.HttpNfcLeaseProgress(10)
