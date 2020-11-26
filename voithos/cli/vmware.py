@@ -1,11 +1,12 @@
 """ Commands for VMWare """
 
 import click
-import os
 import json
 from pprint import pprint
 from voithos.lib.system import error
-import voithos.lib.vmware as vmware
+import voithos.lib.vmware.reports as reports
+from voithos.lib.vmware.mgr import VMWareMgr
+from voithos.lib.vmware.exporter import VMWareExporter
 
 
 def _escape_csv(value):
@@ -62,28 +63,79 @@ def _print_csv(vms):
     "--name", "-n", multiple=True, help="Repetable - names of VMs to display", required=True
 )
 @click.option("--format", "-f", "output", default="pprint", help="Output format: pprint,json,csv")
+@click.option(
+    "--username",
+    "-u",
+    default=None,
+    help="(optional) Overrides environment variable VMWARE_USERNAME",
+)
+@click.option(
+    "--password",
+    "-p",
+    default=None,
+    help="(optional) Overrides environment variable VMWARE_PASSWORD",
+)
+@click.option(
+    "--ip-addr",
+    "-i",
+    "ip_addr",
+    default=None,
+    help="(optional) Overrides environment variable VMWARE_IP_ADDR",
+)
 @click.command(name="show-vm")
-def show_vm(name, output):
+def show_vm(name, output, username, password, ip_addr):
     """ Show data about provided VMs """
     allowed_outputs = ["pprint", "json", "csv"]
     if output not in allowed_outputs:
         error(f"Invalid output format chosen. Supported outputs: {allowed_outputs}", exit=True)
-    vms = vmware.filter_vms(names=name)
+    mgr = VMWareMgr(username=username, password=password, ip_addr=ip_addr)
+    vms = mgr.find_vms_by_name(name)
+    vm_reports = []
+    for vm in vms:
+        vm_report = reports.get_vm_data(vm)
+        vm_reports.append(vm_report)
     if output == "pprint":
-        for vm in vms:
+        for vm in vm_reports:
             pprint(vm)
     elif output == "json":
-        print(json.dumps(vms))
+        print(json.dumps(vm_reports))
     elif output == "csv":
-        _print_csv(vms)
+        _print_csv(vm_reports)
 
 
 @click.argument("vm_uuid")
 @click.option("--output-dir", "-o", "dest_dir", default=".", help="Optional destination directory")
-@click.command(name='download-vm')
-def download_vm(vm_uuid, dest_dir):
+@click.option(
+    "--username",
+    "-u",
+    default=None,
+    help="(optional) Overrides environment variable VMWARE_USERNAME",
+)
+@click.option(
+    "--password",
+    "-p",
+    default=None,
+    help="(optional) Overrides environment variable VMWARE_PASSWORD",
+)
+@click.option(
+    "--ip-addr",
+    "-i",
+    "ip_addr",
+    default=None,
+    help="(optional) Overrides environment variable VMWARE_IP_ADDR",
+)
+@click.option(
+    "--interval", default="15", help="Optional CLI Print interval override - 0 disables updates"
+)
+@click.command(name="download-vm")
+def download_vm(vm_uuid, dest_dir, username, password, ip_addr, interval):
     """ Download a VM with a given UUID """
-    vmware.download_vm(vm_uuid, dest_dir)
+    mgr = VMWareMgr(username=username, password=password, ip_addr=ip_addr)
+    vm = mgr.find_vm_by_uuid(vm_uuid)
+    if vm is None:
+        error(f"ERROR: Failed to find VM with UUID: {vm_uuid}", exit=True)
+    exporter = VMWareExporter(mgr, vm, base_dir=dest_dir, interval=int(interval))
+    exporter.download()
 
 
 def get_vmware_group():
