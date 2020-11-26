@@ -32,6 +32,7 @@ def get_partition_data(vm):
     """ Return a dictionary of this VMs available useful partition data """
     partitions = vm.guest.disk
     total_used_gb = 0
+    # Partition info is only available when the VM is on & has vmware tools
     part_data = []
     for part in partitions:
         used_bytes = part.capacity - part.freeSpace
@@ -78,6 +79,7 @@ def get_vm_data(vm):
         "create_date": str(vm.config.createDate),
         "guest_os": vm.summary.config.guestFullName,
         "uptime_seconds": vm.summary.quickStats.uptimeSeconds,
+        "power_state": vm.runtime.powerState,
         "status": vm.summary.overallStatus,
         "num_cpu": vm.summary.config.numCpu,
         "ram": {

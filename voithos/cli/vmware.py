@@ -6,7 +6,7 @@ from pprint import pprint
 from voithos.lib.system import error
 import voithos.lib.vmware.reports as reports
 from voithos.lib.vmware.mgr import VMWareMgr
-from voithos.lib.vmware.exporter import VMWareExporter
+from voithos.lib.vmware.exporter import VMWareExporter, VMWareOnlineVMCantMigrate
 
 
 def _escape_csv(value):
@@ -134,7 +134,10 @@ def download_vm(vm_uuid, dest_dir, username, password, ip_addr, interval):
     vm = mgr.find_vm_by_uuid(vm_uuid)
     if vm is None:
         error(f"ERROR: Failed to find VM with UUID: {vm_uuid}", exit=True)
-    exporter = VMWareExporter(mgr, vm, base_dir=dest_dir, interval=int(interval))
+    try:
+        exporter = VMWareExporter(mgr, vm, base_dir=dest_dir, interval=int(interval))
+    except VMWareOnlineVMCantMigrate:
+        error("ERROR: This VM is not offline", exit=True)
     exporter.download()
 
 

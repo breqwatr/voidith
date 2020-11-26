@@ -8,15 +8,21 @@ from hurry.filesize import size
 from pyVmomi import vim
 
 
+# TODO: ENFORCE VM OFFLINE
+
 class VMWareExportLeaseNotReady(Exception):
     """ After waiting some time, the NFC export lease did not become ready """
 
+class VMWareOnlineVMCantMigrate(Exception):
+    """ Online VMs cannot be migrated """
 
 class VMWareExporter:
     """ Object used to wrangle VMWare exports """
 
     def __init__(self, vmware_mgr, vm, base_dir=None, interval=15):
         """ Construct the exporter around a VM """
+        if vm.runtime.powerState != vim.VirtualMachine.PowerState.poweredOff:
+            raise VMWareOnlineVMCantMigrate("ERROR: The VM is on. It must be offline")
         # progress tracking data
         self.start_ts = int(time())
         self.last_print = int(time())
@@ -46,11 +52,6 @@ class VMWareExporter:
     def size_in_bytes(self):
         """ Return the total size of all unshared disks on this VM """
         return self.vm.summary.storage.unshared
-
-    @property
-    def is_offline(self):
-        """ Return boolean indicating if the VM is turned on (False) or off (True) """
-        return self.vm.runtime.powerState == vim.VirtualMachine.PowerState.poweredOff
 
     @property
     def lease_disks(self):
@@ -131,3 +132,5 @@ class VMWareExporter:
                     vol_file.write(block)
                     # TO DO: Try swapping len(block) with self.chunk_size for speed
                     self.print_progress(len(block))
+                    # update the export progress in VMWare
+                    self.vmware_mgr.lease.HttpNfcLeaseProgress(10)
