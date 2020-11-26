@@ -114,7 +114,7 @@ class VMWareExporter:
 
     def download(self):
         """ Initiate the download process """
-        print("Total VM Size: {size(self.total_bytes)}")
+        print(f"Total VM Size: {size(self.total_bytes)}")
         for dev in self.lease_disks:
             file_path = os.path.join(self.base_dir, dev.targetId)
             with open(file_path, "wb") as vol_file:
