@@ -24,7 +24,7 @@ def convert(input_format, output_format, input_path, output_path):
         output_abspath = path_out.absolute().__str__()
         output_dir = Path(output_abspath).parent.__str__()
         assert_path_exists(output_dir)
-        internal_output_dir = f"/output"
+        internal_output_dir = "/output"
         internal_output_path = f"{internal_output_dir}/{path_out.name}"
         out_mount = f"-v {output_dir}:/output"
     name = "qemu-img"
