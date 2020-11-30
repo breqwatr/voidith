@@ -17,7 +17,7 @@ def convert(input_format, output_format, input_path, output_path):
     if path_out.is_block_device():
         # directly map the block device to the container
         assert_path_exists(path_out)
-        out_mount = f"-v {path_out}"
+        out_mount = f"--device {path_out}"
         internal_output_path = path_out
     else:
         # output is a file (or about to be), so mount the folder it exists in
