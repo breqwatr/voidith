@@ -17,7 +17,6 @@ logging host <syslog-server-1-ip> <syslog-server-1-port>
 .
 logging host <syslog-server-n-ip> <syslog-server-n-port>
 logging source-interface <Interface>
-logging buffered <severity>
 ```
 
 ### Mellanox
