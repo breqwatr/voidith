@@ -8,8 +8,6 @@ from hurry.filesize import size
 from pyVmomi import vim
 
 
-# TODO: ENFORCE VM OFFLINE
-
 class VMWareExportLeaseNotReady(Exception):
     """ After waiting some time, the NFC export lease did not become ready """
 
@@ -37,6 +35,7 @@ class VMWareExporter:
         self.base_dir = base_dir if base_dir is not None else os.getcwd()
         self.vmware_mgr = vmware_mgr
         self.chunk_size = 1024 * 1024 * 20  # 20 MB
+        self.percent_transfered = 0
 
     @property
     def disks(self):
@@ -94,7 +93,6 @@ class VMWareExporter:
         if now <= (self.last_print + self.interval_seconds):
             # Nothing to print, we've already printed during this interval
             return
-
         # Set interval because chunks can take longer than interval.seconds
         interval = int(now - self.last_print)
         self.last_print = now
@@ -107,8 +105,10 @@ class VMWareExporter:
         interval_bytes = self.transfered_bytes - self.last_transfered_bytes
         interval_rate = size(interval_bytes / interval_divisor)
         self.last_transfered_bytes = self.transfered_bytes
+        self.percent_transfered = int(self.transfered_bytes / self.total_bytes * 100)
         print(
             str(datetime.now(tz=None)) + f" - Progress: {size(self.transfered_bytes)}"
+            f" ({self.percent_transfered}%)"
             f" - Total rate: {total_rate}/s"
             f" - Rate of last {interval}s: {interval_rate}/s"
         )
@@ -133,4 +133,7 @@ class VMWareExporter:
                     # TO DO: Try swapping len(block) with self.chunk_size for speed
                     self.print_progress(len(block))
                     # update the export progress in VMWare
-                    self.lease.HttpNfcLeaseProgress(10)
+                    self.lease.HttpNfcLeaseProgress(self.percent_transfered)
+        # when the loop is done, set the progress to 100% (to handle edge cases)
+        self.lease.HttpNfcLeaseProgress(100)
+        self.lease.HttpNfcLeaseComplete()
