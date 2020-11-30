@@ -35,3 +35,15 @@ def convert(input_format, output_format, input_path, output_path):
     )
     cmd = f"docker run -it --name {name} --rm {in_mount} {out_mount} {image} {run}"
     shell(cmd)
+
+
+def show(vol_path):
+    """ Execute qemu-img show inside a container, direct mapping the volume """
+    name = "qemu-img"
+    image = "breqwatr/qemu-img:latest"
+    path = Path(vol_path)
+    vol_abspath = path.absolute().__str__()
+    run = f"qemu-img info {vol_abspath}"
+    mount = f"-v {vol_abspath}:{vol_abspath}"
+    cmd = f"docker run --rm -it --name {name} {mount} {image} {run}"
+    shell(cmd)

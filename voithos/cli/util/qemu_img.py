@@ -24,6 +24,14 @@ def convert(input_format, output_format, input_path, output_path):
         error(f"ERROR - File not found: {input_path}", exit=True)
     qemu_img.convert(input_format, output_format, input_path, output_path)
 
+@click.argument("vol_path")
+@click.command(name="show")
+def show(vol_path):
+    """ Run: qemu-img show <vol_path> """
+    if not Path(vol_path).is_file():
+        error("ERROR - File not found: {vol_path}", exit=True)
+    qemu_img.show(vol_path)
+
 
 def get_qemu_img_group():
     """ Return the qemu_img group """
@@ -33,4 +41,5 @@ def get_qemu_img_group():
         """ containerized qemu-img commands """
 
     qemu_img_group.add_command(convert)
+    qemu_img_group.add_command(show)
     return qemu_img_group
