@@ -9,7 +9,7 @@ import voithos.lib.service.rsyslog as rsyslog
 @click.command(name="pull")
 def pull(release):
     """ pull breqwatr rsyslog image"""
-    image = f"breqwatr/docker-rsyslog:{release}"
+    image = f"breqwatr/rsyslog:{release}"
     ecr.pull(image)
 
 
