@@ -8,6 +8,7 @@ import voithos.cli.service.horizon as horizon
 import voithos.cli.service.registry as registry
 import voithos.cli.service.pip as pip
 import voithos.cli.service.pxe as pxe
+import voithos.cli.service.rsyslog as rsyslog
 
 
 def get_service_group():
@@ -24,4 +25,5 @@ def get_service_group():
     service.add_command(pip.get_pip_group())
     service.add_command(pxe.get_pxe_group())
     service.add_command(registry.get_registry_group())
+    service.add_command(rsyslog.get_rsyslog_group())
     return service

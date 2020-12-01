@@ -54,4 +54,5 @@ pip install .
 - [**Installing OpenStack**](/openstack-install.html):
   Private clouds providing virtualization, SDN, and more
 - [**Installing Arcus**](/arcus-install.html): Breqwatr's OpenStack self-service web portal
+- [**Installing rsyslog**](/syslog-install): Containerized rsyslog service for network log collection
 - [**Migrating VMs from VMware**](/vmware-migration.html): Exporting VMs to OpenStack from VMware
