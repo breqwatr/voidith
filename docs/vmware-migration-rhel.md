@@ -3,21 +3,42 @@
 
 ## Requirements
 
-Before this guide can be followed, it is expected that the virtual volumes of the VM have already
-been imported into Cinder. If that hasn't been done yet, follow [this guide](/vmware-migration.html)
-first.
+Before this guide can be followed:
 
-Also the migration worker VM must be online and have the newly imported cinder volumes attached.
-If the volumes use LVM, ensure the volumes can be seen in `lvdisplay`.
+ - The virtual volumes of the VM must have already been imported into Cinder.
+   If that hasn't been done yet, follow [this guide](/vmware-migration.html) first.
+ - The migration worker VM must be online and have the newly imported cinder volumes attached.
+ - If the volumes use LVM, ensure the volumes can be seen in `lvdisplay`.
+ - The OpenStack Neutron ports that this VM will use have been created.
+   Collect their MAC addresses to be used below.
 
 
 ---
 
 
-## Adding Virtio drivers to initrd files
+## (optional) Repair the file-systems
 
-In many releases of RedHat, the VM will boot to dracut when imported into OpenStack unless you
-manually inject the Virtio drivers to the initrd files.
+If desired, `fsck` the partition while you're in the neighbourhood. It can be a good idea to do
+this against each partition while they're mounted here. You'll never have a better opportunity.
+
+```bash
+# show the filesystem
+blkid /dev/mapper/cl-root
+# in this case it's xfs
+xfs_repair /dev/mapper/cl-root
+```
+
+
+---
+
+
+## Create & enter the chroot
+
+The `chroot` command allows us to enter a mounted root file-system as if we were SSH'ing into a
+running VM. Think of how Docker works, it's the same underlying concept.
+
+Since the migration target VM's volumes are mounted to the migration worker, we can `chroot` into
+it and make changes.
 
 
 ### Mount the boot partition
@@ -58,22 +79,25 @@ lvdisplay -C -o "lv_name,lv_path,lv_dm_path"
 For the sake of these examples, the root LV's device mapper path will be `/dev/mapper/cl-root`. Be
 sure to use the correct one for your VM.
 
-Optionally, `fsck` the partition while you're in the neighbourhood. It can be a good idea to do this
-against each partition while they're mounted here, you won't have a better opportunity.
-
-```bash
-# show the filesystem
-blkid /dev/mapper/cl-root
-# in this case it's xfs
-xfs_repair /dev/mapper/cl-root
-```
-
-Mount the root volume. Use the device-mapper path in your `mount` command.
-
 ```
 mkdir -p /mnt/root
-mount /dev/mapper/cl-root
+mount /dev/mapper/cl-root /mnt/root
 ```
+
+
+### Bind-mount to the root volume
+
+Bind-mount the boot volume.
+
+```bash
+mount --bind /mnt/boot /mnt/root/boot
+```
+
+
+### (optional) Mount other required partitions
+
+**Note:** This usually isn't needed.
+
 
 Take a look at the `/etc/fstab` file of this VM. If it mounts other LV's or partitions, mount them
 into `/mnt` on your worker VM too. They'll be bind-mounted into the root volume in the next step.
@@ -81,42 +105,41 @@ Don't worry about any swap mounts.
 
 ```bash
 cat /mnt/root/etc/fstab
+# mount --bind <source> /mnt/root/<dest>
 ```
 
 
-### Bind-mount to the root volume
-
-Bind-mount the boot volume and system devices into the folder where the root partition was mounted.
+### Enter the chroot
 
 ```bash
-mount --bind /mnt/boot /mnt/root/boot
-for x in sys proc run dev; do mount --bind /$x /mnt/root/$x; done
-# Also --bind mount any other LVs/partitions that fstab mentioned
+chroot /mnt/root /bin/bash
 ```
 
+---
 
-### Install the virtio drivers
 
-Change root into the mounted root partition:
+## Add Virtio drivers to initrd files
 
-```bash
-cd /mnt
-chroot root bash
-```
+In many releases of RedHat, the VM will boot to `dracut >` when imported into OpenStack unless you
+manually inject the Virtio drivers to the initrd files.
 
-Get the Kernel version. The initrd files will have the same version. Use it to add the drivers
-by calling `dracut` command.
+
+Get the Kernel version. The initrd files will have the same version strung.
+Use it to add the drivers by calling `dracut` command.
 
 ```bash
 # Get the version
 version=$(rpm -q kernel --queryformat "%{VERSION}-%{RELEASE}.%{ARCH}\n" | sort -V | head -n 1)
+
 # Check if the drivers are already installed
 filename="/boot/initramfs-$version.img"
 lsinitrd $filename | grep virtio
+
 # If nothing is returned ("$?" == "1") then add the drivers with dracut
-dracut -f $filename $version --add-drivers "virtio_pci virtio_blk virtio_net"
-# Note: sometimes you'll see "dracut: FAILED ....". Check if it worked anyways, often it did
-# confirm they're there now
+dracut -f $filename $version --add-drivers "virtio_blk virtio_net virtio_scsi virtio_balloon"
+
+# ignore issues regarding /bin and /proc/* being missing
+# confirm the drivers are there now
 lsinitrd $filename | grep virtio
 ```
 
@@ -131,7 +154,7 @@ The kernel driver files should appear in the final `lsinitrd` command output.
 From inside the `chroot` entered while installing the virtio drivers:
 
 
-### Removing VMWare Tools
+### Remove VMWare Tools
 
 VMware tools shouldn't hurt anything on KVM/OpenStack, but we don't need it either.
 
@@ -140,7 +163,7 @@ rpm -qa | grep "vm-tools" | while read pkg; do echo "removing $pkg"; rpm -e $pkg
 ```
 
 
-### Removing Cloud-Init
+### Remove Cloud-Init
 
 Sometimes cloud-init will already be installed in a VM. While generally nice to have, it causes all
 sorts of problems during migrations. Usually it's best to simply remove it:
@@ -156,34 +179,29 @@ rpm -qa | grep cloud-init | while read pkg; do echo "removing $pkg"; rpm -e $pkg
 ## Configure Networking
 
 
-### Disable consistent network device naming
+### Configure consistent network device naming
 
 The network adapters will probably change their names when they move to the new cloud.
-RedHat has a concept of
+Since the interface names can be unpredictable, use the
 "[consistent network device naming](https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/7/html/networking_guide/ch-consistent_network_device_naming)"
-which makes things rather complicated. Its best to just turn that feature off.
+udev rules with MAC addresses to enforce the device names.
 
-Check for any udev rules calling `rename_device`:
+If you haven't made the ports in OpenStack yet for this VM, now's the time.
 
-```bash
-grep -ire "rename_device" /usr/lib/udev/rules.d/
-```
+Here's an example of a server with two interfaces. One line per interface.
 
-If you find any entries, most commonly `/usr/lib/udev/rules.d/60-net.rules`, either edit the
-file to disable the rule or simply delete the file:
+`vi /etc/udev/rules.d/70-persistent-net.rules`
 
-```bash
-rm -f /usr/lib/udev/rules.d/60-net.rules
+```text
+SUBSYSTEM=="net", ACTION=="add", DRIVERS=="?*", ATTR{address}=="fa:16:3e:76:ec:a6", NAME="ens1"
+SUBSYSTEM=="net", ACTION=="add", DRIVERS=="?*", ATTR{address}=="fa:16:3e:f4:8d:87", NAME="ens2"
 ```
 
 
 ### Set the interface adapter file contents
 
-With the consistent naming feature disabled, the interfaces will name themselves eth0, eth1, and so
-on. In the source VM the interfaces are often names something along the likes of `ens33`.
-
-Navigate to the network scripts directory and look for any existing script files. If you see one,
-print it.
+Navigate to the network scripts directory and look for any existing script files. Show then remove
+any old ones.
 
 ```bash
 cd /etc/sysconfig/network-scripts
@@ -193,18 +211,17 @@ cat ifcfg-ens33
 rm ifcfg-ens33
 ```
 
-Remove any old interface files, keeping in mind which ones said what. When you add new interfaces
-to the server, the interface names will increment from `eth0` to `eth1` to `eth2` and so on in the
-order which they're added. Write new interface files using the new names.
-
 Generally in OpenStack, DHCP will be used. For an interface that uses DHCP, give it the following
 contents - changing the `DEVICE` value as appropriate.
 
+Be sure to include the mac address of the port in HWADDR.
+
 ```text
-DEVICE=eth0
+DEVICE=ens1
 BOOTPROTO=dhcp
 ONBOOT=yes
 USERCTL=no
+HWADDR=...
 ```
 
 Often enough during a migration project, net-admins may extend their in-place layer 2 VLANs to the
@@ -214,12 +231,13 @@ and the prior static IP addresses should be preserved.
 To define an interface with a static IP address, write it as follows:
 
 ```text
-DEVICE=eth1
+DEVICE=ens2
 BOOTPROTO=none
 ONBOOT=yes
 USERCTL=no
 PREFIX=24
 IPADDR=192.168.0.123
+HWADDR=...
 # On the interface which acts as the default route, also add:
 GATEWAY=192.168.0.1
 DEFROUTE=yes
@@ -228,7 +246,9 @@ DNS2=192.168.0.3
 DOMAIN=domain.com
 ```
 
+
 ---
+
 
 ## Unmount/Release VM the volume(s)
 
@@ -245,7 +265,9 @@ Next, remove the volumes from the worker
 openstack server remove volume <server> <volume>
 ```
 
+
 ---
+
 
 ## Build a new VM
 

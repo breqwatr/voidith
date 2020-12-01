@@ -3,6 +3,7 @@
 The `voithos vmware` commands leverage VMware's powerful Python libraries to help identify and
 export VMs to other platforms.
 
+
 ## Create a temporary migration worker VM
 
 When importing a VM into OpenStack, first create a migration worker VM on the cloud, inside the
@@ -172,6 +173,7 @@ Check the following guides to finish migrating your workload:
 If uncertain, check
 [the official documentation](https://docs.openstack.org/python-openstackclient/train/cli/command-objects/server.html).
 
+
 ## Remove volumes from migration workers
 
 If the volumes are still attached to a Windows/Linux migration worker, remove them.
@@ -191,39 +193,23 @@ openstack flavor list
 
 Given the source VM's configuration, select an appropriate flavor.
 
+
 ## Configure server networking
 
-List the OpenStack networks in this project scope:
+List the OpenStack networks in this project scope. Create a port, optionally with an IP address.
+
+We tend to make the ports manually ahead of time so their MAC addresses can be encoded into the
+interfaces file on RedHat/Centos.
 
 ```bash
 openstack network list
-```
+# Automatically assign IP
+openstack port create --network <network> <name>
+# Manually assign IP (requires admin rights)
+openstack port create --network <network> --fixed-ip subnet=<subnet>,ip-address=<ip-address> <name>
 
-### Single Dynamic IP interface
-
-When creating a server that will have a brand new IP address, it's easiest just to use the
-`--network <network>` option of `openstack server create`:
-
-```bash
-# example
-openstack server create --network VLAN-100-net
-```
-
-### Static IP assignment / Multi-interface
-
-When building a VM to use a manually chosen IP, such as when using a static IP address with
-port-security turned on, the `--nic` option should be used instead. This argument can be used
-multiple times.
-
-**Note:** The admin role is required in the scoped project to assign a specific IP address. Without
-admin rights an error is raised on the VM saying `Exceeded max scheduling attempts` and
-`rule:create_port:fixed_ips and (rule:create_port:fixed_ips:ip_address))) is disallowed by policy`.
-
-
-```bash
-# [--nic <net-id=net-uuid,v4-fixed-ip=ip-addr,v6-fixed-ip=ip-addr,port-id=port-uuid,auto,none>]
-# example
-openstack server create net-id=02a4eaaf-bb3e-4491-b80b-9c4021771198,v4-fixed-ip=192.168.0.11
+# Creating the server
+openstack server create --nic port-id=<port id> ...
 ```
 
 
@@ -244,16 +230,19 @@ openstack server create \
 
 ## Example
 
+This example creates a VM with a boot volume, a data volume, and two network interfaces.
+
 ```bash
 flavor="dd88ed34-6bc2-4b15-b00d-0c83f71d1674"
 boot_vol="test-centos-1-sda"
 data_vol="test-centos-1-sdb"
-network="dae7c823-e15a-4409-b9ca-45e7c2849349"
+first_port=493ac0e8-16d0-4fae-9256-e187170232d5
+second_port=132958cb-cac1-4af8-9041-3291ed93db36
 name="test-centos-1"
 openstack server create \
   --flavor $flavor \
   --volume $boot_vol \
   --block-device-mapping vdb=$data_vol \
-  --nic net-id=$network,v4-fixed-ip=10.106.2.222 \
+  --nic port-id=$first_port --nic port-id=$second_port \
   $name
 ```
