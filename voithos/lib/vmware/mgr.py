@@ -56,6 +56,7 @@ class VMWareMgr:
         try:
             SSLVerificationError = _get_ssl_error()
             try:
+                debug("Connecting with SmartConnect - regular SSL")
                 self.conn = connect.SmartConnect(
                     host=self.ip_addr, user=self.username, pwd=self.password
                 )
@@ -63,15 +64,18 @@ class VMWareMgr:
                 try:
                     ctx = ssl.SSLContext(ssl.PROTOCOL_TLSv1)
                     ctx.verify_mode = ssl.CERT_NONE
+                    debug("Connecting with SmartConnec - TLSv1 and verify off")
                     self.conn = connect.SmartConnect(
                         host=self.ip_addr, user=self.username, pwd=self.password, sslContext=ctx
                     )
                 except (ssl.SSLEOFError, OSError):
+                    debug("Connecting with SmartConnectNoSSL")
                     self.conn = connect.SmartConnectNoSSL(
                         host=self.ip_addr, user=self.username, pwd=self.password
                     )
         except vim.fault.InvalidLogin:
             error(f"ERROR: Invalid login for VMware server {self.ip_addr}", exit=True)
+        debug("Connection successful")
 
     def load_vms(self, entity=None):
         """Return a list of each VM from all datacenters connected to self.conn
