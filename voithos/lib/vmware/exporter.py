@@ -11,8 +11,10 @@ from pyVmomi import vim
 class VMWareExportLeaseNotReady(Exception):
     """ After waiting some time, the NFC export lease did not become ready """
 
+
 class VMWareOnlineVMCantMigrate(Exception):
     """ Online VMs cannot be migrated """
+
 
 class VMWareExporter:
     """ Object used to wrangle VMWare exports """
@@ -25,7 +27,6 @@ class VMWareExporter:
         self.start_ts = int(time())
         self.last_print = int(time())
         self.interval_seconds = interval
-        self.total_bytes = vm.summary.storage.unshared
         self.last_transfered_bytes = 0
         self.transfered_bytes = 0
         # Download data
@@ -50,7 +51,12 @@ class VMWareExporter:
     @property
     def size_in_bytes(self):
         """ Return the total size of all unshared disks on this VM """
-        return self.vm.summary.storage.unshared
+        size = 0
+        for dev in self.vm.config.hardware.device:
+            if not isinstance(dev, vim.vm.device.VirtualDisk):
+                continue
+            size += dev.capacityInBytes
+        return size
 
     @property
     def lease_disks(self):
@@ -105,7 +111,7 @@ class VMWareExporter:
         interval_bytes = self.transfered_bytes - self.last_transfered_bytes
         interval_rate = size(interval_bytes / interval_divisor)
         self.last_transfered_bytes = self.transfered_bytes
-        self.percent_transfered = int(self.transfered_bytes / self.total_bytes * 100)
+        self.percent_transfered = int(self.transfered_bytes / self.size_in_bytes * 100)
         print(
             str(datetime.now(tz=None)) + f" - Progress: {size(self.transfered_bytes)}"
             f" ({self.percent_transfered}%)"
@@ -115,7 +121,7 @@ class VMWareExporter:
 
     def download(self):
         """ Initiate the download process """
-        print(f"Total VM Size: {size(self.total_bytes)}")
+        print(f"Total VM Size: {size(self.size_in_bytes)}")
         for dev in self.lease_disks:
             file_path = os.path.join(self.base_dir, dev.targetId)
             with open(file_path, "wb") as vol_file:
