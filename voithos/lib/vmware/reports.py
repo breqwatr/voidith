@@ -59,6 +59,9 @@ def get_network_data(vm):
         if not hasattr(dev, "macAddress"):
             continue
         pci_slot_num = dev.slotInfo.pciSlotNumber if dev.slotInfo is not None else ""
+        vswitch_name = ' - (probably distributed)'
+        if hasattr(dev, "backing") and hasattr(dev.backing, "deviceName"):
+            vswitch_name = dev.backing.deviceName
         net_data.append(
             {
                 "label": dev.deviceInfo.label,
