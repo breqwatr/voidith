@@ -4,6 +4,7 @@ import os
 import ssl
 
 from pyVim import connect
+from pyVmomi import vim
 
 from voithos.lib.system import error
 
@@ -51,22 +52,25 @@ class VMWareMgr:
 
     def connect(self):
         """ Connect to the configured VMWare service & set self.conn """
-        SSLVerificationError = _get_ssl_error()
         try:
-            self.conn = connect.SmartConnect(
-                host=self.ip_addr, user=self.username, pwd=self.password
-            )
-        except SSLVerificationError:
+            SSLVerificationError = _get_ssl_error()
             try:
-                ctx = ssl.SSLContext(ssl.PROTOCOL_TLSv1)
-                ctx.verify_mode = ssl.CERT_NONE
                 self.conn = connect.SmartConnect(
-                    host=self.ip_addr, user=self.username, pwd=self.password, sslContext=ctx
-                )
-            except (ssl.SSLEOFError, OSError):
-                self.conn = connect.SmartConnectNoSSL(
                     host=self.ip_addr, user=self.username, pwd=self.password
                 )
+            except SSLVerificationError:
+                try:
+                    ctx = ssl.SSLContext(ssl.PROTOCOL_TLSv1)
+                    ctx.verify_mode = ssl.CERT_NONE
+                    self.conn = connect.SmartConnect(
+                        host=self.ip_addr, user=self.username, pwd=self.password, sslContext=ctx
+                    )
+                except (ssl.SSLEOFError, OSError):
+                    self.conn = connect.SmartConnectNoSSL(
+                        host=self.ip_addr, user=self.username, pwd=self.password
+                    )
+        except vim.fault.InvalidLogin:
+            error(f"ERROR: Invalid login for VMware server {self.ip_addr}", exit=True)
 
     def load_vms(self):
         """ Return a list of each VM from all datacenters connected to self.conn """
