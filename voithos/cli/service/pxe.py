@@ -1,6 +1,7 @@
 """ Manage the PXE  service """
 import click
 
+import voithos.lib.aws.ecr as ecr
 import voithos.lib.service.pxe as pxe
 
 
@@ -14,6 +15,14 @@ def start(interface, dhcp_start, dhcp_end, release):
     pxe.start(interface, dhcp_start, dhcp_end, release=release)
 
 
+@click.option("--release", "-r", required=True, help="Version of Breqwatr pxe to run")
+@click.command(name="pull")
+def pull(release):
+    """ Pull PXE image from Breqwatr's private repository """
+    image = f"breqwatr/pxe:{release}"
+    ecr.pull(image)
+
+
 def get_pxe_group():
     """ return the registry group function """
 
@@ -22,4 +31,5 @@ def get_pxe_group():
         """ PXE server service """
 
     pxe_group.add_command(start)
+    pxe_group.add_command(pull)
     return pxe_group
