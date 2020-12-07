@@ -8,10 +8,14 @@ from voithos.lib.system import error
 
 @click.option("--ip", "ip_address", default="0.0.0.0", help="[optional] bind IP address")
 @click.option("--port", default="5000", help="[optional] bind port")
+@click.option("--path", "--offline-path", required=False, help="registry image path (for offline install only)")
 @click.command()
-def start(ip_address, port):
+def start(ip_address, port, path):
     """ Launch the local registry """
-    registry.start(ip_address, port)
+    if path:
+       registry.offline_start(ip_address, port, path)
+    else:
+        registry.start(ip_address, port)
 
 
 @click.argument("registry_url")
