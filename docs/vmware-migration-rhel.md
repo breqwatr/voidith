@@ -1,4 +1,4 @@
-# Migrating RedHat Linux from VMware
+# Migrating RedHat Linux from VMware to OpenStack
 
 
 ## Requirements

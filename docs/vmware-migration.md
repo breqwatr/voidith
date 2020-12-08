@@ -105,11 +105,10 @@ volumes used LVM then the VM can end up in a messy state that rebooting resolves
 Create empty Cinder volumes to hold the data and attach them to the worker. Be sure to scope to
 the correct project.
 
-For the boot (first) volume set `--bootable`.
 
 ```bash
 # Repeat this procedure for each volume
-openstack volume create --type <volume type> <--bootable> --size <size> <vol-name>
+openstack volume create --type <volume type> --size <size> <vol-name>
 openstack server add volume <server> <volume>
 ```
 
@@ -153,7 +152,67 @@ lvdisplay
 ```
 
 
+## Set the Bootable flag
+
+On the volume with the boot partition (usually the first), enable `--bootable`:
+
+```bash
+openstack volume set --bootable
+```
+
+## Enable UEFI boot
+
+Some source volumes on VMWare will use UEFI instead of Bios to boot. OpenStack supports this, but
+an image metadata property must be assigned to the volume before a server is created and assigned
+it.
+
+While your disks are mounted to the Linux migration worker, you can check which is required by
+looking at the output of the `fdisk -l` command.
+
+Here's what a BIOS (no Cinder property required) boot volume looks like.
+Not the `boot` column with a `*` in it and the `Disklabel type: dos` line.
+
+```text
+Disk /dev/vdb: 20 GiB, 21474836480 bytes, 41943040 sectors
+Units: sectors of 1 * 512 = 512 bytes
+Sector size (logical/physical): 512 bytes / 512 bytes
+I/O size (minimum/optimal): 512 bytes / 512 bytes
+Disklabel type: dos
+Disk identifier: 0x05a12576
+Device     Boot   Start      End  Sectors Size Id Type
+/dev/vdb1  *       2048  2099199  2097152   1G 83 Linux
+/dev/vdb2       2099200 41943039 39843840  19G 8e Linux LVM
+```
+
+This is what a UEFI boot volume looks like. This one will require the metadata to let its server
+boot. Note that it uses GPT instead of MBR. Note the `Disklabel type: gpt` line.
+
+```text
+Disk /dev/vdb: 16 GiB, 17179869184 bytes, 33554432 sectors
+Units: sectors of 1 * 512 = 512 bytes
+Sector size (logical/physical): 512 bytes / 512 bytes
+I/O size (minimum/optimal): 512 bytes / 512 bytes
+Disklabel type: gpt
+Disk identifier: 6092E1C5-C1C7-42E9-879F-C692A2529C56
+Device       Start      End  Sectors  Size Type
+/dev/vdb1     2048  1230847  1228800  600M EFI System
+/dev/vdb2  1230848  3327999  2097152    1G Linux filesystem
+/dev/vdb3  3328000 33552383 30224384 14.4G Linux LVM
+```
+
+If the boot volume looks like this, it requires UEFI. To enable UEFI boot on the server which will
+use this volume, the `hw_firmware_type` image-property must be set to `uefi`. Don't confuse this
+with setting a property on a Glance image or the `--property` option in the CLI, `--image-property`
+is its own special kind of property which would normally be inherited from the source Glance image
+if there were one.
+
+```bash
+openstack volume set --image-property hw_firmware_type=uefi <volume>
+```
+
+
 ---
+
 
 # VMWare-to-KVM Conversion
 
@@ -164,13 +223,18 @@ need to modify it further to ensure the networking works as you'd expect.
 Check the following guides to finish migrating your workload:
 
 - [Migrations: RedHat Linux](/vmware-migration-rhel.html)
+- [Migration: Windows](/vmware-migration-windows.html)
+
 
 
 ---
 
+
 # Booting the OpenStack Server
 
-If uncertain, check
+Once the volume has been converted from VMware to KVM, a server can boot from it.
+
+If you're uncertain about the `server create` syntax, check
 [the official documentation](https://docs.openstack.org/python-openstackclient/train/cli/command-objects/server.html).
 
 
