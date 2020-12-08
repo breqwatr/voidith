@@ -222,7 +222,7 @@ ForEach($folder in $folders){
 
 Offline the disks so they're safe to remove with `openstack server remove volume`.
 The `$off_disks` variable  was set during the driver installation. If you've lost the variable,
-open the Disk# Management tool and manually offline the disks.
+open the Disk Management tool and manually offline the disks.
 
 ```ps1
 $off_disks | Set-Disk -IsOffline $True
