@@ -97,7 +97,7 @@ DISM /image:$boot_vol /Get-Drivers
 
 ## Remove VMware tools
 
-Since Windows doesn't have any equivolent to Linux's `chroot` to leverage the VMware uninstaller,
+Since Windows doesn't have any equivalent to Linux's `chroot` to leverage the VMware uninstaller,
 you need to manually remove the registry keys and installed files. Paste this script into an
 administrative Powershell prompt to clean it up.
 
