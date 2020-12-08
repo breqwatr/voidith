@@ -22,34 +22,38 @@ def verify_create_dirs(path):
 
 
 def pull_and_save_kolla_tag_images(kolla_tag, path, force):
-    """ Pull all kolla images"""
+    """ Pull and save kolla and service images with kolla tag"""
     if kolla_tag not in KOLLA_IMAGE_REPOS:
         error(f"ERROR: kolla tag {kolla_tag} is not supported", exit=True)
     all_images = KOLLA_IMAGE_REPOS[kolla_tag]
     kolla_tag_service_images = ["pip", "apt", "openstack-client", "kolla-ansible"]
     all_images.extend(kolla_tag_service_images)
     image_dir_path = "{}/images/".format(path)
+    echo("Pulling dockerhub images with tag: {}\n".format(kolla_tag))
     _pull_and_save_all(all_images, kolla_tag, image_dir_path, force)
 
 
 def pull_and_save_bw_tag_images(bw_tag, path, force):
-    """ Pull Breqwatr service images"""
+    """ Pull and save service images with bw tag"""
     bw_tag_docker_images = ["rsyslog", "pxe", "registry"]
     bw_tag_ecr_images = ["arcus-api", "arcus-client", "arcus-mgr"]
     image_dir_path = "{}/images/".format(path)
+    echo("Pulling dockerhub images with tag: {}\n".format(bw_tag))
     _pull_and_save_all(bw_tag_docker_images, bw_tag, image_dir_path, force)
+    echo("Pulling ecr images with tag: {}\n".format(bw_tag))
     _pull_and_save_all_ecr(bw_tag_ecr_images, bw_tag, image_dir_path, force)
 
 def pull_and_save_single_image(image_name, tag, path, force):
-    image_dir_path = "{}/images/".format(path)
+    """ Pull and save any image from dockerhub breqwatr repo or ecr """
     image_name = f"breqwatr/{image_name}:{tag}"
     if "arcus" in image_name:
         pull_ecr(image_name)
     else:
        pull(image_name)
-    save(image_name, image_dir_path, force)
+    save(image_name, path, force)
 
 def _pull_and_save_all(image_name_list, tag, path, force):
+    """ Pull and save bw dockerhub images"""
     i=1
     count = len(image_name_list)
     for image in image_name_list:
@@ -60,6 +64,7 @@ def _pull_and_save_all(image_name_list, tag, path, force):
         save(image_name, path, force)
 
 def _pull_and_save_all_ecr(image_name_list, tag, path, force):
+    """ Pull and save ecr images"""
     i=1
     count = len(image_name_list)
     for image in image_name_list:
@@ -70,24 +75,27 @@ def _pull_and_save_all_ecr(image_name_list, tag, path, force):
         save(image_name, path, force)
 
 def pull(image_name_tag):
+    """ Pull single image from bw dockerhub """
     try:
         shell(f"docker pull {image_name_tag}")
     except:
         error(f"{Fore.RED}ERROR: Image {image_name_tag} not found{Style.RESET_ALL}", exit=False)
 
 def pull_ecr(image_name_tag):
+    """ Pull single image from ecr """
     try:
         ecr.pull(image_name_tag)
     except:
         error(f"{Fore.RED}ERROR: Image {image_name_tag} not found{Style.RESET_ALL}", exit=False)
 
 def save(image_name_tag, images_dir_path, force):
+    """ Save docker image to offline path """
     client = docker.from_env()
     try:
         image = client.images.get(image_name_tag)
     except docker.errors.ImageNotFound:
         return
-    image_path = _get_image_filename_path(image_name_tag, images_dir_path)
+    image_path = get_image_filename_path(image_name_tag, images_dir_path)
     if os.path.exists(image_path) and not force:
         error(f"{Fore.YELLOW}Warning: {image_name_tag} already exists: use --force to overwrite.{Style.RESET_ALL}", exit=False)
         return
@@ -110,7 +118,8 @@ def save(image_name_tag, images_dir_path, force):
     else:
         sys.stderr.write('ERROR: Failed to create {}\n'.format(image_path))
 
-def _get_image_filename_path(image_name_tag, images_dir_path):
+def get_image_filename_path(image_name_tag, images_dir_path):
+    """ Get path to image file"""
     image_filename = image_name_tag.replace("/", "-").replace(":", "-")
     images_dir_path = images_dir_path.rstrip("/")
     image_path = f"{images_dir_path}/{image_filename}.docker"
