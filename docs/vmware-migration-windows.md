@@ -204,8 +204,8 @@ REG UNLOAD $HKEY_LOCAL_MACHINE_SYSTEM
 
 # Remove the VMware Tools installation directory
 $folders = @(
-  ($boot_vol+"Program Files\VMware"),
-  ("$boot_vol"+"Program Files (x86)\VMware")
+  ($boot_vol + "Program Files\VMware"),
+  ($boot_vol + "Program Files (x86)\VMware")
 )
 ForEach($folder in $folders){
   if ($(Test-Path $folder)){
