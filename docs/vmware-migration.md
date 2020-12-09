@@ -157,12 +157,12 @@ lvdisplay
 On the volume with the boot partition (usually the first), enable `--bootable`:
 
 ```bash
-openstack volume set --bootable
+openstack volume set --bootable <volume>
 ```
 
-## Enable UEFI boot
+## Enable UEFI boot (if required)
 
-Some source volumes on VMWare will use UEFI instead of Bios to boot. OpenStack supports this, but
+Some source volumes on VMWare will use UEFI instead of BIOS to boot. OpenStack supports this, but
 an image metadata property must be assigned to the volume before a server is created and assigned
 it.
 
@@ -170,7 +170,7 @@ While your disks are mounted to the Linux migration worker, you can check which 
 looking at the output of the `fdisk -l` command.
 
 Here's what a BIOS (no Cinder property required) boot volume looks like.
-Not the `boot` column with a `*` in it and the `Disklabel type: dos` line.
+Note the `boot` column with a `*` in it and the `Disklabel type: dos` line.
 
 ```text
 Disk /dev/vdb: 20 GiB, 21474836480 bytes, 41943040 sectors
@@ -185,7 +185,7 @@ Device     Boot   Start      End  Sectors Size Id Type
 ```
 
 This is what a UEFI boot volume looks like. This one will require the metadata to let its server
-boot. Note that it uses GPT instead of MBR. Note the `Disklabel type: gpt` line.
+boot. Note that it uses GPT instead of MBR, which can be seen in the `Disklabel type: gpt` line.
 
 ```text
 Disk /dev/vdb: 16 GiB, 17179869184 bytes, 33554432 sectors
