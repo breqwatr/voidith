@@ -18,6 +18,14 @@ def get_boot_mode(device):
     boot_mode = rhel.get_boot_mode(device)
     print(boot_mode)
 
+
+@click.argument("device")
+@click.command(name="repair-partitions")
+def repair_partitions(device):
+    """ Repair the partitions on this device """
+    rhel.repair_partitions(device)
+
+
 def get_rhel_group():
     """ Return the migrate click group """
 
@@ -27,4 +35,5 @@ def get_rhel_group():
 
     rhel.add_command(add_virtio_drivers)
     rhel.add_command(get_boot_mode)
+    rhel.add_command(repair_partitions)
     return rhel

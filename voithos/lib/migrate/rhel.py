@@ -59,7 +59,7 @@ def get_uefi_boot_partition(device):
         grub_path = f"{EFI_MOUNT}/EFI/redhat/grub.cfg"
         grub_contents = get_file_contents(grub_path, required=True)
         efi_partition = get_efi_partition(device)
-        for partition in get_partitions():
+        for partition in get_partitions(device):
             if partition == efi_partition:
                 continue
             uuid = get_partition_uuid(partition)
@@ -220,7 +220,7 @@ def add_virtio_drivers(device):
         kernel_version = get_rpm_version("kernel")
         print(f"Kernel version: {kernel_version}")
         initrd_path = f"/boot/initramfs-{kernel_version}.img"
-        print(f"Checking {initrd_path} on {boot_partition} for VirtIO drivers")
+        print(f"Checking {initrd_path} from {boot_partition} for VirtIO drivers")
         if is_virtio_driverset_present(initrd_path):
             print("Virtio drivers are already installed")
         else:
@@ -231,3 +231,34 @@ def add_virtio_drivers(device):
         unmount(BOOT_BIND_MOUNT, fail=False)
         unmount(ROOT_MOUNT, fail=False)
         unmount(BOOT_MOUNT)
+
+
+def repair_partition(partition, file_system):
+    """ Repair a given partition using the appropriate tool"""
+    if file_system == "xfs":
+        print(f" > Repairing XFS partition {partition}")
+        run(f"xfs_repair {partition}")
+    elif "ext" in file_system:
+        print(f" > Repairing {file_system} partition {partition}")
+        repair_cmd = f"fsck.{file_system} -y {partition}"
+        run(repair_cmd)
+    else:
+        print(f" > Cannot repair {file_system} partitions")
+
+
+def repair_partitions(device):
+    """ Attempt to repair paritions of supported filesystems on this device """
+    unmount_partitions()
+    for partition in get_partitions(device):
+        file_system = get_fs_type(partition)
+        print(f"Partition: {partition} - FileSystem: {file_system}")
+        if "lvm" in file_system.lower():
+            for lvm_vol in get_logical_volumes(partition):
+                lv_fs = get_fs_type(lvm_vol['dm'])
+                print(f"Logical Volume: {lvm_vol['lv']} - FileSystem {lv_fs}")
+                repair_partition(lvm_vol['dm'], lv_fs)
+                print("")
+        else:
+            repair_partition(partition, file_system)
+            print("")
+    print("Finished repairing supported partitions")
