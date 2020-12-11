@@ -6,6 +6,19 @@ import subprocess
 import os
 import sys
 from contextlib import closing
+from time import sleep
+
+
+def is_debug_on():
+    """ Return if debug mode is on or not """
+    arg = "VOITHOS_DEBUG"
+    return (arg in os.environ and os.environ[arg] == "true")
+
+
+def debug(txt):
+    """ Print text if debug mode is on """
+    if is_debug_on():
+        print(f"DEBUG:  {txt}")
 
 
 def shell(cmd, print_error=True, print_cmd=True):
@@ -21,12 +34,16 @@ def shell(cmd, print_error=True, print_cmd=True):
         sys.exit(12)
 
 
-def run(cmd, exit_on_error=False):
+def run(cmd, exit_on_error=False, print_cmd=False):
     """ Runs a given shell command, returns a list of the stdout lines
         This uses the newer "run" subprocess command, requires later Python versions
     """
+    debug(f"run:  {cmd}")
     cmd_list = cmd.split(" ")
-    completed_process = subprocess.run(cmd_list, stdout=subprocess.PIPE)
+    if is_debug_on():
+        completed_process = subprocess.run(cmd_list, stdout=subprocess.PIPE)
+    else:
+        completed_process = subprocess.run(cmd_list, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
     if completed_process.returncode != 0:
         error(f"ERROR - Command failed: {cmd}", exit=True)
     text = completed_process.stdout.decode('utf-8')
@@ -64,12 +81,29 @@ def assert_path_exists(file_path):
 class FailedMount(Exception):
     """ A mount operation has failed """
 
+def is_mounted(mpoint):
+    """ os.path.ismount is not reliable - return bool if pointpoint is mounted """
+    mount_lines = run("mount")
+    mpoint_lines = [ mpoint_line for mpoint_line in mount_lines if mpoint in mpoint_line ]
+    if not mpoint_lines:
+        return False
+    for line in mpoint_lines:
+        split = line.split(" ")
+        if len(split) < 3:
+            return False
+        if split[2] == mpoint:
+            return True
+    return False
 
-def mount(dev_path, mpoint, fail=True):
+
+def mount(dev_path, mpoint, fail=True, bind=False):
     """ Mount dev_path to mpoint.
         If fail is true, throw a nice error. Else raise an exception
     """
-    ret = os.system(f"mount {dev_path} {mpoint}")
+    bind = "--bind" if bind else ""
+    cmd = f"mount {bind} {dev_path} {mpoint}"
+    debug(f"run: {cmd}")
+    ret = os.system(cmd)
     if ret != 0:
         fail_msg = f"Failed to mount {dev_path} to {mpoint}"
         if fail:
@@ -80,19 +114,29 @@ def mount(dev_path, mpoint, fail=True):
 
 def unmount(mpoint, prompt=False, fail=True):
     """ Unmount a block device if it's mounted. Prompt if prompt=True """
-    if not os.path.ismount(mpoint):
+    # If its already not mounted, nothing to do
+    if not is_mounted(mpoint):
         return
+    # Sometimes we should check with the user first before doing anything
     if prompt:
         print(f"WARNING: {mpoint} is currently mounted. Enter 'y' to unmount")
         confirm = input()
         if confirm != "y":
             if fail:
-                error("Cannot continue with {mpoint} mounted", exit=True)
+                error(f"Cannot continue with {mpoint} mounted", exit=True)
             else:
                 return
-        ret = os.system(f"umount {mpoint}")
-        if ret != 0:
-            error(f"ERROR: Failed to unmount {mpoint}", exit=True)
+    # It can take a few retries before it works
+    retries = 5
+    for attempt in range(1, retries + 1):
+        debug(f"Unmounting {mpoint} - try {attempt}/{retries}")
+        run(f"umount {mpoint}")
+        if not is_mounted(mpoint):
+            debug(f"{mpoint} unmounted successfully")
+            break
+        sleep(attempt)
+    if is_mounted(mpoint):
+        error(f"ERROR: Failed to unmount {mpoint}", exit=fail)
 
 
 def get_file_contents(file_path, required=False):

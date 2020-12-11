@@ -31,6 +31,9 @@ export VOITHOS_DEV=true
 # Overwrite image code with local code
 export ARCUS_API_DIR=<path to api checkout>
 export ARCUS_CLIENT_DIR=<path to client checkout>
+
+# Turn on some debug logs
+export VOITHOS_DEBUG=true
 ```
 
 ### Running the tests
