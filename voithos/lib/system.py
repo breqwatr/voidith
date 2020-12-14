@@ -12,7 +12,7 @@ from time import sleep
 def is_debug_on():
     """ Return if debug mode is on or not """
     arg = "VOITHOS_DEBUG"
-    return (arg in os.environ and os.environ[arg] == "true")
+    return arg in os.environ and os.environ[arg] == "true"
 
 
 def debug(txt):
@@ -35,18 +35,20 @@ def shell(cmd, print_error=True, print_cmd=True):
 
 
 def run(cmd, exit_on_error=False, print_cmd=False):
-    """ Runs a given shell command, returns a list of the stdout lines
-        This uses the newer "run" subprocess command, requires later Python versions
+    """Runs a given shell command, returns a list of the stdout lines
+    This uses the newer "run" subprocess command, requires later Python versions
     """
     debug(f"run:  {cmd}")
     cmd_list = cmd.split(" ")
     if is_debug_on():
         completed_process = subprocess.run(cmd_list, stdout=subprocess.PIPE)
     else:
-        completed_process = subprocess.run(cmd_list, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
+        completed_process = subprocess.run(
+            cmd_list, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL
+        )
     if completed_process.returncode != 0:
         error(f"ERROR - Command failed: {cmd}", exit=True)
-    text = completed_process.stdout.decode('utf-8')
+    text = completed_process.stdout.decode("utf-8")
     return text.split("\n")
 
 
@@ -70,6 +72,7 @@ def assert_block_device_exists(device):
     if not pathlib.Path(device).is_block_device():
         error(f"ERROR: Block device not found - {device}", exit=True)
 
+
 def assert_path_exists(file_path):
     """ Gracefully exit if a file does not exist """
     path = pathlib.Path(get_absolute_path(file_path))
@@ -78,13 +81,15 @@ def assert_path_exists(file_path):
         sys.stderr.write(err)
         sys.exit(11)
 
+
 class FailedMount(Exception):
     """ A mount operation has failed """
+
 
 def is_mounted(mpoint):
     """ os.path.ismount is not reliable - return bool if pointpoint is mounted """
     mount_lines = run("mount")
-    mpoint_lines = [ mpoint_line for mpoint_line in mount_lines if mpoint in mpoint_line ]
+    mpoint_lines = [mpoint_line for mpoint_line in mount_lines if mpoint in mpoint_line]
     if not mpoint_lines:
         return False
     for line in mpoint_lines:
@@ -97,8 +102,8 @@ def is_mounted(mpoint):
 
 
 def mount(dev_path, mpoint, fail=True, bind=False):
-    """ Mount dev_path to mpoint.
-        If fail is true, throw a nice error. Else raise an exception
+    """Mount dev_path to mpoint.
+    If fail is true, throw a nice error. Else raise an exception
     """
     bind = "--bind" if bind else ""
     cmd = f"mount {bind} {dev_path} {mpoint}"
@@ -140,10 +145,10 @@ def unmount(mpoint, prompt=False, fail=True):
 
 
 def get_file_contents(file_path, required=False):
-    """ Return the contents of a file
+    """Return the contents of a file
 
-        When required=True, exit if the file is not found
-        When required=False, return '' when the file is not found
+    When required=True, exit if the file is not found
+    When required=False, return '' when the file is not found
     """
     if required:
         assert_path_exists(file_path)
@@ -156,9 +161,10 @@ def get_file_contents(file_path, required=False):
     return file_data
 
 
-def set_file_contents(file_path, contents):
+def set_file_contents(file_path, contents, append=False):
     """ Write contents to the file at file_path """
-    with open(file_path, "w+") as file_:
+    operation = "a+" if append else "w+"
+    with open(file_path, operation) as file_:
         file_.write(contents)
 
 
