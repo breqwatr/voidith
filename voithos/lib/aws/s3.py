@@ -28,4 +28,4 @@ def download(path, bucket_name, key, print_progress=True):
 def upload(path, bucket_name, key):
     """ Upload file at path to bucket bucket_name named key """
     s3client = aws.get_client("s3")
-    s3client.upload_file(bucket_name, key, path)
+    s3client.upload_file(path, bucket_name, key)

@@ -1,8 +1,12 @@
 """ Voithos Utilities """
 
 import click
+import os
 import voithos.lib.util.util as util
+import voithos.lib.aws.s3 as s3
+from colorama import Fore, Style
 from voithos.cli.util.qemu_img import get_qemu_img_group
+from voithos.lib.system import error
 
 
 @click.option('--kolla-tag', required=True, help='Kolla images tag')
@@ -16,6 +20,16 @@ def export_offline_media(kolla_tag, bw_tag, ceph_release, force, path):
     """ Download offline installer on specified path"""
     click.echo("Download offline media at {}".format(path))
     util.verify_create_dirs(path)
+    apt_pkg_path = f"{path.rstrip('/')}/apt.tar.gz"
+    voithos_pkg_path = f"{path.rstrip('/')}/voithos.tar.gz"
+    if os.path.exists(apt_pkg_path) and not force:
+        error(f"{Fore.YELLOW}Warning: {apt_pkg_path} already exists: use --force to overwrite.{Style.RESET_ALL}", exit=False)
+    else:
+        s3.download(path+"/apt.tar.gz", "voithos-files", "apt.tar.gz")
+    if os.path.exists(voithos_pkg_path) and not force:
+        error(f"{Fore.YELLOW}Warning: {voithos_pkg_path} already exists: use --force to overwrite.{Style.RESET_ALL}", exit=False)
+    else:
+        s3.download(path+"/voithos.tar.gz", "voithos-files", "voithos.tar.gz")
     util.pull_and_save_kolla_tag_images(kolla_tag, path, force)
     util.pull_and_save_bw_tag_images(bw_tag, path, force)
     util.pull_and_save_single_image("ceph-ansible", ceph_release, path, force)
