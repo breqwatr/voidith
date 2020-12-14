@@ -342,7 +342,7 @@ def create_udev_interface_rule(root_partition, mac_addr, interface_name):
         'SUBSYSTEM=="net"',
         'ACTION=="add"',
         'DRIVERS=="?*"',
-        ('ATTR{address}=="' + mac_addr),
+        ('ATTR{address}=="' + mac_addr + '"'),
         f"NAME=\"{interface_name}\"",
     ]
     # Join the entries to looks like 'SUBSYSTEM=="net", ACTION=="add",...' with a \n at the end
