@@ -201,7 +201,7 @@ def add_virtio_drivers(device):
     # Validate the connected given device exists
     assert_block_device_exists(device)
     unmount_partitions()
-    # Find the boot volume - how that's done varies from BIOS to UEFO
+    # Find the boot volume - how that's done varies from BIOS to UEFI
     boot_mode = get_boot_mode(device)
     print(f"Boot Style: {boot_mode}")
     if boot_mode == "BIOS":
