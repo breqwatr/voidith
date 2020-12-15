@@ -87,7 +87,7 @@ class FailedMount(Exception):
 
 
 def is_mounted(mpoint):
-    """ os.path.ismount is not reliable - return bool if pointpoint is mounted """
+    """ os.path.ismount is not reliable - return bool if mpoint is mounted """
     mount_lines = run("mount")
     mpoint_lines = [mpoint_line for mpoint_line in mount_lines if mpoint in mpoint_line]
     if not mpoint_lines:
