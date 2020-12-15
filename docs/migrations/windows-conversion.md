@@ -19,12 +19,6 @@ Before this guide can be followed:
    Follow [this guide](/migrations/windows-worker.html) to set up the Windows worker.
 
 
-*NOTE*: Each example that requires the Voithos PS module will show it being imported. The module
-only needs to be imported once per terminal session.
-
-
----
-
 
 ## Attach Cinder volumes to Windows worker
 
