@@ -6,6 +6,7 @@
 
 
 function Repair-OfflineDisks {
+  # Run Repair-Volume against each lettered partition, on each offline disk
   Get-Disk | Where-Object OperationalStatus -eq "Offline"  | ForEach-Object {
     Write-Host ("Repairing Disk " + $_.Number)
     $_ | Set-Disk -isOffline $False
@@ -17,6 +18,8 @@ function Repair-OfflineDisks {
 
 
 function Get-TargetBootPartition {
+  # Get the target boot partition for migrating a VM - a Windows boot partition other than C:\
+  # Return a Get-Partition entry (CimInstance)
   Get-Disk | Where-Object Number -ne 0 | ForEach-Object {
     $disk = $_
     # Set it online and loop through each of its partitions that have letters
@@ -34,7 +37,7 @@ function Get-TargetBootPartition {
 
 
 function Save-VirtioISO {
-  # Download the Virtio ISO file
+  # Download the Virtio ISO file if its missing - Return the path to the file
   $path = "C:\virtio.iso"
   $exists = Test-Path $virtioIsoPath
   if (!$exists){
@@ -47,6 +50,7 @@ function Save-VirtioISO {
 
 
 function Get-VirtioVolume {
+  # Ensure the VirtIO file is downloaded and mounted - Return a Get-Volume (CimInstance) object
   $volume = Get-Volume | Where-Object DriveType -eq "CD-ROM" | Where-Object FileSystemLabel -like "virtio-win*"
   if ($volume){ return $volume }
   return Save-VirtioISO | Mount-DiskImage | Get-Volume
@@ -59,6 +63,7 @@ function Add-VirtioDrivers {
     [PSObject]$BootPartition,
     [string]$Distro
   )
+  # Install all of the VirtIO drivers for the given OS using DISM on the selected BootPartition
   $virtio_drive = $(Get-VirtioVolume).DriveLetter + ":\"
   $drivers = Get-ChildItem  -Recurse $virtio_drive | Where-Object {
     $_.PSIsContainer -eq $true -and $_.Name -eq "amd64" -and $_.Parent.Name -eq $distro
@@ -77,6 +82,7 @@ function Get-PartitionDrivers {
     [Parameter(Position = 0, ValueFromPipeline = $true, ValueFromRemainingArguments = $true)]
     [PSObject]$BootPartition
   )
+  # Run DISM /Get-Drivers on the given partition
   $bootVol = $BootPartition.DriveLetter +":/"
   Write-Host "DISM /Image:$bootVol /Get-Drivers"
   DISM /Image:$bootVol /Get-Drivers
@@ -88,6 +94,7 @@ function Remove-VMwareTools {
     [Parameter(Position = 0, ValueFromPipeline = $true, ValueFromRemainingArguments = $true)]
     [PSObject]$BootPartition
   )
+  # Manually remove all traces of VMware Tools, file-by-file and registry key-by-registry key
   $letter = $BootPartition.DriveLetter
   # Load the HKLM\SOFTWARE\ registry hive
   $hklmPath = ($letter + ":\Windows\System32\Config\SOFTWARE")
@@ -187,6 +194,7 @@ function Get-BootStyle {
     [Parameter(Position = 0, ValueFromPipeline = $true, ValueFromRemainingArguments = $true)]
     [PSObject]$BootPartition
   )
+  # Check if UEFI or BIOS is needed to boot the mounted VM's BootPartition
   $disk = Get-Disk -Number $BootPartition.DiskNumber
   $style = $disk.PartitionStyle
   Write-Host "Disk Partition Style: $style"
