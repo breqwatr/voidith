@@ -1,3 +1,6 @@
+[Back to the migration guide](/vmware-migration.html)
+
+
 # Converting RedHat/CentOS VMs from VMware to OpenStack
 
 ## Requirements
