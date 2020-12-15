@@ -43,7 +43,7 @@ openstack port list | grep <name>
 openstack volume list
 
 # or if you know the name
-openstacl volume list | grep <name>
+openstack volume list | grep <name>
 ```
 
 
