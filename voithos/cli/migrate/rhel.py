@@ -74,6 +74,7 @@ def set_interface(device, dhcp, mac, ip_addr, name, prefix, gateway, dns, domain
         gateway=gateway,
         dns=dns,
         domain=domain,
+        ip_addr=ip_addr
     )
 
 
