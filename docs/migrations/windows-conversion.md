@@ -35,7 +35,6 @@ as follows:
 # Example (with 2 volumes):
 openstack server remove volume linux-worker Win2019-MigrateMe-1.vmdk
 openstack server remove volume linux-worker Win2019-MigrateMe-0.vmdk
-openstack server add volume windows-worker Win2019-MigrateMe-0.vmdk
 openstack server add volume win-worker Win2019-MigrateMe-0.vmdk
 openstack server add volume win-worker Win2019-MigrateMe-1.vmdk
 ```
