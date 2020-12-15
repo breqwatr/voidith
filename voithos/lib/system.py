@@ -101,10 +101,12 @@ def is_mounted(mpoint):
     return False
 
 
-def mount(dev_path, mpoint, fail=True, bind=False):
+def mount(dev_path, mpoint, fail=True, bind=False, mkdir=True):
     """Mount dev_path to mpoint.
     If fail is true, throw a nice error. Else raise an exception
     """
+    if mkdir:
+      pathlib.Path(mpoint).mkdir(parents=True, exist_ok=True)
     bind = "--bind" if bind else ""
     cmd = f"mount {bind} {dev_path} {mpoint}"
     debug(f"run: {cmd}")
