@@ -95,7 +95,7 @@ function Remove-VMwareTools {
   $HKEY_LOCAL_MACHINE_SYSTEM = "HKLM\TEMPSYSTEM"
   Write-Host REG LOAD $HKEY_LOCAL_MACHINE_SYSTEM $hklmSystemPath
   REG LOAD $HKEY_LOCAL_MACHINE_SYSTEM $hklmSystemPath
-  # Find the key for VMWare Tools, if it's installed, call it $vmware_id
+  # Find the key for VMWare Tools, if it's installed - the ID may vary
   $hasVmwareTools = $False
   $productsDirPath = ($HKEY_LOCAL_MACHINE_SOFTWARE + "\Classes\Installer\Products\")
   $productPaths = REG QUERY $productsDirPath

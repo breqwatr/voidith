@@ -43,9 +43,9 @@ openstack server add volume win-worker Win2019-MigrateMe-1.vmdk
 ## Convert the VM
 
 Open the run window and execute `diskmgmt.msc`.
-Ensure that the disks to be converted are un the offline state.
+Ensure that the disks to be converted are in the offline state.
 
-Open Powershell as an administrator.
+Open Powershell as an administrator:
 
 ```ps1
 
