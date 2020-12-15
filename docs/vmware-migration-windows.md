@@ -1,18 +1,25 @@
-# Migrating Windows from VMware to OpenStack
+[Back to the migration guide](/vmware-migration.html)
+
+
+# Converting Windows (10/2016/2019) VMs from VMware to OpenStack
 
 ## Requirements
 
+
 Before this guide can be followed:
 
- - The virtual volumes of the VM must have already been imported into Cinder.
+ - The virtual volumes of the VM must have already been imported into Cinder
    If that hasn't been done yet, follow [this guide](/vmware-migration.html) first.
- - A Linux migration worker VM must be online and have the newly imported cinder volumes attached.
- - A Windows migration worker of equal or newer version (2012, 2016, 2019, etc) must be online and
-   have the cinder volumes attached to it
+ - The Windows migration worker VM must be online and have the newly imported cinder volumes
+   attached. If they're still attached to the Linux worker, remove them now and attach them to the
+   Windows worker.
+ - The OpenStack Neutron ports that this VM will use have been created.
+   Their MAC addresses will be used to configure the VM's interface files.
+ - A Windows migration worker is of equal or newer version (2012, 2016, 2019, etc) to the migration
+   target VM.
+ - The Windows migration worker has been configured with the Voithos powershell module.
+   Follow [this guide]() to set up the Windows worker.
 
-
-These steps involve executing powershell scripts. These scripts run on your migration worker.
-If you like, you can save them as .ps1 files and modify your execution policy to run them.
 
 ---
 
