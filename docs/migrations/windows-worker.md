@@ -1,3 +1,6 @@
+[Back to the migration guide](/vmware-migration.html)
+
+
 # Creating a Windows wigration worker
 
 The Windows migration worker mounts the volumes of Windows import targets and modifies them.
@@ -9,8 +12,23 @@ The Windows migration worker mounts the volumes of Windows import targets and mo
 The operating system of the Windows worker must be as new or newer than the migration target. We
 currently test using Windows Server 2019.
 
-Requirements:
-- Must exist inside the same OpenStack project where the migration target VM will be created
+**Requirements**:
+
+- The VM must exist inside the same OpenStack project where the migration target VM will be created
 - Outbound internet connection
 
-No special configuration is required, though it can be helpful to download our conversion scripts.
+
+# Deploy the Voithos powershell module
+
+Open a Powershell terminal as administrator and execute the following:
+
+```ps1
+# Download the Powershell module
+$url = "https://raw.githubusercontent.com/breqwatr/voithos/master/voithos.psm1"
+$modulesDir = $PSHome\Modules\Voithos"
+New-Item -ItemType Directory -Path $modulesDir
+$output = "$modulesDir\voithos.psm1"
+Invoke-WebRequest $url -OutFile $output
+```
+
+This will enable the command `Import-Module Voithos`
