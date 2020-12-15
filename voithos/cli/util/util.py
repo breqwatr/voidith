@@ -32,7 +32,7 @@ def export_offline_media(kolla_tag, bw_tag, ceph_release, force, path):
         s3.download(path+"/voithos.tar.gz", "voithos-files", "voithos.tar.gz")
     util.pull_and_save_kolla_tag_images(kolla_tag, path, force)
     util.pull_and_save_bw_tag_images(bw_tag, path, force)
-    util.pull_and_save_single_image("ceph-ansible", ceph_release, path, force)
+    util.pull_and_save_single_image("ceph-ansible", ceph_release, f"{path}/images/", force)
 
 @click.option('--name', required=True, help='Image name')
 @click.option('--tag', required=True, help='Image tag')

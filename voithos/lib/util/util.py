@@ -24,7 +24,7 @@ def verify_create_dirs(path):
 def pull_and_save_kolla_tag_images(kolla_tag, path, force):
     """ Pull and save kolla and service images with kolla tag"""
     if kolla_tag not in KOLLA_IMAGE_REPOS:
-        error(f"ERROR: kolla tag {kolla_tag} is not supported", exit=True)
+        error(f"{Fore.RED}ERROR: kolla tag {kolla_tag} is not supported{Style.RESET_ALL}", exit=True)
     all_images = KOLLA_IMAGE_REPOS[kolla_tag]
     kolla_tag_service_images = ["pip", "apt", "openstack-client", "kolla-ansible"]
     all_images.extend(kolla_tag_service_images)
@@ -107,7 +107,7 @@ def save(image_name_tag, images_dir_path, force):
     except ReadTimeout:
         # Sometimes Docker will time out trying to export the image
         err = 'Docker timeout trying to export file. Check CPU usage?\n'
-        sys.stderr.write('ERROR: {}'.format(err))
+        sys.stderr.write('{Fore.RED}ERROR: {}{Style.RESET_ALL}'.format(err))
     if os.path.exists(image_path):
         # If ReadTimeout leaves a 0b file behind
         if os.path.getsize(image_path) == 0:
@@ -116,7 +116,7 @@ def save(image_name_tag, images_dir_path, force):
         else:
             os.chmod(image_path, 0o755)
     else:
-        sys.stderr.write('ERROR: Failed to create {}\n'.format(image_path))
+        sys.stderr.write('{Fore.RED}ERROR: Failed to create {}{Style.RESET_ALL}\n'.format(image_path))
 
 def get_image_filename_path(image_name_tag, images_dir_path):
     """ Get path to image file"""
