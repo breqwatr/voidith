@@ -1,4 +1,8 @@
- # ps1
+# ps1
+# This is the Voithos Powershell Module
+# Save it to $PSHome\Modules\Voithos\ on a Windows system
+# Import it with "Import-Module Voithos"
+# These functions provide some useful Windows utilities, particularly for migrations
 
 
 function Repair-OfflineDisks {
