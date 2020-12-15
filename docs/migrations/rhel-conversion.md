@@ -26,6 +26,9 @@ Show the boot mode:
 
 ```bash
 voithos migrate rhel get-boot-mode <device>
+
+# If the return value is "UEFI", you will eventually need to execute:
+openstack volume set --image-property hw_firmware_type=uefi <volume>
 ```
 
 
