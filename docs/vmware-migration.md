@@ -12,7 +12,9 @@ follows:
     1. Download the VMware VM to the Linux worker with `voithos vmware download-vm`
 1. Using the [Voithos qemu-img utility](/qemu-img.html), determine the size of each VMware VM
    volume - `voithos util qemu-img show`
-1. Create appropriately sized Cinder volumes: `openstack volume create --size <raw size>`
+1. Create appropriately sized Cinder volumes: 
+`openstack volume create --type <volume type> --bootable --size <raw size> <volume name>`
+`openstack volume create --type <volume type> --size <raw size> <volume name>` 
 1. Attach the volumes to the Linux migration worker:
    `openstack server add volume <server> <volume>`
 1. Using the [Voithos qemu-img utility](/qemu-img.html), write the VMDK files to the Cinder
