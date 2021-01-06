@@ -2,6 +2,7 @@
 import docker
 import os
 import sys
+import subprocess
 import voithos.lib.aws.ecr as ecr
 from click import echo
 from colorama import Fore, Style
@@ -11,7 +12,7 @@ from voithos.lib.system import error, shell
 
 
 def verify_create_dirs(path):
-    """ Check if path exist and create if it doesn't"""
+    """ Check if path exist and create if it doesn't for offline media"""
     if not os.path.isdir(path):
         echo('Creating base directory: {}'.format(path))
         os.mkdir(path)
@@ -20,6 +21,35 @@ def verify_create_dirs(path):
         echo('Creating images directory: {}'.format(image_dir_path))
         os.mkdir(image_dir_path)
 
+
+def create_offline_apt_repo_tar_file(packages_list, path):
+    """ Downloads apt packages and their dependencies
+        and create Packages.gz for all downloaded packages.
+    """
+    echo('Creating base directory: {}'.format(path))
+    os.mkdir(path)
+    # 104 is uid of _apt and 0 is gid of root
+    os.chown(path, 104, 0)
+    os.chdir(path)
+    echo('Downloading these packages and dependencies {}'.format(packages_list))
+    shell("apt-get update && apt-get install -y apt-rdepends dpkg-dev")
+    for package in packages_list:
+        dependencies_list = get_package_dependencies_list(package)
+        print("\n\n\n")
+        print(dependencies_list)
+        for dependency in dependencies_list:
+            cmd = f"apt-get download {dependency}"
+            try:
+                subprocess.check_call(cmd, shell=True)
+            except subprocess.CalledProcessError as e:
+                print(e.message)
+def get_package_dependencies_list(package):
+    """ Returns a list of package dependencies"""
+    output = subprocess.getoutput(f'apt-rdepends {package}|grep -v "^ "')
+    if "Unable to locate package" in output:
+        error(f"{Fore.RED}ERROR: Unable to locate package: {package}{Style.RESET_ALL}", exit=True)
+    dependencies = subprocess.check_output(f'apt-rdepends {package}|grep -v "^ "', shell=True).decode("utf-8")
+    return dependencies.replace("\n", " ").split()
 
 def pull_and_save_kolla_tag_images(kolla_tag, path, force):
     """ Pull and save kolla and service images with kolla tag"""

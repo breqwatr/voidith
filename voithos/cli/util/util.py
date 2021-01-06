@@ -5,6 +5,7 @@ import os
 import voithos.lib.util.util as util
 import voithos.lib.aws.s3 as s3
 from colorama import Fore, Style
+from voithos.constants import OFFLINE_DEPLOYMENT_SERVER_PACKAGES
 from voithos.cli.util.qemu_img import get_qemu_img_group
 from voithos.lib.system import error
 
@@ -34,6 +35,11 @@ def export_offline_media(kolla_tag, bw_tag, ceph_release, force, path):
     util.pull_and_save_bw_tag_images(bw_tag, path, force)
     util.pull_and_save_single_image("ceph-ansible", ceph_release, f"{path}/images/", force)
 
+@click.command(name='upload-apt-packages-s3')
+def create_and_upload_apt_tar():
+    """ Create and upload apt tar file on S3"""
+    util.create_offline_apt_repo_tar_file(OFFLINE_DEPLOYMENT_SERVER_PACKAGES, "/home/ubuntu/tmp/")
+
 @click.option('--name', required=True, help='Image name')
 @click.option('--tag', required=True, help='Image tag')
 @click.option('--path', required=True, help='Download path')
@@ -55,4 +61,5 @@ def get_util_group():
     util_group.add_command(get_qemu_img_group())
     util_group.add_command(export_offline_media)
     util_group.add_command(export_offline_single_image)
+    util_group.add_command(create_and_upload_apt_tar)
     return util_group

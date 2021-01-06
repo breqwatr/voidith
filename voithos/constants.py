@@ -2,6 +2,14 @@
 
 import os
 
+# Packages required by deployment server.
+OFFLINE_DEPLOYMENT_SERVER_PACKAGES = [
+    "python3",
+    "python3-pip",
+    "docker",
+    "virtualenv"
+]
+
 # Major release of this CLI, for use with "voithos version"
 VOITHOS_VERSION = "1.00"
 
