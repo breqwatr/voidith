@@ -4,6 +4,7 @@ import os
 import sys
 import subprocess
 import voithos.lib.aws.ecr as ecr
+import voithos.lib.aws.s3 as s3
 from click import echo
 from colorama import Fore, Style
 from requests.exceptions import ReadTimeout
@@ -26,27 +27,33 @@ def create_offline_apt_repo_tar_file(packages_list, path):
     """ Downloads apt packages and their dependencies
         and create Packages.gz for all downloaded packages.
     """
-    echo('Creating base directory: {}'.format(path))
-    os.mkdir(path)
+    apt_packages_dir = f"{path}/apt_packages"
+    echo('Creating base directory: {}'.format(apt_packages_dir))
+    os.mkdir(apt_packages_dir)
     # 104 is uid of _apt and 0 is gid of root
-    os.chown(path, 104, 0)
-    os.chdir(path)
-    echo('Downloading these packages and dependencies {}'.format(packages_list))
+    os.chown(apt_packages_dir, 104, 0)
+    os.chdir(apt_packages_dir)
     shell("apt-get update && apt-get install -y apt-rdepends dpkg-dev")
     for package in packages_list:
-        dependencies_list = get_package_dependencies_list(package)
-        print("\n\n\n")
-        print(dependencies_list)
+        dependencies_list = get_package_dependencies_list(package, apt_packages_dir)
+        echo('\nDownloading {} and its dependencies'.format(package))
         for dependency in dependencies_list:
             cmd = f"apt-get download {dependency}"
             try:
                 subprocess.check_call(cmd, shell=True)
             except subprocess.CalledProcessError as e:
-                print(e.message)
-def get_package_dependencies_list(package):
+                print(e)
+    # Creating Packages.gz containing downloaded packages info
+    shell("dpkg-scanpackages ./ /dev/null | gzip -9c > ./Packages.gz")
+    shell("cd && tar --remove-files -zcf apt.tar.gz apt_packages")
+    tar_file_path = f"{path}/apt.tar.gz"
+    s3.upload(tar_file_path, "voithos-files", "apt.tar.gz")
+
+def get_package_dependencies_list(package, apt_packages_dir):
     """ Returns a list of package dependencies"""
     output = subprocess.getoutput(f'apt-rdepends {package}|grep -v "^ "')
     if "Unable to locate package" in output:
+        shell(f"rm -r {apt_packages_dir}")
         error(f"{Fore.RED}ERROR: Unable to locate package: {package}{Style.RESET_ALL}", exit=True)
     dependencies = subprocess.check_output(f'apt-rdepends {package}|grep -v "^ "', shell=True).decode("utf-8")
     return dependencies.replace("\n", " ").split()
