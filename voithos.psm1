@@ -256,14 +256,66 @@ function Set-InterfaceAddress {
 
 
 function Copy-VoithsModuleToBootPartition {
-	param(
-		[PSObject]$BootPartition
-	)
+  param(
+    [Parameter(Mandatory=$true)][PSObject]$BootPartition
+  )
 	# Write the Voithos module to the migration target's boot partition
   $src = "$PSHome\Modules\Voithos"
   $dest = ($BootPartition.DriveLetter + ":\Windows\SysWOW64\WindowsPowerShell\v1.0\Modules\Voithos")
   Copy-Item -Path $src -Destination $dest
   return Get-Item $dest
+}
+
+
+function New-RunOnceScript {
+  param(
+    [Parameter(Mandatory=$true)][PSObject]$BootPartition
+  )
+  $breqwatrDir = ($BootPartition.DriveLetter + ":\Breqwatr")
+  New-Item -ItemType Directory -Force -Path $breqwatrDir
+  $path = ($breqwatrDir + "\RunOnce.ps1")
+  notepad $path
+  return $path
+}
+
+
+function Set-RunOnceScript {
+  param(
+    [Parameter(Mandatory=$true)][PSObject]$BootPartition,
+    [Parameter(Mandatory=$true)][string]$ScriptPath
+  )
+  $hklmPath = ($BootPartition.DriveLetter + ":\Windows\System32\Config\SOFTWARE")
+  $HKEY_LOCAL_MACHINE_SOFTWARE = "HKLM\TEMPSOFTWARE"
+  Write-Host "REG LOAD $HKEY_LOCAL_MACHINE_SOFTWARE  $hklmPath"
+  REG LOAD $HKEY_LOCAL_MACHINE_SOFTWARE  $hklmPath
+  $runOnceKey = ($HKEY_LOCAL_MACHINE_SOFTWARE + "\Microsoft\Windows\CurrentVersion\RunOnce")
+  $runOnceVal = "PowerShell.exe -executionpolicy bypass -file C:\Breqwatr\RunOnce.ps1"
+  Write-Host "REG ADD $runOnceKey /ve /t REG_SZ /d $runOnceVal /f"
+  REG ADD $runOnceKey /ve /t REG_SZ /d $runOnceVal /f
+  Write-Host "REG UNLOAD $HKEY_LOCAL_MACHINE_SOFTWARE"
+  REG UNLOAD $HKEY_LOCAL_MACHINE_SOFTWARE
+}
+
+
+function Get-RunOnceScript {
+  param(
+    [Parameter(Mandatory=$true)][PSObject]$BootPartition
+  )
+  $hklmPath = ($BootPartition.DriveLetter + ":\Windows\System32\Config\SOFTWARE")
+  $HKEY_LOCAL_MACHINE_SOFTWARE = "HKLM\TEMPSOFTWARE"
+  Write-Host "REG LOAD $HKEY_LOCAL_MACHINE_SOFTWARE  $hklmPath"
+  REG LOAD $HKEY_LOCAL_MACHINE_SOFTWARE  $hklmPath
+  $runOnceKey = ($HKEY_LOCAL_MACHINE_SOFTWARE + "\Microsoft\Windows\CurrentVersion\RunOnce")
+  Write-Host "REG QUERY $runOnceKey"
+  REG QUERY $runOnceKey
+  Write-Host "REG UNLOAD $HKEY_LOCAL_MACHINE_SOFTWARE"
+  REG UNLOAD $HKEY_LOCAL_MACHINE_SOFTWARE
+}
+
+function Set-AllDisksOnline {
+  $offDisks = Get-Disk | Where-Object OperationalStatus -eq "Offline"
+  $offDisks | Set-Disk -isOffline $False
+  $offDisks | Set-Disk -isReadOnly $False
 }
 
 
@@ -279,3 +331,7 @@ Export-ModuleMember -Function Get-BootStyle
 Export-ModuleMember -Function Repair-OfflineDisks
 Export-ModuleMember -Function Copy-VoithsModuleToBootPartition
 Export-ModuleMember -Function Set-InterfaceAddress
+Export-ModuleMember -Function New-RunOnceScript
+Export-ModuleMember -Function Get-RunOnceScript
+Export-ModuleMember -Function Set-RunOnceScript
+Export-ModuleMember -Function Set-AllDisksOnline
