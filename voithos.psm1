@@ -1,8 +1,11 @@
 # ps1
-# This is the Voithos Powershell Module
-# Save it to $PSHome\Modules\Voithos\ on a Windows system
-# Import it with "Import-Module Voithos"
-# These functions provide some useful Windows utilities, particularly for migrations
+
+# Voithos Powershell Module
+# Maintained by Breqwatr - info@breqwatr.com
+
+# Save to:			  $PSHome\Modules\Voithos\
+# Import with:	  "Import-Module Voithos"
+# Description: 		Provides Windows import automation functions
 
 
 function Repair-OfflineDisks {
@@ -36,10 +39,23 @@ function Get-TargetBootPartition {
 }
 
 
+function Save-CloudBaseInit {
+  # Download the cloudbase init installer
+  $path = "C:\CloudbaseInitSetup.msi"
+  $exists = Test-Path $path
+  if (!$exists){
+    Write-Host "Cloudbase-init archive not found - downloading to $path"
+    $url = "https://cloudbase.it/downloads/CloudbaseInitSetup_Stable_x64.msi"
+    (New-Object System.Net.WebClient).DownloadFile($url, $path)
+  }
+  return $path
+}
+
+
 function Save-VirtioISO {
   # Download the Virtio ISO file if its missing - Return the path to the file
   $path = "C:\virtio.iso"
-  $exists = Test-Path $virtioIsoPath
+  $exists = Test-Path $path
   if (!$exists){
     Write-Host "ISO file not found - downloading to $path"
     $url = "https://fedorapeople.org/groups/virt/virtio-win/direct-downloads/stable-virtio/virtio-win.iso"
@@ -208,11 +224,58 @@ function Get-BootStyle {
 }
 
 
+function Set-InterfaceAddress {
+  param(
+    [Parameter(Mandatory=$true)]  [string] $MacAddress,
+    [Parameter(Mandatory=$true)]  [string] $IPAddress,
+    [Parameter(Mandatory=$true)]  [string] $SubnetPrefix,
+    [Parameter(Mandatory=$false)] [string] $GatewayIPAddress,
+    [Parameter(Mandatory=$false)] [string] $DNSAddressCSV
+  )
+  # Convert mac address format
+  # Openstack format: fa:16:3e:5e:de:ce --> Windows format: FA-16-3E-5E-DE-CE
+  $MacAddress = ($MacAddress -Replace ":","-").ToUpper()
+  $nic = Get-NetAdapter | Where-Object MacAddress -eq $MacAddress
+  if (! $nic){
+    Write-Host "ERROR: Failed to find NIC with MAC address $MacAddress"
+    return
+  }
+  Remove-NetIPAddress -InterfaceIndex $nic.ifIndex -Confirm:$False
+  $newIPAddress = New-NetIPAddress -InterfaceIndex $nic.ifIndex -IPAddress $IPAddress -PrefixLength $SubnetPrefix
+  if ($GatewayIPAddress){
+    $gwPrefix = "0.0.0.0/0"
+    Get-NetRoute | Where-Object DestinationPrefix -eq $gwPrefix | Remove-NetRoute -Confirm:$False
+    New-NetRoute -InterfaceIndex $nic.ifIndex -DestinationPrefix $gwPrefix -NextHop $GatewayIPAddress | Out-Null
+  }
+  if ($DNSAddressCSV){
+    $dnsAddresses = $DNSAddressCSV.Split(",")
+    Set-DnsClientServerAddress -InterfaceIndex $nic.ifIndex -ServerAddresses $dnsAddresses | Out-Null
+  }
+  return $newIPAddress[0]
+}
 
-# Export the functions
+
+function Copy-VoithsModuleToBootPartition {
+	param(
+		[PSObject]$BootPartition
+	)
+	# Write the Voithos module to the migration target's boot partition
+  $src = "$PSHome\Modules\Voithos"
+  $dest = ($BootPartition.DriveLetter + ":\Windows\SysWOW64\WindowsPowerShell\v1.0\Modules\Voithos")
+  Copy-Item -Path $src -Destination $dest
+  return Get-Item $dest
+}
+
+
+###################################################################################################
+###################################################################################################
+
+# Publc Function Exports
 Export-ModuleMember -Function Get-TargetBootPartition
 Export-ModuleMember -Function Add-VirtioDrivers
 Export-ModuleMember -Function Get-PartitionDrivers
 Export-ModuleMember -Function Remove-VMwareTools
 Export-ModuleMember -Function Get-BootStyle
 Export-ModuleMember -Function Repair-OfflineDisks
+Export-ModuleMember -Function Copy-VoithsModuleToBootPartition
+Export-ModuleMember -Function Set-InterfaceAddress
