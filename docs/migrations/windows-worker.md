@@ -25,7 +25,7 @@ Open a Powershell terminal as administrator and execute the following:
 ```ps1
 # Download the Powershell module
 $url = "https://raw.githubusercontent.com/breqwatr/voithos/master/voithos.psm1"
-$modulesDir = $PSHome\Modules\Voithos"
+$modulesDir = "$PSHome\Modules\Voithos"
 New-Item -ItemType Directory -Path $modulesDir
 $output = "$modulesDir\voithos.psm1"
 Invoke-WebRequest $url -OutFile $output

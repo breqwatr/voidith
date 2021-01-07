@@ -36,7 +36,7 @@ the `qemu-img info` command.
 When writing to a block device, always set the output format `-O` to `raw`:
 
 ```bash
-voithos util qemu-img show <disk file>
+voithos util qemu-img info <disk file>
 
 # Example:
 voithos util qemu-img convert -f vmdk -O raw test-centos-1-1.vmdk /dev/vdb
