@@ -3,9 +3,9 @@
 # Voithos Powershell Module
 # Maintained by Breqwatr - info@breqwatr.com
 
-# Save to:			  $PSHome\Modules\Voithos\
-# Import with:	  "Import-Module Voithos"
-# Description: 		Provides Windows import automation functions
+# Save to:     C:\Program Files (x86)\WindowsPowerShell\Modules\Modules\Voithos\voithos.psm1
+# Import CMD:  Import-Module Voithos
+# Description: Provides Windows import automation functions
 
 
 function Repair-OfflineDisks {
@@ -73,16 +73,42 @@ function Get-VirtioVolume {
 }
 
 
+function Get-MountedWindowsVersion {
+  param(
+    [Parameter(Mandatory=$True)] [PSObject] $BootPartition
+  )
+  $letter = $BootPartition.DriveLetter
+  $hklmPath = ($letter + ":\Windows\System32\Config\SOFTWARE")
+  $HKEY_LOCAL_MACHINE_SOFTWARE = "HKLM\TEMPSOFTWARE"
+  REG LOAD $HKEY_LOCAL_MACHINE_SOFTWARE  $hklmPath | Out-Null
+  $currentVersionPath = ($HKEY_LOCAL_MACHINE_SOFTWARE + "\Microsoft\Windows NT\CurrentVersion")
+  $productName = (Get-ItemProperty Registry::$currentVersionPath).productName
+  REG UNLOAD $HKEY_LOCAL_MACHINE_SOFTWARE | Out-Null
+  return $productName
+}
+
+
 function Add-VirtioDrivers {
   param(
-    [Parameter(Position = 0, ValueFromPipeline = $true, ValueFromRemainingArguments = $true)]
-    [PSObject]$BootPartition,
-    [string]$Distro
+    [Parameter(Mandatory=$True)] [PSObject] $BootPartition,
+    [Parameter(Mandatory=$False)] [PSObject] $Distro
   )
+  $distroOptions = @("w7", "w8", "w8.1", "2k12", "2k12r2", "2k16", "2k19")
+  Write-Host "Valid -Distro values: $distroOptions"
+  if (! $distroOptions.Contains($Distro)){
+    return "ERROR: Invalid -Distro value"
+  }
+  $windowsVersion = Get-MountedWindowsVersion -BootPartition $BootPartition
+  Write-Host "Provided Distro value: $Distro"
+  Write-Host "Detected Windows Version: $windowsVersion"
+  $confirm = Read-Host -Prompt "Continue? [y/N]"
+  if ($confirm -ne "y" -and $confirm -ne "Y") {
+    return "Quitting"
+  }
   # Install all of the VirtIO drivers for the given OS using DISM on the selected BootPartition
   $virtio_drive = $(Get-VirtioVolume).DriveLetter + ":\"
   $drivers = Get-ChildItem  -Recurse $virtio_drive | Where-Object {
-    $_.PSIsContainer -eq $true -and $_.Name -eq "amd64" -and $_.Parent.Name -eq $distro
+    $_.PSIsContainer -eq $true -and $_.Name -eq "amd64" -and $_.Parent.Name -eq $Distro
   }
   $bootVol = $BootPartition.DriveLetter +":/"
   ForEach ($driver in $drivers){
@@ -95,8 +121,7 @@ function Add-VirtioDrivers {
 
 function Get-PartitionDrivers {
   param(
-    [Parameter(Position = 0, ValueFromPipeline = $true, ValueFromRemainingArguments = $true)]
-    [PSObject]$BootPartition
+    [Parameter(Mandatory=$True)] [PSObject] $BootPartition
   )
   # Run DISM /Get-Drivers on the given partition
   $bootVol = $BootPartition.DriveLetter +":/"
@@ -107,8 +132,7 @@ function Get-PartitionDrivers {
 
 function Remove-VMwareTools {
   param(
-    [Parameter(Position = 0, ValueFromPipeline = $true, ValueFromRemainingArguments = $true)]
-    [PSObject]$BootPartition
+    [Parameter(Mandatory=$True)] [PSObject] $BootPartition
   )
   # Manually remove all traces of VMware Tools, file-by-file and registry key-by-registry key
   $letter = $BootPartition.DriveLetter
@@ -207,8 +231,7 @@ function Remove-VMwareTools {
 
 function Get-BootStyle {
   param(
-    [Parameter(Position = 0, ValueFromPipeline = $true, ValueFromRemainingArguments = $true)]
-    [PSObject]$BootPartition
+    [Parameter(Mandatory=$True)] [PSObject] $BootPartition
   )
   # Check if UEFI or BIOS is needed to boot the mounted VM's BootPartition
   $disk = Get-Disk -Number $BootPartition.DiskNumber
@@ -226,9 +249,9 @@ function Get-BootStyle {
 
 function Set-InterfaceAddress {
   param(
-    [Parameter(Mandatory=$true)]  [string] $MacAddress,
-    [Parameter(Mandatory=$true)]  [string] $IPAddress,
-    [Parameter(Mandatory=$true)]  [string] $SubnetPrefix,
+    [Parameter(Mandatory=$True)]  [string] $MacAddress,
+    [Parameter(Mandatory=$True)]  [string] $IPAddress,
+    [Parameter(Mandatory=$True)]  [string] $SubnetPrefix,
     [Parameter(Mandatory=$false)] [string] $GatewayIPAddress,
     [Parameter(Mandatory=$false)] [string] $DNSAddressCSV
   )
@@ -257,19 +280,22 @@ function Set-InterfaceAddress {
 
 function Copy-VoithsModuleToBootPartition {
   param(
-    [Parameter(Mandatory=$true)][PSObject]$BootPartition
+    [Parameter(Mandatory=$True)] [PSObject] $BootPartition
   )
-	# Write the Voithos module to the migration target's boot partition
-  $src = "$PSHome\Modules\Voithos"
-  $dest = ($BootPartition.DriveLetter + ":\Windows\SysWOW64\WindowsPowerShell\v1.0\Modules\Voithos")
-  Copy-Item -Path $src -Destination $dest
-  return Get-Item $dest
+  # Write the Voithos module to the migration target's boot partition
+  $src = "$Env:ProgramFiles\WindowsPowerShell\Modules\Voithos"
+  $dest1 = ($BootPartition.DriveLetter + ":\Program Files (x86)\WindowsPowerShell\Modules\Voithos")
+  Copy-Item -Path $src -Destination $dest1 -Force
+  Get-Item $dest1
+  $dest2 = ($BootPartition.DriveLetter + ":\Program Files\WindowsPowerShell\Modules\Voithos")
+  Copy-Item -Path $src -Destination $dest2 -Force
+  Get-Item $dest2
 }
 
 
 function New-RunOnceScript {
   param(
-    [Parameter(Mandatory=$true)][PSObject]$BootPartition
+    [Parameter(Mandatory=$True)] [PSObject] $BootPartition
   )
   $breqwatrDir = ($BootPartition.DriveLetter + ":\Breqwatr")
   New-Item -ItemType Directory -Force -Path $breqwatrDir
@@ -281,8 +307,8 @@ function New-RunOnceScript {
 
 function Set-RunOnceScript {
   param(
-    [Parameter(Mandatory=$true)][PSObject]$BootPartition,
-    [Parameter(Mandatory=$true)][string]$ScriptPath
+    [Parameter(Mandatory=$True)] [PSObject] $BootPartition,
+    [Parameter(Mandatory=$True)] [string] $ScriptPath
   )
   $hklmPath = ($BootPartition.DriveLetter + ":\Windows\System32\Config\SOFTWARE")
   $HKEY_LOCAL_MACHINE_SOFTWARE = "HKLM\TEMPSOFTWARE"
@@ -299,7 +325,7 @@ function Set-RunOnceScript {
 
 function Get-RunOnceScript {
   param(
-    [Parameter(Mandatory=$true)][PSObject]$BootPartition
+    [Parameter(Mandatory=$True)] [PSObject] $BootPartition
   )
   $hklmPath = ($BootPartition.DriveLetter + ":\Windows\System32\Config\SOFTWARE")
   $HKEY_LOCAL_MACHINE_SOFTWARE = "HKLM\TEMPSOFTWARE"
@@ -324,6 +350,7 @@ function Set-AllDisksOnline {
 
 # Publc Function Exports
 Export-ModuleMember -Function Get-TargetBootPartition
+Export-ModuleMember -Function Get-MountedWindowsVersion
 Export-ModuleMember -Function Add-VirtioDrivers
 Export-ModuleMember -Function Get-PartitionDrivers
 Export-ModuleMember -Function Remove-VMwareTools
