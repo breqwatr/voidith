@@ -5,8 +5,6 @@ import os
 import voithos.lib.util.util as util
 import voithos.lib.aws.s3 as s3
 from colorama import Fore, Style
-from pathlib import Path
-from voithos.constants import OFFLINE_DEPLOYMENT_SERVER_PACKAGES
 from voithos.cli.util.qemu_img import get_qemu_img_group
 from voithos.lib.system import error
 
@@ -39,7 +37,13 @@ def export_offline_media(kolla_tag, bw_tag, ceph_release, force, path):
 @click.command(name='upload-apt-packages-s3')
 def create_and_upload_apt_tar():
     """ Create and upload apt tar file on S3"""
-    util.create_offline_apt_repo_tar_file(OFFLINE_DEPLOYMENT_SERVER_PACKAGES, f"{str(Path.home())}")
+    util.create_and_upload_offline_apt_repo_tar_file()
+
+@click.option('--voithos-branch', required=False, default='master', help='git checkout of voithos')
+@click.command(name='upload-voithos-package-s3')
+def create_and_upload_voithos_tar(voithos_branch):
+    """ Package voithos along with its dependencies and upload to s3"""
+    util.create_and_upload_offline_voithos_tar_file(voithos_branch)
 
 @click.option('--name', required=True, help='Image name')
 @click.option('--tag', required=True, help='Image tag')
@@ -63,4 +67,5 @@ def get_util_group():
     util_group.add_command(export_offline_media)
     util_group.add_command(export_offline_single_image)
     util_group.add_command(create_and_upload_apt_tar)
+    util_group.add_command(create_and_upload_voithos_tar)
     return util_group

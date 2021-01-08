@@ -1,16 +1,17 @@
 """ Utils Library"""
 import docker
 import os
+import pkg_resources
 import sys
 import subprocess
 import voithos.lib.aws.ecr as ecr
 import voithos.lib.aws.s3 as s3
 from click import echo
 from colorama import Fore, Style
+from pathlib import Path
 from requests.exceptions import ReadTimeout
-from voithos.constants import KOLLA_IMAGE_REPOS
+from voithos.constants import KOLLA_IMAGE_REPOS, OFFLINE_DEPLOYMENT_SERVER_PACKAGES
 from voithos.lib.system import error, shell
-
 
 def verify_create_dirs(path):
     """ Check if path exist and create if it doesn't for offline media"""
@@ -23,10 +24,13 @@ def verify_create_dirs(path):
         os.mkdir(image_dir_path)
 
 
-def create_offline_apt_repo_tar_file(packages_list, path):
+def create_and_upload_offline_apt_repo_tar_file():
     """ Downloads apt packages and their dependencies
         and create Packages.gz for all downloaded packages.
+        Then uploads them to s3.
     """
+    packages_list = OFFLINE_DEPLOYMENT_SERVER_PACKAGES
+    path = str(Path.home())
     apt_packages_dir = f"{path}/apt_packages"
     echo('Creating base directory: {}'.format(apt_packages_dir))
     os.mkdir(apt_packages_dir)
@@ -48,6 +52,32 @@ def create_offline_apt_repo_tar_file(packages_list, path):
     shell("cd && tar --remove-files -zcf apt.tar.gz apt_packages")
     tar_file_path = f"{path}/apt.tar.gz"
     s3.upload(tar_file_path, "voithos-files", "apt.tar.gz")
+
+def create_and_upload_offline_voithos_tar_file(voithos_branch):
+    """ Creates voithos package, downlaod dependencies and upload them to s3"""
+    voithos_requirements = pkg_resources.get_distribution("voithos").requires()
+    requirements_str = ' '.join(str(i) for i in voithos_requirements)
+    home_dir = str(Path.home())
+    packages_dir = f"{home_dir}/voithos_packages"
+    echo('Creating base directory: {}'.format(packages_dir))
+    os.mkdir(packages_dir)
+    os.mkdir(f"{packages_dir}/dependencies")
+    os.chdir(packages_dir)
+    requirements_file = open("requirements.txt","w+")
+    for r in requirements_str.split():
+        requirements_file.write(f"{r}\n")
+    requirements_file.close()
+    cmds = (f"pip download -r {packages_dir}/requirements.txt -d {packages_dir}/dependencies/ "
+            f"&& git clone --branch {voithos_branch} https://github.com/breqwatr/voithos.git "
+            f"&& cd {packages_dir}/voithos "
+            f"&& python3 setup.py sdist "
+            f"&& mv {packages_dir}/voithos/dist/voithos*tar.gz {packages_dir} "
+            f"&& cd {packages_dir} "
+            f"&& rm -r {packages_dir}/voithos "
+            f"&& cd && tar --remove-files -zcf voithos.tar.gz voithos_packages")
+    shell(cmds)
+    tar_file_path = f"{home_dir}/voithos.tar.gz"
+    s3.upload(tar_file_path, "voithos-files", "voithos.tar.gz")
 
 def get_package_dependencies_list(package, apt_packages_dir):
     """ Returns a list of package dependencies"""
