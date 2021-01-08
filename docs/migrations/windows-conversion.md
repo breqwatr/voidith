@@ -100,7 +100,7 @@ Each of these commands requires the `Voithos` module to be loaded.
 On the Windows migration worker's Powershell session:
 
 ```ps1
-Copy-VoithsModuleToBootPartition -BootPartition $bootPartition
+Copy-VoithosModuleToBootPartition -BootPartition $bootPartition
 ```
 
 ## Create Ports for Static IP addresses

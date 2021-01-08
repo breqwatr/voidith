@@ -278,17 +278,17 @@ function Set-InterfaceAddress {
 }
 
 
-function Copy-VoithsModuleToBootPartition {
+function Copy-VoithosModuleToBootPartition {
   param(
     [Parameter(Mandatory=$True)] [PSObject] $BootPartition
   )
   # Write the Voithos module to the migration target's boot partition
   $src = "$Env:ProgramFiles\WindowsPowerShell\Modules\Voithos"
-  $dest1 = ($BootPartition.DriveLetter + ":\Program Files (x86)\WindowsPowerShell\Modules\Voithos")
-  Copy-Item -Path $src -Destination $dest1 -Force
+  $dest1 = ($BootPartition.DriveLetter + ":\Program Files (x86)\WindowsPowerShell\Modules\")
+  Copy-Item -Recurse -Path $src -Destination $dest1 -Force
   Get-Item $dest1
-  $dest2 = ($BootPartition.DriveLetter + ":\Program Files\WindowsPowerShell\Modules\Voithos")
-  Copy-Item -Path $src -Destination $dest2 -Force
+  $dest2 = ($BootPartition.DriveLetter + ":\Program Files\WindowsPowerShell\Modules\")
+  Copy-Item -Recurse -Path $src -Destination $dest2 -Force
   Get-Item $dest2
 }
 
@@ -356,7 +356,7 @@ Export-ModuleMember -Function Get-PartitionDrivers
 Export-ModuleMember -Function Remove-VMwareTools
 Export-ModuleMember -Function Get-BootStyle
 Export-ModuleMember -Function Repair-OfflineDisks
-Export-ModuleMember -Function Copy-VoithsModuleToBootPartition
+Export-ModuleMember -Function Copy-VoithosModuleToBootPartition
 Export-ModuleMember -Function Set-InterfaceAddress
 Export-ModuleMember -Function New-RunOnceScript
 Export-ModuleMember -Function Get-RunOnceScript
