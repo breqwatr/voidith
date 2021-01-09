@@ -108,7 +108,7 @@ function Add-VirtioDrivers {
   # Install all of the VirtIO drivers for the given OS using DISM on the selected BootPartition
   $virtio_drive = $(Get-VirtioVolume).DriveLetter + ":\"
   $drivers = Get-ChildItem  -Recurse $virtio_drive | Where-Object {
-    $_.PSIsContainer -eq $true -and $_.Name -eq "amd64" -and $_.Parent.Name -eq $Distro
+    $_.PSIsContainer -eq $True -and $_.Name -eq "amd64" -and $_.Parent.Name -eq $Distro
   }
   $bootVol = $BootPartition.DriveLetter +":/"
   ForEach ($driver in $drivers){
@@ -252,8 +252,8 @@ function Set-InterfaceAddress {
     [Parameter(Mandatory=$True)]  [string] $MacAddress,
     [Parameter(Mandatory=$True)]  [string] $IPAddress,
     [Parameter(Mandatory=$True)]  [string] $SubnetPrefix,
-    [Parameter(Mandatory=$false)] [string] $GatewayIPAddress,
-    [Parameter(Mandatory=$false)] [string] $DNSAddressCSV
+    [Parameter(Mandatory=$False)] [string] $GatewayIPAddress,
+    [Parameter(Mandatory=$False)] [string] $DNSAddressCSV
   )
   # Convert mac address format
   # Openstack format: fa:16:3e:5e:de:ce --> Windows format: FA-16-3E-5E-DE-CE
