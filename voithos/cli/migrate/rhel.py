@@ -78,6 +78,19 @@ def set_interface(device, dhcp, mac, ip_addr, name, prefix, gateway, dns, domain
     )
 
 
+@click.argument("device")
+@click.command(name="get-partition-names")
+def get_partition_names(device):
+    """ Print the paths of the partitions on a device """
+    try:
+        boot_partition = rhel.get_bios_boot_partition(device)
+    except StopIteration:
+        boot_partition = "NOT FOUND"
+    print(f"Boot Partition: {boot_partition}")
+    root_partition = rhel.get_root_partition(device, fail=False)
+    print(f"Root Partition: {root_partition}")
+
+
 def get_rhel_group():
     """ Return the migrate click group """
 
@@ -92,4 +105,5 @@ def get_rhel_group():
     uninstall.add_command(uninstall_cloud_init)
     rhel.add_command(uninstall)
     rhel.add_command(set_interface)
+    rhel.add_command(get_partition_names)
     return rhel
