@@ -196,6 +196,25 @@ def install_virtio_drivers(initrd_path, kernel_version):
         error("ERROR: Failed to install VirtIO drivers", exit=True)
 
 
+def _is_initrd_file(file_name):
+    """ Return Boolean, is the given filename an initrd file? """
+    return (file_name.startswith("initramfs-") and file_name.endswith(".img"))
+
+
+def get_initrd_data():
+    """ Find the path and kernel version of each initrd file on the mounted system """
+    ls_boot = chroot_run("ls /boot")
+    initrd_files = [ fname for fname in ls_boot if _is_initrd_file(fname)]
+    data = {}
+    for initrd_file in initrd_files:
+        kernel_ver = initrd_file.replace("initramfs-","").replace(".img","")
+        data[kernel_ver] = f"/boot/{initrd_file}"
+    if not data:
+        error("ERROR: Failed to detect initrd data", exit=True)
+    return data
+
+
+
 def add_virtio_drivers(device):
     """  Add VirtIO drivers to the specified block device """
     # Validate the connected given device exists
@@ -219,16 +238,17 @@ def add_virtio_drivers(device):
         mount(boot_partition, BOOT_MOUNT)
         mount(root_partition, ROOT_MOUNT)
         mount(BOOT_MOUNT, BOOT_BIND_MOUNT, bind=True)
-        kernel_version = get_rpm_version("kernel")
-        print(f"Kernel version: {kernel_version}")
-        initrd_path = f"/boot/initramfs-{kernel_version}.img"
-        print(f"Checking {initrd_path} from {boot_partition} for VirtIO drivers")
-        if is_virtio_driverset_present(initrd_path):
-            print("Virtio drivers are already installed")
-        else:
-            print("Installing VirtIO drivers - please wait")
-            install_virtio_drivers(initrd_path, kernel_version)
-            print("Finished installing VirtIO drivers")
+        initrd_data = get_initrd_data()
+        for kernel_version, initrd_path in initrd_data.items():
+            print(f"Injecting VirtIO drivers into {initrd_path}")
+            print(f"Kernel version: {kernel_version}")
+            print(f"Checking {initrd_path} from {boot_partition} for VirtIO drivers")
+            if is_virtio_driverset_present(initrd_path):
+                print("Virtio drivers are already installed")
+            else:
+                print("Installing VirtIO drivers - please wait")
+                install_virtio_drivers(initrd_path, kernel_version)
+                print("Finished installing VirtIO drivers")
     finally:
         unmount(BOOT_BIND_MOUNT, fail=False)
         unmount(ROOT_MOUNT, fail=False)
