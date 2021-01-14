@@ -1,11 +1,90 @@
-# ps1
+ # ps1
 
 # Voithos Powershell Module
 # Maintained by Breqwatr - info@breqwatr.com
 
-# Save to:     C:\Program Files (x86)\WindowsPowerShell\Modules\Modules\Voithos\voithos.psm1
+# Save to:     C:\Program Files\WindowsPowerShell\Modules\Modules\Voithos\voithos.psm1
 # Import CMD:  Import-Module Voithos
-# Description: Provides Windows import automation functions
+# Description: Provides Windows automation functions, particularly for migrating VMWARE->KVM
+
+
+function Add-HklmRegistryHive {
+  param(
+    [Parameter(Mandatory=$True)]  [PSObject] $BootPartition,
+    [Parameter(Mandatory=$True)]  [string]   $Hive
+  )
+  ### Load the given HKLM hive from the specified partition as TEMP$HIVE ###
+  # Common values for Hive: SOFTWARE, SYSTEM, SECURITY
+  $hklmPath = ($BootPartition.DriveLetter + ":\Windows\System32\Config\$Hive")
+  Write-Host REG LOAD "HKLM\TEMP$Hive" $hklmPath
+  REG LOAD "HKLM\TEMP$Hive" $hklmPath | Out-Null
+  return "HKLM:\TEMP$Hive"
+}
+
+
+function Remove-HklmRegistryHive {
+  param(
+    [Parameter(Mandatory=$True)]  [string] $Hive
+  )
+  ### Unload HKLM\TEMP$Hive ###
+  Write-Host REG UNLOAD "HKLM\TEMP$Hive"
+  REG UNLOAD "HKLM\TEMP$Hive" | Out-Null
+}
+
+
+function Get-HklmRegistryValue {
+  param(
+    [Parameter(Mandatory=$True)] [string]   $Hive,
+    [Parameter(Mandatory=$True)]  [string]   $KeyPath,
+    [Parameter(Mandatory=$False)] [string]   $KeyName,
+    [Parameter(Mandatory=$True)]  [PSObject] $BootPartition,
+    [Switch] $RelativePath=$True
+  )
+  ### Return the value of a given registry key in the HKLM/$Hive hive ###
+  $hivePath = Add-HklmRegistryHive -BootPartition $BootPartition -Hive $Hive
+  $queryPath = ($KeyPath -Replace "HKEY_LOCAL_MACHINE\\","HKLM:\")
+  if ($RelativePath) {
+    $queryPath = "$hivePath\$KeyPath"
+  }
+  try {
+    $result = Get-ItemProperty $queryPath
+  } catch {
+    return $Null
+  } finally {
+    Remove-HklmRegistryHive -Hive $Hive
+  }
+  if ($KeyName -eq $Null -or $KeyName -eq "") { 
+    return $result 
+  } else {
+    return ($result | Select-Object -ExpandProperty $KeyName) 
+  }
+}
+
+
+function Get-HklmRegistryChildKey {
+  param(
+    [Parameter(Mandatory=$True)] [string] $Hive,
+    [Parameter(Mandatory=$False)] [string] $KeyPath="",
+    [Parameter(Mandatory=$True)] [PSObject] $BootPartition
+  )
+  ### Return the child registry keys of the given Hive/KeyPath ###
+  $hivePath = Add-HklmRegistryHive -BootPartition $BootPartition -Hive $Hive
+  try {
+    $result = Get-ChildItem -Path "$hivePath\$KeyPath"
+    $result.Handle.Close()  # Close the registry connection else Access Denied on Unload
+    $names = $result | Select-Object -ExpandProperty Name
+  } finally {
+    Remove-HklmRegistryHive -Hive $Hive
+  }
+  return $names
+}
+
+function Set-HklmRegistryValue {
+    [Parameter(Mandatory=$True)] [string] $Hive,
+    [Parameter(Mandatory=$True)] [string] $KeyPath,
+    [Parameter(Mandatory=$True)] [string] $KeyName
+    # TODO: This
+}
 
 
 function Repair-OfflineDisks {
@@ -77,14 +156,11 @@ function Get-MountedWindowsVersion {
   param(
     [Parameter(Mandatory=$True)] [PSObject] $BootPartition
   )
-  $letter = $BootPartition.DriveLetter
-  $hklmPath = ($letter + ":\Windows\System32\Config\SOFTWARE")
-  $HKEY_LOCAL_MACHINE_SOFTWARE = "HKLM\TEMPSOFTWARE"
-  REG LOAD $HKEY_LOCAL_MACHINE_SOFTWARE  $hklmPath | Out-Null
-  $currentVersionPath = ($HKEY_LOCAL_MACHINE_SOFTWARE + "\Microsoft\Windows NT\CurrentVersion")
-  $productName = (Get-ItemProperty Registry::$currentVersionPath).productName
-  REG UNLOAD $HKEY_LOCAL_MACHINE_SOFTWARE | Out-Null
-  return $productName
+  return Get-HklmRegistryValue `
+    -Hive SOFTWARE `
+    -KeyPath "Microsoft\Windows NT\CurrentVersion" `
+    -KeyName "ProductName" `
+    -BootPartition $BootPartition
 }
 
 
@@ -108,7 +184,7 @@ function Add-VirtioDrivers {
   # Install all of the VirtIO drivers for the given OS using DISM on the selected BootPartition
   $virtio_drive = $(Get-VirtioVolume).DriveLetter + ":\"
   $drivers = Get-ChildItem  -Recurse $virtio_drive | Where-Object {
-    $_.PSIsContainer -eq $True -and $_.Name -eq "amd64" -and $_.Parent.Name -eq $Distro
+    $_.PSIsContainer -eq $true -and $_.Name -eq "amd64" -and $_.Parent.Name -eq $Distro
   }
   $bootVol = $BootPartition.DriveLetter +":/"
   ForEach ($driver in $drivers){
@@ -252,8 +328,8 @@ function Set-InterfaceAddress {
     [Parameter(Mandatory=$True)]  [string] $MacAddress,
     [Parameter(Mandatory=$True)]  [string] $IPAddress,
     [Parameter(Mandatory=$True)]  [string] $SubnetPrefix,
-    [Parameter(Mandatory=$False)] [string] $GatewayIPAddress,
-    [Parameter(Mandatory=$False)] [string] $DNSAddressCSV
+    [Parameter(Mandatory=$false)] [string] $GatewayIPAddress,
+    [Parameter(Mandatory=$false)] [string] $DNSAddressCSV
   )
   # Convert mac address format
   # Openstack format: fa:16:3e:5e:de:ce --> Windows format: FA-16-3E-5E-DE-CE
@@ -285,23 +361,24 @@ function Copy-VoithosModuleToBootPartition {
   # Write the Voithos module to the migration target's boot partition
   $src = "$Env:ProgramFiles\WindowsPowerShell\Modules\Voithos"
   $dest1 = ($BootPartition.DriveLetter + ":\Program Files (x86)\WindowsPowerShell\Modules\")
-  Copy-Item -Recurse -Path $src -Destination $dest1 -Force
+  Copy-Item -Recurse -Path $src -Destination $dest1 -Force | Out-Null
   Get-Item $dest1
   $dest2 = ($BootPartition.DriveLetter + ":\Program Files\WindowsPowerShell\Modules\")
-  Copy-Item -Recurse -Path $src -Destination $dest2 -Force
+  Copy-Item -Recurse -Path $src -Destination $dest2 -Force | Out-Null
   Get-Item $dest2
 }
 
 
-function New-RunOnceScript {
+function New-StartupScript {
   param(
     [Parameter(Mandatory=$True)] [PSObject] $BootPartition
   )
-  $breqwatrDir = ($BootPartition.DriveLetter + ":\Breqwatr")
-  New-Item -ItemType Directory -Force -Path $breqwatrDir
-  $path = ($breqwatrDir + "\RunOnce.ps1")
+  $scriptDir = ($BootPartition.DriveLetter + ":\Windows\System32\GroupPolicy\Machine\Scripts\Startup\")
+  Write-Host "Create: $scriptDir"
+  New-Item -ItemType Directory -Force -Path $scriptDir
+  $path = ($scriptDir + "\startup.ps1")
+  Write-Host "Edit: $path"
   notepad $path
-  return $path
 }
 
 
@@ -315,7 +392,7 @@ function Set-RunOnceScript {
   Write-Host "REG LOAD $HKEY_LOCAL_MACHINE_SOFTWARE  $hklmPath"
   REG LOAD $HKEY_LOCAL_MACHINE_SOFTWARE  $hklmPath
   $runOnceKey = ($HKEY_LOCAL_MACHINE_SOFTWARE + "\Microsoft\Windows\CurrentVersion\RunOnce")
-  $runOnceVal = "PowerShell.exe -executionpolicy bypass -file C:\Breqwatr\RunOnce.ps1"
+  $runOnceVal = "PowerShell.exe -executionpolicy bypass -file C:\Breqwatr\startup.ps1"
   Write-Host "REG ADD $runOnceKey /ve /t REG_SZ /d $runOnceVal /f"
   REG ADD $runOnceKey /ve /t REG_SZ /d $runOnceVal /f
   Write-Host "REG UNLOAD $HKEY_LOCAL_MACHINE_SOFTWARE"
@@ -345,6 +422,199 @@ function Set-AllDisksOnline {
 }
 
 
+function Set-GPOStartupScript {
+  param(
+    [Parameter(Mandatory=$True)] [PSObject] $DriveLetter,
+    [Parameter(Mandatory=$True)] [PSObject] $SoftwareHivePath,
+    [Parameter(Mandatory=$True)] [string] $ScriptPath
+  )
+  #
+  $letter = $DriveLetter
+  $HKEY_LOCAL_MACHINE_SOFTWARE = $SoftwareHivePath
+  $scripts = "$HKEY_LOCAL_MACHINE_SOFTWARE\Microsoft\Windows\CurrentVersion\Group Policy\State\Machine\Scripts"
+  Write-Host "Creating REG keys at $scripts"
+  REG ADD "$scripts" /f | Out-Null
+  REG ADD "$scripts\Startup" /f  | Out-Null
+  REG ADD "$scripts\Shutdown" /f  | Out-Null
+  REG ADD "$scripts\Startup\0" /f  | Out-Null
+  REG ADD "$scripts\Startup\0" /v DisplayName /t REG_SZ /d "Local Group Policy" /f  | Out-Null
+  REG ADD "$scripts\Startup\0" /v FileSysPath /t REG_SZ /d "C:\Windows\System32\GroupPolicy\Machine" /f  | Out-Null
+  REG ADD "$scripts\Startup\0" /v GPO-ID /t REG_SZ /d "LocalGPO" /f  | Out-Null
+  REG ADD "$scripts\Startup\0" /v GPOName /t REG_SZ /d "Local Group Policy" /f  | Out-Null
+  REG ADD "$scripts\Startup\0" /v PSScriptOrder /t REG_DWORD /d 1 /f  | Out-Null
+  REG ADD "$scripts\Startup\0" /v SOM-ID /t REG_SZ /d "Local" /f  | Out-Null
+  REG ADD "$scripts\Startup\0\0" /f  | Out-Null
+  REG ADD "$scripts\Startup\0\0" /v Parameters /t REG_SZ /f  | Out-Null
+  # 
+  $regScriptPath = $ScriptPath
+  if ($scriptPath -like "*GroupPolicy\Machine\Scripts\Startup*") {
+    # When the script is in this directory you reference it with a relative path
+    $regScriptPath = $scriptPath.Split("\")[-1]
+  }
+  Write-Host REG ADD "$scripts\Startup\0\0" /v Script /t REG_SZ /d "$regScriptPath" /f
+  REG ADD "$scripts\Startup\0\0" /v Script /t REG_SZ /d "$regScriptPath" /f | Out-Null
+  #
+  # Set the psscriptfile.ini contents to point to the script
+  $psscriptFile = ($letter + ":\Windows\System32\GroupPolicy\Machine\Scripts\psscripts.ini")
+  $psscriptContent = "
+[Startup]
+0CmdLine=$ScriptPath
+0Parameters=
+ 
+"
+  Attrib -h $psscriptFile
+  Write-Host "Creating: $psscriptFile"
+  New-Item -ItemType Directory -Force -Path ($letter + ":\Windows\System32\GroupPolicy\Machine\Scripts") | Out-Null
+  $psscriptContent | Out-File -Force -Confirm:$False -Encoding unicode -FilePath $psscriptFile
+  Get-Content $psscriptFile
+  Attrib +h $psscriptFile
+  #
+  # Set the gpt.ini to have the guid of the startup script and increase the version
+  $gptFile = ($letter + ":\Windows\System32\GroupPolicy\gpt.ini")
+  $version = ((get-random) % 100)
+  $gptContent="[General]
+gPCMachineExtensionNames=[{42B5FAAE-6536-11D2-AE5A-0000F87571E3}{40B6664F-4972-11D1-A7CA-0000F87571E3}]
+Version=$version"
+  Attrib -h $gptFile
+  Write-Host "Creating: $gptFile"
+  $gptContent | Out-File -Force -Confirm:$False -Encoding ascii -FilePath $gptFile
+  Get-Content $gptFile
+}
+
+
+function Set-MountedGPOStartupScript {
+  param(
+    [Parameter(Mandatory=$True)] [PSObject] $BootPartition
+  )
+  $letter = $BootPartition.DriveLetter
+  $hklmPath = ($letter + ":\Windows\System32\Config\SOFTWARE")
+  $HKEY_LOCAL_MACHINE_SOFTWARE = "HKLM\TEMPSOFTWARE"
+  Write-Host "REG LOAD $HKEY_LOCAL_MACHINE_SOFTWARE  $hklmPath"
+  REG LOAD $HKEY_LOCAL_MACHINE_SOFTWARE  $hklmPath
+  if (! $?) {
+    Write-Error "Failed to load registry hive"
+    return
+  }
+  #
+  $scriptPath = "C:\Windows\System32\GroupPolicy\Machine\Scripts\Startup\startup.ps1"
+  Set-GPOStartupScript -DriveLetter $letter -SoftwareHivePath $HKEY_LOCAL_MACHINE_SOFTWARE -ScriptPath $scriptPath
+  #
+  Write-Host "REG UNLOAD $HKEY_LOCAL_MACHINE_SOFTWARE"
+  REG UNLOAD $HKEY_LOCAL_MACHINE_SOFTWARE  
+}
+
+
+Function Backup-LocalGPOSettings {
+  param(
+    [Parameter(Mandatory=$False)] [string] $DriveLetter="C",
+    [Parameter(Mandatory=$False)] [string] $Hive="HKLM\SOFTWARE"
+  )
+  $letter = $DriveLetter
+  $HKEY_LOCAL_MACHINE_SOFTWARE = $Hive
+  # Save the registry scripts keys
+  $backupDir = ($letter + ":\Breqwatr")
+  New-Item -ItemType Directory -Force -Path $backupDir | Out-Null
+  Write-Host "Created: $backupDir"
+  #
+  $scripts = "$HKEY_LOCAL_MACHINE_SOFTWARE\Microsoft\Windows\CurrentVersion\Group Policy\State\Machine\Scripts"
+  REG QUERY $scripts 2>&1 | Out-Null
+  $hadScripts = $?
+  if ($hadScripts){
+    $backupFile = "$backupDir\GpoScriptsBackup.reg"
+    REG EXPORT $scripts $backupFile /y | Out-Null
+    Write-Host "Created: $backupFile"
+  }
+  else {
+    Write-Host "$scripts not found - Not backing it up"
+  }
+  # Save the GroupPolicy folder
+  $gpoFolderPath = ($letter + ":\Windows\System32\GroupPolicy")
+  if (Test-Path $gpoFolderPath) {
+    $gpoFolderBackupPath = ($letter + ":\Breqwatr\GroupPolicyBackup")
+    Remove-Item -Recurse -Force -Confirm:$False -Path $gpoFolderBackupPath 2>$Null
+    Copy-Item -Recurse -Path $gpoFolderPath $gpoFolderBackupPath -Force
+    Write-Host "Created: $gpoFolderBackupPath"
+  } else {
+    Write-Host "$gpoFolderPath not found - Not backing it up"
+  }
+}
+
+
+Function Backup-MountedLocalGPOSettings {
+  param(
+    [Parameter(Mandatory=$True)] [PSObject] $BootPartition
+  )
+  #
+  # Load the hive
+  $letter = $BootPartition.DriveLetter
+  $hklmPath = ($letter + ":\Windows\System32\Config\SOFTWARE")
+  $HKEY_LOCAL_MACHINE_SOFTWARE = "HKLM\TEMPSOFTWARE"
+  Write-Host "REG LOAD $HKEY_LOCAL_MACHINE_SOFTWARE  $hklmPath"
+  REG LOAD $HKEY_LOCAL_MACHINE_SOFTWARE  $hklmPath
+  if (! $?) {
+    Write-Error "Failed to load registry hive"
+    return
+  }
+  #
+  Backup-LocalGPOSettings -DriveLetter $letter -Hive $HKEY_LOCAL_MACHINE_SOFTWARE
+  # Unload the hive
+  Write-Host "REG UNLOAD $HKEY_LOCAL_MACHINE_SOFTWARE"
+  REG UNLOAD $HKEY_LOCAL_MACHINE_SOFTWARE
+  Write-Host "Backup completed"
+}
+
+
+function Remove-GPOStartupScript {
+  # Remove any GPO startup script and all of its associated files
+  Write-Host REG DELETE "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Group Policy\State\Machine\Scripts\0" /f
+  REG DELETE "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Group Policy\State\Machine\Scripts\0" /f 2>$Null
+  #
+  $startupScriptPath = "C:\Windows\System32\GroupPolicy\Machine\Scripts\Startup\startup.ps1"
+  Write-Host "Removing startup script: $startupScriptPath"
+  Remove-Item $startupScriptPath -Confirm:$False -Force 2>$Null
+  # 
+  # Set the gpt.ini to have the guid of the startup script and increase the version
+  $gptFile = "C:\Windows\System32\GroupPolicy\gpt.ini"
+  Write-Host "Blanking $gptFile"
+  $gptContent="[General]
+gPCMachineExtensionNames=
+Version=1"
+  Attrib -h $gptFile
+  $gptContent | Out-File -Force -Confirm:$False -Encoding ascii -FilePath $gptFile
+  #
+  # Remove psscripts.ini
+  $psscriptFile = "C:\Windows\System32\GroupPolicy\Machine\Scripts\psscripts.ini"
+  Write-Host "Removing: $psscriptFile"
+  Remove-Item $psscriptFile -Confirm:$False -Force 2>$Null
+ 
+}
+
+
+function Reset-GPOStartupScript {
+  # Restore the backed up GPO settings
+  if (! (Test-Path "C:\Breqwatr" 2>$null)) {
+    Write-Host "C:\Breqwatr not found - Quitting (nothing to restore from)"
+    return
+  }
+  $regBackupFile = "C:\Breqwatr\GpoScriptsBackup.reg"
+  if (Test-Path $regBackupFile) {
+    Write-Host REG IMPORT $regBackupFile
+    REG IMPORT $regBackupFile
+  } else {
+    Write-Host "Registry backup file not found: $regBackupFile"
+  }
+  $gpoFolderBackupPath = "C:\Breqwatr\GroupPolicyBackup"
+  if (Test-Path $gpoFolderBackupPath) {
+    $gpoFolderPath = "C:\Windows\System32\GroupPolicy"
+    Write-Host "Copying $gpoFolderBackupPath to $gpoFolderPath"
+    Remove-Item -Path $gpoFolderPath -Recurse -Confirm:$False -Force
+    Copy-Item -Recurse -Path $gpoFolderBackupPath -Destination $gpoFolderPath -Force
+  } else {
+    Write-Host "GPO backup folder not found: $gpoFolderBackupPath"
+  }
+}
+
+
 ###################################################################################################
 ###################################################################################################
 
@@ -358,7 +628,13 @@ Export-ModuleMember -Function Get-BootStyle
 Export-ModuleMember -Function Repair-OfflineDisks
 Export-ModuleMember -Function Copy-VoithosModuleToBootPartition
 Export-ModuleMember -Function Set-InterfaceAddress
-Export-ModuleMember -Function New-RunOnceScript
+Export-ModuleMember -Function New-StartupScript
 Export-ModuleMember -Function Get-RunOnceScript
 Export-ModuleMember -Function Set-RunOnceScript
 Export-ModuleMember -Function Set-AllDisksOnline
+Export-ModuleMember -Function Backup-LocalGPOSettings
+Export-ModuleMember -Function Backup-MountedLocalGPOSettings
+Export-ModuleMember -Function Set-GPOStartupScript
+Export-ModuleMember -Function Set-MountedGPOStartupScript
+Export-ModuleMember -Function Remove-GPOStartupScript
+Export-ModuleMember -Function Reset-GPOStartupScript 

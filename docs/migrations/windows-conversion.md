@@ -80,7 +80,8 @@ Get-BootStyle -BootPartition $bootPartition
 
 # (Optional) Inject a Startup script for Static IPs & Online Disks
 
-Servers with multiple data volumes may need a RunOnce script to initialize those disks on boot.
+
+Servers with multiple data volumes may need a GPO startup script to initialize those disks on boot.
 Windows server 2012 will always require this.
 
 If the server is being migrated but keeping its IP addresses, another issue will occur where the IP
@@ -90,8 +91,9 @@ a new interface.
 This process will:
 
 1. Deploy the Voithos PS module into the migration target
-1. Create a RunOnce Powershell script to online the disks / set the static IPs of the new NICs
-1. Set the RunOnce registry key in the migration target
+1. Create a Powershell script to online the disks / set the static IPs of the new NICs
+1. Back up the current GPO settings
+1. Set the GPO startup script in the migration target
 
 Each of these commands requires the `Voithos` module to be loaded.
 
@@ -106,9 +108,11 @@ Copy-VoithosModuleToBootPartition -BootPartition $bootPartition
 ## Create Ports for Static IP addresses
 
 In neutron, create the ports for the VM. Note the IP and MAC of the ones that don't use DHCP.
+It can be helpful to include the server name in the port name.
+
+**NOTE**: Make sure you're sourced to the project where the VM will be created
 
 ```bash
-# It can be helpful to include the server name in the port name
 openstack port create --network <network> --fixed-ip subnet=<subnet>,ip-address=<IP address>  <port name>
 ```
 
@@ -120,12 +124,19 @@ When creating the server, use `openstack server create --nic port-id=<id>` to se
 
 ## Create the RunOnce script
 
-The `New-RunOnceScript` command will create a `C:\Breqwatr\RunOnce.ps1` file on the migration
-target and open a Notepad window to edit it.
+Back up the current GPO settings, as they'll get overwritten when we set the one ones.
+
+```ps1
+Backup-MountedLocalGPOSettings -BootPartition $bootPartition
+```
+
+Use the `New-RunOnceScript` command will create a new script file
+`C:\Windows\System32\GroupPolicy\Machine\Scripts\Startup\startup.ps1`
+on the migration target and open a Notepad window to edit it.
 
 ```ps1
 # When prompted by Notepad if you want to create a new file, say yes
-New-RunOnceScript -BootPartition $bootPartition
+New-StartupScript -BootPartition $bootPartition
 ```
 
 Inside this Notepad file, a script must be written. Here are some examples. The clean-up
@@ -137,10 +148,9 @@ Import-Module Voithos
 # Set the extra disks to online on boot
 Set-AllDisksOnline
 
-# Example of setting a static IP on boot to the new interface
-Set-InterfaceAddress -MacAddress "aa:bb:cc:dd:ee" -IPAddress "1.2.3.4" -SubnetPrefix 24
 
-# Example of setting a static IP with a gateway, and optionally also DNS values
+# (Optional) Set the interface on boot
+# Primary interface with Gateway and DNS settings included
 Set-InterfaceAddress `
   -MacAddress "aa:bb:cc:dd:ee" `
   -IPAddress "1.2.3.4" `
@@ -148,26 +158,33 @@ Set-InterfaceAddress `
   -GatewayIPAddress "1.2.3.1" `
   -DNSAddressCSV "1.1.1.1,8.8.8.8"
 
-# Clean Up
+# Secondary interface with no gateway/DNS
+Set-InterfaceAddress -MacAddress "aa:bb:cc:dd:ee" -IPAddress "1.2.3.4" -SubnetPrefix 24
+
+
+# Clean-up to restore the VM to the pre-migration state
+# Remove the startup script
+Remove-GPOStartupScript
+
+# Restore any backed up startup script settings
+Reset-GPOStartupScript
+
+# Remove the Voithos PowerShell module
 Remove-Module Voithos
-Remove-Item -Recurse -ErrorAction Ignore $PSHome\Modules\Voithos
+Remove-Item -Recurse -ErrorAction Ignore "C:\Program Files (x86)\WindowsPowerShell\Modules\Voithos"
+Remove-Item -Recurse -ErrorAction Ignore "C:\Program Files\WindowsPowerShell\Modules\Voithos"
+
+# Remove the directory the GPOs got backed up to
 Remove-Item -Recurse -ErrorAction Ignore C:\Breqwatr
 ```
 
 Save and close the file in Notepad.
 
 
-## Set the RunOnce registry key
-
-The `Set-RunOnceScript` command will load the HKLM registry hive of the migration target and set
-the `HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\RunOnce` to the given value.
-Set it to the path of the RunOnce script created above, `<Letter>:\Breqwatr\RunOnce.ps1`
+## Set the local GPO startup script
 
 ```ps1
-Set-RunOnceScript -BootPartition $bootPartition -ScriptPath "C:\Breqwatr\RunOnce.ps1"
-
-# Verify
-Get-RunOnceScript -BootPartition $bootPartition
+Set-MountedGPOStartupScript -BootPartition $bootPartition
 ```
 
 ---
