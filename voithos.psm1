@@ -328,8 +328,8 @@ function Set-InterfaceAddress {
     [Parameter(Mandatory=$True)]  [string] $MacAddress,
     [Parameter(Mandatory=$True)]  [string] $IPAddress,
     [Parameter(Mandatory=$True)]  [string] $SubnetPrefix,
-    [Parameter(Mandatory=$false)] [string] $GatewayIPAddress,
-    [Parameter(Mandatory=$false)] [string] $DNSAddressCSV
+    [Parameter(Mandatory=$False)] [string] $GatewayIPAddress,
+    [Parameter(Mandatory=$False)] [string] $DNSAddressCSV
   )
   # Convert mac address format
   # Openstack format: fa:16:3e:5e:de:ce --> Windows format: FA-16-3E-5E-DE-CE

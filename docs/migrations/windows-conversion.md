@@ -130,7 +130,7 @@ Back up the current GPO settings, as they'll get overwritten when we set the one
 Backup-MountedLocalGPOSettings -BootPartition $bootPartition
 ```
 
-Use the `New-RunOnceScript` command will create a new script file
+The `New-RunOnceScript` command will create a new script file
 `C:\Windows\System32\GroupPolicy\Machine\Scripts\Startup\startup.ps1`
 on the migration target and open a Notepad window to edit it.
 

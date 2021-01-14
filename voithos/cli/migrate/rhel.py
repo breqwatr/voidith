@@ -87,7 +87,11 @@ def get_partition_names(device):
     except StopIteration:
         boot_partition = "NOT FOUND"
     print(f"Boot Partition: {boot_partition}")
-    root_partition = rhel.get_root_partition(device, fail=False)
+    try:
+        root_partition = rhel.get_root_partition(device, fail=False)
+    except StopIteration:
+        # WARNING: In an LVM environment, root_partition might still return something
+        root_partition = "NOT FOUND"
     print(f"Root Partition: {root_partition}")
 
 
