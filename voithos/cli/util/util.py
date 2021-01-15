@@ -47,7 +47,7 @@ def create_and_upload_voithos_tar(voithos_branch):
 
 @click.option('--name', required=True, help='Image name')
 @click.option('--tag', required=True, help='Image tag')
-@click.option('--path', required=True, help='Download path')
+@click.option('--path', required=True, help='Offline media path')
 @click.option('--force/--no-force', default=False,
               help='Use --force to overwrite files if they already exists')
 @click.command(name='export-offline-image')

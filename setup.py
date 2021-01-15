@@ -31,7 +31,7 @@ setup(
         "requests",
         "tqdm",
         "pyvmomi",
-        "hurry.filesize",
+        "hurry.filesize"
     ],
     entry_points="""
         [console_scripts]

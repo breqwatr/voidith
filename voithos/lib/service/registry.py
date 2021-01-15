@@ -26,6 +26,7 @@ def offline_start(ip_address, port, path):
         error(f"{Fore.RED}ERROR: Registry image not found at {path}{Style.RESET_ALL}", exit=True)
     else:
        shell(f"docker load --input {path}")
+       # Filename from file path
        filename = path.rsplit("/", 1)[1]
        image_name_tag = filename_to_image_name_tag(filename)
        shell(f"docker run -d --name registry -p {ip_address}:{port}:5000 {image_name_tag}")
