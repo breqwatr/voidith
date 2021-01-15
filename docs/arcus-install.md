@@ -224,6 +224,11 @@ openstack role add --user arcusadmin --project admin _member_
 openstack role add --user arcusadmin --domain default admin
 ```
 
+Now setup service account in arcus.
+```bash
+voithos service arcus api set-service-account --help
+```
+
 ---
 
 

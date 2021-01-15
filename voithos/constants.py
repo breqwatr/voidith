@@ -7,6 +7,7 @@ OFFLINE_DEPLOYMENT_SERVER_PACKAGES = [
     "python3",
     "python3-pip",
     "python3-openstackclient",
+    "python3-gnocchiclient",
     "docker",
     "virtualenv"
 ]

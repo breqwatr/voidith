@@ -19,6 +19,7 @@ docker_namespace: breqwatr
 docker_apt_key_id:
 docker_apt_url:  "http://<apt url with port>"
 docker_apt_repo: "deb [trusted=yes arch=amd64] <docker_apt_url> <ubuntu-release> stable"
+docker_apt_package: "docker-ce=5:19.03.12~3-0~ubuntu-bionic"
 
 # openstack release
 openstack_release: train

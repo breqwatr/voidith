@@ -52,6 +52,17 @@ def sync_image_to_registry_offline(name, tag, path, keep, local_registry):
         error("If push failed, ensure /etc/docker/daemon.json is correct", exit=True)
     registry.sync_offline_single_image(name, tag, path, keep, local_registry)
 
+@click.option('--name', required=True, help='Image name')
+@click.option('--tag', required=True, help='Image tag')
+@click.argument("local_registry")
+@click.command(name="pull-image-from-registry")
+def pull_image_from_offline_registry(name, tag, local_registry):
+    """ Pull image from offline registry """
+    if local_registry.startswith("http"):
+        error("Registry must not start with http/https.", exit=False)
+        error("If push failed, ensure /etc/docker/daemon.json is correct", exit=True)
+    registry.pull_image_from_registry(name, tag, local_registry)
+
 def get_registry_group():
     """ return the registry group function """
 
@@ -63,4 +74,5 @@ def get_registry_group():
     registry_group.add_command(list_images)
     registry_group.add_command(sync_local_registry_offline)
     registry_group.add_command(sync_image_to_registry_offline)
+    registry_group.add_command(pull_image_from_offline_registry)
     return registry_group

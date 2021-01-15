@@ -13,7 +13,13 @@ def start(ip_address, port):
     """ Start the local registry """
     shell(f"docker run -d --name registry -p {ip_address}:{port}:5000 registry:2")
 
-
+def pull_image_from_registry(name, tag, local_registry):
+    """ Pull image from offline registry"""
+    cmd = (
+        f"docker pull {local_registry}/breqwatr/{name}:{tag}"
+        f" &&  docker tag {local_registry}/breqwatr/{name}:{tag} breqwatr/{name}:{tag}"
+    )
+    shell(cmd)
 def offline_start(ip_address, port, path):
     """ Load and start offline registry """
     if not os.path.exists(path):
