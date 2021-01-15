@@ -13,6 +13,7 @@ def start(ip_address, port):
     """ Start the local registry """
     shell(f"docker run -d --name registry -p {ip_address}:{port}:5000 registry:2")
 
+
 def pull_image_from_registry(name, tag, local_registry):
     """ Pull image from offline registry"""
     cmd = (
@@ -20,16 +21,19 @@ def pull_image_from_registry(name, tag, local_registry):
         f" &&  docker tag {local_registry}/breqwatr/{name}:{tag} breqwatr/{name}:{tag}"
     )
     shell(cmd)
+
+
 def offline_start(ip_address, port, path):
     """ Load and start offline registry """
     if not os.path.exists(path):
         error(f"{Fore.RED}ERROR: Registry image not found at {path}{Style.RESET_ALL}", exit=True)
     else:
-       shell(f"docker load --input {path}")
-       # Filename from file path
-       filename = path.rsplit("/", 1)[1]
-       image_name_tag = filename_to_image_name_tag(filename)
-       shell(f"docker run -d --name registry -p {ip_address}:{port}:5000 {image_name_tag}")
+        shell(f"docker load --input {path}")
+        # Filename from file path
+        filename = path.rsplit("/", 1)[1]
+        image_name_tag = filename_to_image_name_tag(filename)
+        shell(f"docker run -d --name registry -p {ip_address}:{port}:5000 {image_name_tag}")
+
 
 def sync_offline_images(kolla_tag, bw_tag, ceph_release, path, keep, registry):
     """ Sync registry with offline images"""
@@ -56,10 +60,12 @@ def sync_offline_images(kolla_tag, bw_tag, ceph_release, path, keep, registry):
     echo("Syncing ceph-ansible image")
     _sync_image("ceph-ansible", ceph_release, keep, registry, path)
 
+
 def sync_offline_single_image(name, tag, path, keep, registry):
     """ Sync registry with offline image"""
     echo("Syncing Image breqwatr/{}:{} with {}".format(name, tag, registry))
     _sync_image(name, tag, keep, registry, path)
+
 
 def list_images(registry):
     """ Print the images in a registry """
@@ -84,6 +90,7 @@ def list_images(registry):
                 err_msg = err["message"]
                 error(f"  WARNING: {err_code} - {err_msg}", exit=False)
 
+
 def _sync_image(image_name, tag, keep, registry, path):
     """ Load, tag and push offline image to registry """
     image_name_tag = f"breqwatr/{image_name}:{tag}"
@@ -92,9 +99,11 @@ def _sync_image(image_name, tag, keep, registry, path):
     if not image_path.endswith(".docker"):
         image_path = util.get_image_filename_path(image_name_tag, path)
     if not os.path.exists(image_path):
-       error(f"{Fore.RED}ERROR: Image path {image_path} doesn't exist{Style.RESET_ALL}", exit=False)
-       return
-    shell(f'docker load --input {image_path}')
+        error(
+            f"{Fore.RED}ERROR: Image path {image_path} doesn't exist{Style.RESET_ALL}", exit=False
+        )
+        return
+    shell(f"docker load --input {image_path}")
     shell(f"docker tag {image_name_tag} {registry_image_name_tag}")
     shell(f"docker push {registry_image_name_tag}")
     echo("Done syncing {}".format(registry_image_name_tag))
@@ -103,11 +112,12 @@ def _sync_image(image_name, tag, keep, registry, path):
         shell(f"docker rmi {image_name_tag}")
         shell(f"docker rmi {registry_image_name_tag}")
 
+
 def filename_to_image_name_tag(filename):
     """ Get image name and tag using image filename"""
     filename = filename.replace(".docker", "")
     name_tag_list = filename.rsplit("-", 1)
     name = name_tag_list[0].replace("-", "/", 1)
     tag = name_tag_list[1]
-    name_and_tag = name+":"+tag
+    name_and_tag = name + ":" + tag
     return name_and_tag

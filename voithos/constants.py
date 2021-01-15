@@ -9,7 +9,7 @@ OFFLINE_DEPLOYMENT_SERVER_PACKAGES = [
     "python3-openstackclient",
     "python3-gnocchiclient",
     "docker",
-    "virtualenv"
+    "virtualenv",
 ]
 
 # Major release of this CLI, for use with "voithos version"
@@ -108,6 +108,6 @@ KOLLA_IMAGE_REPOS["train"].extend(
         "ubuntu-source-ceilometer-ipmi",
         "ubuntu-source-ceilometer-notification",
         "ubuntu-source-ceilometer-central",
-        "ubuntu-source-grafana"
+        "ubuntu-source-grafana",
     ]
 )
