@@ -132,24 +132,20 @@ def pull_and_save_single_image(image_name, tag, path, force):
 
 def _pull_and_save_all(image_name_list, tag, path, force):
     """ Pull and save bw dockerhub images"""
-    i = 1
     count = len(image_name_list)
-    for image in image_name_list:
+    for index, image in enumerate(image_name_list):
         image_name = f"breqwatr/{image}:{tag}"
-        echo("Pulling image {} of {}\t{}".format(i, count, image_name))
-        i += 1
+        echo("Pulling image {} of {}\t{}".format(index+1, count, image_name))
         pull(image_name)
         save(image_name, path, force)
 
 
 def _pull_and_save_all_ecr(image_name_list, tag, path, force):
     """ Pull and save ecr images"""
-    i = 1
     count = len(image_name_list)
-    for image in image_name_list:
+    for index, image in enumerate(image_name_list):
         image_name = f"breqwatr/{image}:{tag}"
-        echo("Pulling image {} of {}\t{}".format(i, count, image_name))
-        i += 1
+        echo("Pulling image {} of {}\t{}".format(index+1, count, image_name))
         pull_ecr(image_name)
         save(image_name, path, force)
 
@@ -184,7 +180,7 @@ def save(image_name_tag, images_dir_path, force):
             exit=False,
         )
         return
-    echo("Saving: {}".format(image_path))
+    echo("Saving: {}\n".format(image_path))
     try:
         with open(image_path, "wb") as _file:
             for chunk in image.save(named=image_name_tag):
