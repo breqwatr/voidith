@@ -7,7 +7,6 @@ import subprocess
 import voithos.lib.aws.ecr as ecr
 import voithos.lib.aws.s3 as s3
 from click import echo
-from colorama import Fore, Style
 from pathlib import Path
 from requests.exceptions import ReadTimeout
 from voithos.constants import KOLLA_IMAGE_REPOS, OFFLINE_DEPLOYMENT_SERVER_PACKAGES
@@ -89,7 +88,7 @@ def get_package_dependencies_list(package, apt_packages_dir):
     output = subprocess.getoutput(f'apt-rdepends {package}|grep -v "^ "')
     if "Unable to locate package" in output:
         shell(f"rm -r {apt_packages_dir}")
-        error(f"{Fore.RED}ERROR: Unable to locate package: {package}{Style.RESET_ALL}", exit=True)
+        error(f"ERROR: Unable to locate package: {package}", exit=True)
     dependencies = subprocess.check_output(
         f'apt-rdepends {package}|grep -v "^ "', shell=True
     ).decode("utf-8")
@@ -100,7 +99,7 @@ def pull_and_save_kolla_tag_images(kolla_tag, path, force):
     """ Pull and save kolla and service images with kolla tag"""
     if kolla_tag not in KOLLA_IMAGE_REPOS:
         error(
-            f"{Fore.RED}ERROR: kolla tag {kolla_tag} is not supported{Style.RESET_ALL}", exit=True
+            f"ERROR: kolla tag {kolla_tag} is not supported", exit=True
         )
     all_images = KOLLA_IMAGE_REPOS[kolla_tag]
     kolla_tag_service_images = ["pip", "apt", "openstack-client", "kolla-ansible"]
@@ -160,7 +159,7 @@ def pull(image_name_tag):
     try:
         shell(f"docker pull {image_name_tag}")
     except:
-        error(f"{Fore.RED}ERROR: Image {image_name_tag} not found{Style.RESET_ALL}", exit=False)
+        error(f"ERROR: Image {image_name_tag} not found", exit=False)
 
 
 def pull_ecr(image_name_tag):
@@ -168,7 +167,7 @@ def pull_ecr(image_name_tag):
     try:
         ecr.pull(image_name_tag)
     except:
-        error(f"{Fore.RED}ERROR: Image {image_name_tag} not found{Style.RESET_ALL}", exit=False)
+        error(f"ERROR: Image {image_name_tag} not found", exit=False)
 
 
 def save(image_name_tag, images_dir_path, force):
@@ -181,7 +180,7 @@ def save(image_name_tag, images_dir_path, force):
     image_path = get_image_filename_path(image_name_tag, images_dir_path)
     if os.path.exists(image_path) and not force:
         error(
-            f"{Fore.YELLOW}Warning: {image_name_tag} already exists: use --force to overwrite.{Style.RESET_ALL}",
+            f"Warning: {image_name_tag} already exists: use --force to overwrite.",
             exit=False,
         )
         return
@@ -193,7 +192,7 @@ def save(image_name_tag, images_dir_path, force):
     except ReadTimeout:
         # Sometimes Docker will time out trying to export the image
         err = "Docker timeout trying to export file. Check CPU usage?\n"
-        sys.stderr.write(f"{Fore.RED}ERROR: {err}{Style.RESET_ALL}\n")
+        sys.stderr.write(f"ERROR: {err}\n")
     if os.path.exists(image_path):
         # If ReadTimeout leaves a 0b file behind
         if os.path.getsize(image_path) == 0:
@@ -202,7 +201,7 @@ def save(image_name_tag, images_dir_path, force):
         else:
             os.chmod(image_path, 0o755)
     else:
-        sys.stderr.write(f"{Fore.RED}ERROR: Failed to create {image_path}{Style.RESET_ALL}\n")
+        sys.stderr.write(f"ERROR: Failed to create {image_path}\n")
 
 
 def get_image_filename_path(image_name_tag, images_dir_path):

@@ -4,7 +4,6 @@ import os
 import requests
 import voithos.lib.util.util as util
 from click import echo
-from colorama import Fore, Style
 from voithos.constants import KOLLA_IMAGE_REPOS
 from voithos.lib.system import shell, error
 
@@ -26,7 +25,7 @@ def pull_image_from_registry(name, tag, local_registry):
 def offline_start(ip_address, port, path):
     """ Load and start offline registry """
     if not os.path.exists(path):
-        error(f"{Fore.RED}ERROR: Registry image not found at {path}{Style.RESET_ALL}", exit=True)
+        error(f"ERROR: Registry image not found at {path}", exit=True)
     else:
         shell(f"docker load --input {path}")
         # Filename from file path
@@ -100,7 +99,7 @@ def _sync_image(image_name, tag, keep, registry, path):
         image_path = util.get_image_filename_path(image_name_tag, path)
     if not os.path.exists(image_path):
         error(
-            f"{Fore.RED}ERROR: Image path {image_path} doesn't exist{Style.RESET_ALL}", exit=False
+            f"ERROR: Image path {image_path} doesn't exist", exit=False
         )
         return
     shell(f"docker load --input {image_path}")

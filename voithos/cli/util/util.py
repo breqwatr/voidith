@@ -4,7 +4,6 @@ import click
 import os
 import voithos.lib.util.util as util
 import voithos.lib.aws.s3 as s3
-from colorama import Fore, Style
 from voithos.cli.util.qemu_img import get_qemu_img_group
 from voithos.lib.system import error
 
@@ -27,14 +26,14 @@ def export_offline_media(kolla_tag, bw_tag, ceph_release, force, path):
     voithos_pkg_path = f"{path.rstrip('/')}/voithos.tar.gz"
     if os.path.exists(apt_pkg_path) and not force:
         error(
-            f"{Fore.YELLOW}Warning: {apt_pkg_path} already exists: use --force to overwrite.{Style.RESET_ALL}",
+            f"Warning: {apt_pkg_path} already exists: use --force to overwrite.",
             exit=False,
         )
     else:
         s3.download(path + "/apt.tar.gz", "voithos-files", "apt.tar.gz")
     if os.path.exists(voithos_pkg_path) and not force:
         error(
-            f"{Fore.YELLOW}Warning: {voithos_pkg_path} already exists: use --force to overwrite.{Style.RESET_ALL}",
+            f"Warning: {voithos_pkg_path} already exists: use --force to overwrite.",
             exit=False,
         )
     else:
