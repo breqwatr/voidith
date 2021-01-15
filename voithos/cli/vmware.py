@@ -44,7 +44,8 @@ def _print_csv(vms):
         line.append(_escape_csv(vm["storage"]["num_disks"]))
         capacity_gb = sum(disk["capacity_gb"] for disk in vm["storage"]["disks"])
         line.append(_escape_csv(capacity_gb))
-        line.append(_escape_csv(vm["storage"]["partitions"]["total_used_gb"]))
+        used_gb = round(vm["storage"]["partitions"]["total_used_gb"], 2)
+        line.append(_escape_csv(used_gb))
         line.append(_escape_csv(vm["network"]["num_interfaces"]))
         net_list = []
         for network in vm["network"]["networks"]:

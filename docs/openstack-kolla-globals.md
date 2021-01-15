@@ -164,6 +164,7 @@ enable_placement: yes
 
 ```yaml
 enable_neutron: yes
+enable_neutron_provider_networks: yes
 neutron_extension_drivers:
   - name: port_security
     enabled: true

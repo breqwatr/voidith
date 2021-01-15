@@ -11,6 +11,7 @@ import voithos.cli.openstack as openstack
 import voithos.cli.service.service as service
 import voithos.cli.util.util as util
 import voithos.cli.vmware as vmware
+import voithos.cli.migrate.migrate as migrate
 import voithos.constants as constants
 from voithos.lib.system import error
 
@@ -44,6 +45,7 @@ def get_entrypoint():
     entrypoint.add_command(service.get_service_group())
     entrypoint.add_command(util.get_util_group())
     entrypoint.add_command(vmware.get_vmware_group())
+    entrypoint.add_command(migrate.get_migrate_group())
     return entrypoint
 
 
