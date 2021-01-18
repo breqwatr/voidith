@@ -173,11 +173,12 @@ Reset-GPOConfig
 
 # Remove the Voithos PowerShell module
 Remove-Module Voithos
-Remove-Item -Recurse -ErrorAction Ignore "C:\Program Files (x86)\WindowsPowerShell\Modules\Voithos"
-Remove-Item -Recurse -ErrorAction Ignore "C:\Program Files\WindowsPowerShell\Modules\Voithos"
+Remove-Item -Recurse -Force -Confirm:$False -ErrorAction Ignore "C:\Program Files (x86)\WindowsPowerShell\Modules\Voithos"
+Remove-Item -Recurse -Force -Confirm:$False -ErrorAction Ignore "C:\Program Files\WindowsPowerShell\Modules\Voithos"
+
 
 # Remove the directory the GPOs got backed up to
-Remove-Item -Recurse -ErrorAction Ignore C:\Breqwatr
+Remove-Item -Recurse -Force -Confirm:$False -ErrorAction Ignore C:\Breqwatr
 
 # Reboot to apply the old startup GPOs
 shutdown /r /t 0

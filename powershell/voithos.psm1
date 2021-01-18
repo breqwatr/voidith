@@ -1,4 +1,4 @@
-# ps1
+ # ps1
 
 # Voithos Powershell Module
 # Maintained by Breqwatr - info@breqwatr.com
@@ -53,10 +53,10 @@ function Get-HklmRegistryValue {
   } finally {
     Remove-HklmRegistryHive -Hive $Hive
   }
-  if ($KeyName -eq $Null -or $KeyName -eq "") {
-    return $result
+  if ($KeyName -eq $Null -or $KeyName -eq "") { 
+    return $result 
   } else {
-    return ($result | Select-Object -ExpandProperty $KeyName)
+    return ($result | Select-Object -ExpandProperty $KeyName) 
   }
 }
 
@@ -427,16 +427,6 @@ function Set-AllDisksOnline {
 }
 
 
-
-function Remove-GPOConfig {
-  param(
-    [Parameter(Mandatory=$False)] [string] $DriveLetter="C",
-    [Parameter(Mandatory=$False)] [string] $Hive="HKLM\SOFTWARE"
-  )
-
-}
-
-
 function Set-MountedGPOStartupScript {
   param(
     [Parameter(Mandatory=$True)] [PSObject] $BootPartition
@@ -533,6 +523,7 @@ Function Backup-GPOSettings {
   }
   if ((Test-Path $gpSrcFolderPath)){
     if ($Remove){
+      Remove-Item -Force -Recurse $gpBackupFolderPath 2>$Null
       Move-Item -Force -Path $gpSrcFolderPath -Destination $gpBackupFolderPath
       Write-Host "Moved $gpSrcFolderPath to $gpBackupFolderPath"
     } else {
@@ -583,7 +574,9 @@ function Reset-GPOConfig {
     Write-Error "C:\Breqwatr not found - Quitting (nothing to restore from)"
     return
   }
-  #
+  # Remove the startup key
+  REG DELETE "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Group Policy\State\Machine\Scripts\Startup" /f 2>$NULL
+  REG DELETE "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Group Policy\Scripts\Startup" /f 2>$NULL
   # Restore Registry values
   $regBackupFile = "C:\Breqwatr\GpoKeyBackup.reg"
   if (Test-Path $regBackupFile) {
@@ -593,11 +586,13 @@ function Reset-GPOConfig {
     Write-Warning "Registry backup file not found: $regBackupFile"
   }
   #
-  # Restore Files
+  # Delete startup script and restore Files
   $gpoBackupDir = "C:\Breqwatr\GroupPolicy"
   $gpoDir= "C:\Windows\System32\GroupPolicy\"
+  Remove-Item -Force -Confirm:$False "$gpoDir\Machine\Scripts\Startup\startup.ps1" 2>$Null
+  Remove-Item -Force -Confirm:$False "$gpoDir\Machine\Scripts\psscripts.ini" 2>$Null
   if ((Test-Path $gpoBackupDir) ){
-      Get-ChildItem $gpoBackupDir | ForEach-Object {
+      Get-ChildItem $gpoBackupDir | ForEach-Object { 
       Copy-Item -Recurse -Path $_.FullName -Destination "$gpoDir\$_.Name"
     }
     Write-Host "Copied backup files from $gpoBackupDir to $gpoDir"
@@ -627,6 +622,4 @@ Export-ModuleMember -Function Set-AllDisksOnline
 Export-ModuleMember -Function Backup-GPOSettings
 Export-ModuleMember -Function Backup-MountedGPOSettings
 Export-ModuleMember -Function Set-MountedGPOStartupScript
-Export-ModuleMember -Function Remove-GPOConfig
 Export-ModuleMember -Function Reset-GPOConfig
-
