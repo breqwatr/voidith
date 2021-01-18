@@ -1,4 +1,4 @@
- # ps1
+# ps1
 
 # Voithos Powershell Module
 # Maintained by Breqwatr - info@breqwatr.com
@@ -53,10 +53,10 @@ function Get-HklmRegistryValue {
   } finally {
     Remove-HklmRegistryHive -Hive $Hive
   }
-  if ($KeyName -eq $Null -or $KeyName -eq "") { 
-    return $result 
+  if ($KeyName -eq $Null -or $KeyName -eq "") {
+    return $result
   } else {
-    return ($result | Select-Object -ExpandProperty $KeyName) 
+    return ($result | Select-Object -ExpandProperty $KeyName)
   }
 }
 
@@ -592,7 +592,7 @@ function Reset-GPOConfig {
   Remove-Item -Force -Confirm:$False "$gpoDir\Machine\Scripts\Startup\startup.ps1" 2>$Null
   Remove-Item -Force -Confirm:$False "$gpoDir\Machine\Scripts\psscripts.ini" 2>$Null
   if ((Test-Path $gpoBackupDir) ){
-      Get-ChildItem $gpoBackupDir | ForEach-Object { 
+      Get-ChildItem $gpoBackupDir | ForEach-Object {
       Copy-Item -Recurse -Path $_.FullName -Destination "$gpoDir\$_.Name"
     }
     Write-Host "Copied backup files from $gpoBackupDir to $gpoDir"
