@@ -144,6 +144,15 @@ max_local_block_devices = 0
 ```
 
 
+## config/neutron/neutron.conf
+
+### Enable MTU 9000
+
+```
+[DEFAULT]
+global_physnet_mtu = 9000
+```
+
 ## config/neutron/ml2_conf.ini
 
 ### Enable VLANs

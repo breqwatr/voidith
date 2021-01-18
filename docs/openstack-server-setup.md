@@ -81,6 +81,15 @@ example, `bond0` is split into the three undercloud networks (VLANs 10, 11, and
 consume it. For LACP or any other network configuration options reference the
 [Netplan](https://netplan.io/examples) documentation.
 
+
+**A note about MTUs**: Commonly you won't want the public and internal network to use a special MTU
+value, since the gateway upstream is likely using MTU 1500. Unfortunately to allow guests to use
+MTU 9000, such as those which want to run their own iSCSI services, you must configure the bonds
+and ethernet adapters as MTU 9000. In the below example, bond0 is the network specified by
+`neutron_external_interface` in Kolla-Ansible's `globals.yml` file. Note that the VLAN interfaces
+are configured to still use 1500. It's best to do this *before* a user requests MTU 9000 on a VM,
+as otherwise you'll have to do it live in production.
+
 ```yaml
 network:
   version: 2
@@ -88,8 +97,10 @@ network:
   ethernets:
     eno1:
       dhcp4: no
+      mtu: 9000
     eno2:
       dhcp4: no
+      mtu: 9000
     enp179s0f0:
       dhcp4: no
     enp179s0f1:
@@ -113,6 +124,7 @@ network:
       id: 10
       accept-ra: no
       link: bond0
+      mtu: 1500
       addresses: ["10.100.10.11/24"]
       nameservers:
         addresses: [8.8.8.8, 8.8.4.4]
@@ -121,11 +133,13 @@ network:
       id: 11
       accept-ra: no
       link: bond0
+      mtu: 1500
       addresses: ["10.100.11.11/24"]
     vlan12:
       id: 12
       accept-ra: no
       link: bond0
+      mtu: 1500
       addresses: ["10.100.12.11/24"]
 ```
 
