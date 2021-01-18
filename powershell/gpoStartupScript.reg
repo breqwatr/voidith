@@ -1,0 +1,123 @@
+Windows Registry Editor Version 5.00
+
+[HKEY_LOCAL_MACHINE\TEMPSOFTWARE\Microsoft\Windows\CurrentVersion\Group Policy]
+@=""
+
+[HKEY_LOCAL_MACHINE\TEMPSOFTWARE\Microsoft\Windows\CurrentVersion\Group Policy\DataStore]
+
+[HKEY_LOCAL_MACHINE\TEMPSOFTWARE\Microsoft\Windows\CurrentVersion\Group Policy\DataStore\Machine]
+
+[HKEY_LOCAL_MACHINE\TEMPSOFTWARE\Microsoft\Windows\CurrentVersion\Group Policy\DataStore\Machine\0]
+"szName"="WIN-WORKER"
+"szTargetName"="WIN-WORKER"
+
+[HKEY_LOCAL_MACHINE\TEMPSOFTWARE\Microsoft\Windows\CurrentVersion\Group Policy\History]
+"PolicyOverdue"=dword:00000000
+
+[HKEY_LOCAL_MACHINE\TEMPSOFTWARE\Microsoft\Windows\CurrentVersion\Group Policy\History\{42B5FAAE-6536-11d2-AE5A-0000F87571E3}]
+
+[HKEY_LOCAL_MACHINE\TEMPSOFTWARE\Microsoft\Windows\CurrentVersion\Group Policy\History\{42B5FAAE-6536-11d2-AE5A-0000F87571E3}\0]
+"Options"=dword:00000000
+"Version"=dword:00070007
+"DSPath"="LocalGPO"
+"FileSysPath"="C:\\Windows\\System32\\GroupPolicy\\Machine"
+"DisplayName"="Local Group Policy"
+"Extensions"="[{42B5FAAE-6536-11D2-AE5A-0000F87571E3}{40B6664F-4972-11D1-A7CA-0000F87571E3}]"
+"Link"="Local"
+"GPOName"="Local Group Policy"
+"GPOLink"=dword:00000001
+"lParam"=hex(4):00,00,00,00,00,00,00,00
+
+[HKEY_LOCAL_MACHINE\TEMPSOFTWARE\Microsoft\Windows\CurrentVersion\Group Policy\Scripts]
+
+[HKEY_LOCAL_MACHINE\TEMPSOFTWARE\Microsoft\Windows\CurrentVersion\Group Policy\Scripts\Shutdown]
+
+[HKEY_LOCAL_MACHINE\TEMPSOFTWARE\Microsoft\Windows\CurrentVersion\Group Policy\Scripts\Startup]
+
+[HKEY_LOCAL_MACHINE\TEMPSOFTWARE\Microsoft\Windows\CurrentVersion\Group Policy\Scripts\Startup\0]
+"GPO-ID"="LocalGPO"
+"SOM-ID"="Local"
+"FileSysPath"="C:\\Windows\\System32\\GroupPolicy\\Machine"
+"DisplayName"="Local Group Policy"
+"GPOName"="Local Group Policy"
+"PSScriptOrder"=dword:00000001
+
+[HKEY_LOCAL_MACHINE\TEMPSOFTWARE\Microsoft\Windows\CurrentVersion\Group Policy\Scripts\Startup\0\0]
+"Script"="startup.ps1"
+"Parameters"=""
+"IsPowershell"=dword:00000001
+"ExecTime"=hex(b):00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00
+
+[HKEY_LOCAL_MACHINE\TEMPSOFTWARE\Microsoft\Windows\CurrentVersion\Group Policy\State]
+
+[HKEY_LOCAL_MACHINE\TEMPSOFTWARE\Microsoft\Windows\CurrentVersion\Group Policy\State\Machine]
+"Site-Name"=""
+"Distinguished-Name"=""
+"SlowLink"=dword:00000000
+"NextRefreshMode"=dword:00000001
+"NextRefreshReason"=dword:00000007
+"LastExtensionMadeSyncRequest"="{00000000-0000-0000-0000-000000000000}"
+
+[HKEY_LOCAL_MACHINE\TEMPSOFTWARE\Microsoft\Windows\CurrentVersion\Group Policy\State\Machine\Extension-List]
+
+[HKEY_LOCAL_MACHINE\TEMPSOFTWARE\Microsoft\Windows\CurrentVersion\Group Policy\State\Machine\Extension-List\{00000000-0000-0000-0000-000000000000}]
+"StartTimeLo"=dword:f0393487
+"StartTimeHi"=dword:01d6edc7
+"EndTimeLo"=dword:f04520a0
+"EndTimeHi"=dword:01d6edc7
+"Status"=dword:00000000
+"LoggingStatus"=dword:00000000
+
+[HKEY_LOCAL_MACHINE\TEMPSOFTWARE\Microsoft\Windows\CurrentVersion\Group Policy\State\Machine\GPLink-List]
+
+[HKEY_LOCAL_MACHINE\TEMPSOFTWARE\Microsoft\Windows\CurrentVersion\Group Policy\State\Machine\GPLink-List\0]
+"Enabled"=dword:00000001
+"NoOverride"=dword:00000000
+"DsPath"="LocalGPO"
+"SOM"="Local"
+
+[HKEY_LOCAL_MACHINE\TEMPSOFTWARE\Microsoft\Windows\CurrentVersion\Group Policy\State\Machine\GPO-List]
+
+[HKEY_LOCAL_MACHINE\TEMPSOFTWARE\Microsoft\Windows\CurrentVersion\Group Policy\State\Machine\GPO-List\0]
+"Version"=dword:00070007
+"WQLFilterPass"=dword:00000001
+"AccessDenied"=dword:00000000
+"GPO-Disabled"=dword:00000000
+"Options"=dword:00000000
+"GPOID"="Local Group Policy"
+"SOM"="Local"
+"DisplayName"="Local Group Policy"
+"WQL-Id"=""
+
+[HKEY_LOCAL_MACHINE\TEMPSOFTWARE\Microsoft\Windows\CurrentVersion\Group Policy\State\Machine\Scripts]
+
+[HKEY_LOCAL_MACHINE\TEMPSOFTWARE\Microsoft\Windows\CurrentVersion\Group Policy\State\Machine\Scripts\Shutdown]
+
+[HKEY_LOCAL_MACHINE\TEMPSOFTWARE\Microsoft\Windows\CurrentVersion\Group Policy\State\Machine\Scripts\Startup]
+
+[HKEY_LOCAL_MACHINE\TEMPSOFTWARE\Microsoft\Windows\CurrentVersion\Group Policy\State\Machine\Scripts\Startup\0]
+"GPO-ID"="LocalGPO"
+"SOM-ID"="Local"
+"FileSysPath"="C:\\Windows\\System32\\GroupPolicy\\Machine"
+"DisplayName"="Local Group Policy"
+"GPOName"="Local Group Policy"
+"PSScriptOrder"=dword:00000001
+
+[HKEY_LOCAL_MACHINE\TEMPSOFTWARE\Microsoft\Windows\CurrentVersion\Group Policy\State\Machine\Scripts\Startup\0\0]
+"Script"="startup.ps1"
+"Parameters"=""
+"ExecTime"=hex(b):00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00
+
+[HKEY_LOCAL_MACHINE\TEMPSOFTWARE\Microsoft\Windows\CurrentVersion\Group Policy\Status]
+
+[HKEY_LOCAL_MACHINE\TEMPSOFTWARE\Microsoft\Windows\CurrentVersion\Group Policy\Status\GPExtensions]
+
+[HKEY_LOCAL_MACHINE\TEMPSOFTWARE\Microsoft\Windows\CurrentVersion\Group Policy\Status\GPExtensions\{42B5FAAE-6536-11d2-AE5A-0000F87571E3}]
+"Status"=dword:00000000
+"RsopStatus"=dword:00000000
+"LastPolicyTime"=dword:014973f6
+"PrevSlowLink"=dword:00000000
+"PrevRsopLogging"=dword:00000001
+"ForceRefreshFG"=dword:00000000
+
+[HKEY_LOCAL_MACHINE\TEMPSOFTWARE\Microsoft\Windows\CurrentVersion\Group Policy\ServiceInstances]

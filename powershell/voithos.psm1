@@ -1,4 +1,4 @@
- # ps1
+# ps1
 
 # Voithos Powershell Module
 # Maintained by Breqwatr - info@breqwatr.com
@@ -53,10 +53,10 @@ function Get-HklmRegistryValue {
   } finally {
     Remove-HklmRegistryHive -Hive $Hive
   }
-  if ($KeyName -eq $Null -or $KeyName -eq "") { 
-    return $result 
+  if ($KeyName -eq $Null -or $KeyName -eq "") {
+    return $result
   } else {
-    return ($result | Select-Object -ExpandProperty $KeyName) 
+    return ($result | Select-Object -ExpandProperty $KeyName)
   }
 }
 
@@ -102,6 +102,7 @@ function Repair-OfflineDisks {
 function Get-TargetBootPartition {
   # Get the target boot partition for migrating a VM - a Windows boot partition other than C:\
   # Return a Get-Partition entry (CimInstance)
+  $found = $False
   Get-Disk | Where-Object Number -ne 0 | ForEach-Object {
     $disk = $_
     # Set it online and loop through each of its partitions that have letters
@@ -111,9 +112,13 @@ function Get-TargetBootPartition {
       $sys32 = $partition.DriveLetter + ":/Windows/System32"
       $isBootPartition = Test-Path $sys32
       if ($isBootPartition){
+        $found = $True
         return $partition
       }
     }
+  }
+  if (! $found){
+    Write-Error "Failed to determine boot partition - are the volumes mounted and online?"
   }
 }
 
@@ -373,10 +378,10 @@ function New-StartupScript {
   param(
     [Parameter(Mandatory=$True)] [PSObject] $BootPartition
   )
-  $scriptDir = ($BootPartition.DriveLetter + ":\Windows\System32\GroupPolicy\Machine\Scripts\Startup\")
+  $scriptDir = ($BootPartition.DriveLetter + ":\Windows\System32\GroupPolicy\Machine\Scripts\Startup")
   Write-Host "Create: $scriptDir"
   New-Item -ItemType Directory -Force -Path $scriptDir
-  $path = ($scriptDir + "\startup.ps1")
+  $path = "$scriptDir\startup.ps1"
   Write-Host "Edit: $path"
   notepad $path
 }
@@ -422,53 +427,63 @@ function Set-AllDisksOnline {
 }
 
 
-function Set-GPOStartupScript {
+
+function Remove-GPOConfig {
   param(
-    [Parameter(Mandatory=$True)] [PSObject] $DriveLetter,
-    [Parameter(Mandatory=$True)] [PSObject] $SoftwareHivePath,
-    [Parameter(Mandatory=$True)] [string] $ScriptPath
+    [Parameter(Mandatory=$False)] [string] $DriveLetter="C",
+    [Parameter(Mandatory=$False)] [string] $Hive="HKLM\SOFTWARE"
   )
-  #
-  $letter = $DriveLetter
-  $HKEY_LOCAL_MACHINE_SOFTWARE = $SoftwareHivePath
-  $scripts = "$HKEY_LOCAL_MACHINE_SOFTWARE\Microsoft\Windows\CurrentVersion\Group Policy\State\Machine\Scripts"
-  Write-Host "Creating REG keys at $scripts"
-  REG ADD "$scripts" /f | Out-Null
-  REG ADD "$scripts\Startup" /f  | Out-Null
-  REG ADD "$scripts\Shutdown" /f  | Out-Null
-  REG ADD "$scripts\Startup\0" /f  | Out-Null
-  REG ADD "$scripts\Startup\0" /v DisplayName /t REG_SZ /d "Local Group Policy" /f  | Out-Null
-  REG ADD "$scripts\Startup\0" /v FileSysPath /t REG_SZ /d "C:\Windows\System32\GroupPolicy\Machine" /f  | Out-Null
-  REG ADD "$scripts\Startup\0" /v GPO-ID /t REG_SZ /d "LocalGPO" /f  | Out-Null
-  REG ADD "$scripts\Startup\0" /v GPOName /t REG_SZ /d "Local Group Policy" /f  | Out-Null
-  REG ADD "$scripts\Startup\0" /v PSScriptOrder /t REG_DWORD /d 1 /f  | Out-Null
-  REG ADD "$scripts\Startup\0" /v SOM-ID /t REG_SZ /d "Local" /f  | Out-Null
-  REG ADD "$scripts\Startup\0\0" /f  | Out-Null
-  REG ADD "$scripts\Startup\0\0" /v Parameters /t REG_SZ /f  | Out-Null
-  # 
-  $regScriptPath = $ScriptPath
-  if ($scriptPath -like "*GroupPolicy\Machine\Scripts\Startup*") {
-    # When the script is in this directory you reference it with a relative path
-    $regScriptPath = $scriptPath.Split("\")[-1]
+
+}
+
+
+function Set-MountedGPOStartupScript {
+  param(
+    [Parameter(Mandatory=$True)] [PSObject] $BootPartition
+  )
+  # Load the hive
+  $letter = $BootPartition.DriveLetter
+  $hklmPath = ($letter + ":\Windows\System32\Config\SOFTWARE")
+  $HKEY_LOCAL_MACHINE_SOFTWARE = "HKLM\TEMPSOFTWARE"
+  Write-Host "REG LOAD $HKEY_LOCAL_MACHINE_SOFTWARE  $hklmPath"
+  REG LOAD $HKEY_LOCAL_MACHINE_SOFTWARE  $hklmPath
+  if (! $?) {
+    Write-Error "Failed to load registry hive"
+    return
   }
-  Write-Host REG ADD "$scripts\Startup\0\0" /v Script /t REG_SZ /d "$regScriptPath" /f
-  REG ADD "$scripts\Startup\0\0" /v Script /t REG_SZ /d "$regScriptPath" /f | Out-Null
+  # import the registry export from the migration worker's module dir
+  ## Note: It will inject the values into HKLM\TEMPSOFTWARE
+  $gpoStartupRegPath = "C:\Program Files\WindowsPowerShell\Modules\voithos\gpoStartupScript.reg"
+  if (! (Test-Path $gpoStartupRegPath) ){
+    Write-Error "$gpoStartupRegPath not found - Download it from https://raw.githubusercontent.com/breqwatr/voithos/master/powershell/gpoStartupScript.reg"
+    return
+  }
+  Write-Host REG IMPORT $gpoStartupRegPath
+  REG IMPORT $gpoStartupRegPath
   #
+  # Create C:\Windows\System32\GroupPolicy directories
+  $gpDir = ($letter + ":\Windows\System32\GroupPolicy")
+  New-Item -ItemType Directory -Force -Path "$gpdir"
+  New-Item -ItemType Directory -Force -Path "$gpdir\User\"
+  New-Item -ItemType Directory -Force -Path "$gpdir\Machine"
+  New-Item -ItemType Directory -Force -Path "$gpdir\Machine\Scripts"
+  New-Item -ItemType Directory -Force -Path "$gpdir\Machine\Scripts\Shutdown"
+  New-Item -ItemType Directory -Force -Path "$gpdir\Machine\Scripts\Startup"
   # Set the psscriptfile.ini contents to point to the script
   $psscriptFile = ($letter + ":\Windows\System32\GroupPolicy\Machine\Scripts\psscripts.ini")
   $psscriptContent = "
 [Startup]
-0CmdLine=$ScriptPath
+0CmdLine=C:\Windows\System32\GroupPolicy\Machine\Scripts\Startup\startup.ps1
 0Parameters=
  
 "
-  Attrib -h $psscriptFile
+  if ((Test-Path $psscriptFile) ){
+    Attrib -h $psscriptFile
+  }
   Write-Host "Creating: $psscriptFile"
-  New-Item -ItemType Directory -Force -Path ($letter + ":\Windows\System32\GroupPolicy\Machine\Scripts") | Out-Null
   $psscriptContent | Out-File -Force -Confirm:$False -Encoding unicode -FilePath $psscriptFile
   Get-Content $psscriptFile
   Attrib +h $psscriptFile
-  #
   # Set the gpt.ini to have the guid of the startup script and increase the version
   $gptFile = ($letter + ":\Windows\System32\GroupPolicy\gpt.ini")
   $version = ((get-random) % 100)
@@ -482,67 +497,58 @@ Version=$version"
 }
 
 
-function Set-MountedGPOStartupScript {
-  param(
-    [Parameter(Mandatory=$True)] [PSObject] $BootPartition
-  )
-  $letter = $BootPartition.DriveLetter
-  $hklmPath = ($letter + ":\Windows\System32\Config\SOFTWARE")
-  $HKEY_LOCAL_MACHINE_SOFTWARE = "HKLM\TEMPSOFTWARE"
-  Write-Host "REG LOAD $HKEY_LOCAL_MACHINE_SOFTWARE  $hklmPath"
-  REG LOAD $HKEY_LOCAL_MACHINE_SOFTWARE  $hklmPath
-  if (! $?) {
-    Write-Error "Failed to load registry hive"
-    return
-  }
-  #
-  $scriptPath = "C:\Windows\System32\GroupPolicy\Machine\Scripts\Startup\startup.ps1"
-  Set-GPOStartupScript -DriveLetter $letter -SoftwareHivePath $HKEY_LOCAL_MACHINE_SOFTWARE -ScriptPath $scriptPath
-  #
-  Write-Host "REG UNLOAD $HKEY_LOCAL_MACHINE_SOFTWARE"
-  REG UNLOAD $HKEY_LOCAL_MACHINE_SOFTWARE  
-}
-
-
-Function Backup-LocalGPOSettings {
+Function Backup-GPOSettings {
   param(
     [Parameter(Mandatory=$False)] [string] $DriveLetter="C",
-    [Parameter(Mandatory=$False)] [string] $Hive="HKLM\SOFTWARE"
+    [Parameter(Mandatory=$False)] [string] $Hive="HKLM\SOFTWARE",
+    [Parameter(Mandatory=$False)] [boolean] $Remove=$False
   )
-  $letter = $DriveLetter
+  ### Backup and remove gpo reg keys and folder ###
+  # Save the registry Group Policy key
+  if ($Remove){
+    # Remove the GPO keys from the system
+    $confirm = Read-Host -Prompt "-Remove `$True: This will remove the registry keys and files - Continue? [y/N]"
+    if ($confirm -ne "y" -and $confirm -ne "Y") {
+      return $False
+    }
+  }
   $HKEY_LOCAL_MACHINE_SOFTWARE = $Hive
-  # Save the registry scripts keys
-  $backupDir = ($letter + ":\Breqwatr")
+  $backupDir = ($DriveLetter + ":\Breqwatr")
   New-Item -ItemType Directory -Force -Path $backupDir | Out-Null
   Write-Host "Created: $backupDir"
   #
-  $scripts = "$HKEY_LOCAL_MACHINE_SOFTWARE\Microsoft\Windows\CurrentVersion\Group Policy\State\Machine\Scripts"
-  REG QUERY $scripts 2>&1 | Out-Null
-  $hadScripts = $?
-  if ($hadScripts){
-    $backupFile = "$backupDir\GpoScriptsBackup.reg"
-    REG EXPORT $scripts $backupFile /y | Out-Null
-    Write-Host "Created: $backupFile"
+  $gpKey = "$HKEY_LOCAL_MACHINE_SOFTWARE\Microsoft\Windows\CurrentVersion\Group Policy"
+  $backupKeyFile = "$backupDir\GpoKeyBackup.reg"
+  REG EXPORT $gpKey $backupKeyFile /y | Out-Null
+  Write-Host "Created: $backupKeyFile - Contains: $gpKey"
+  #
+  $gpSrcFolderPath = ($DriveLetter + ":\Windows\System32\GroupPolicy")
+  $gpBackupFolderPath = "$backupDir\GroupPolicy"
+  if ($Remove){
+    # Remove the GPO keys from the system
+    $keyPath = "$Hive\Microsoft\Windows\CurrentVersion\GroupPolicy"
+    Write-Host REG DELETE $keyPath /f
+    REG DELETE $keyPath /f 2>$Null
+    # Move the Group Policy folder
   }
-  else {
-    Write-Host "$scripts not found - Not backing it up"
-  }
-  # Save the GroupPolicy folder
-  $gpoFolderPath = ($letter + ":\Windows\System32\GroupPolicy")
-  if (Test-Path $gpoFolderPath) {
-    $gpoFolderBackupPath = ($letter + ":\Breqwatr\GroupPolicyBackup")
-    Remove-Item -Recurse -Force -Confirm:$False -Path $gpoFolderBackupPath 2>$Null
-    Copy-Item -Recurse -Path $gpoFolderPath $gpoFolderBackupPath -Force
-    Write-Host "Created: $gpoFolderBackupPath"
-  } else {
-    Write-Host "$gpoFolderPath not found - Not backing it up"
+  if ((Test-Path $gpSrcFolderPath)){
+    if ($Remove){
+      Move-Item -Force -Path $gpSrcFolderPath -Destination $gpBackupFolderPath
+      Write-Host "Moved $gpSrcFolderPath to $gpBackupFolderPath"
+    } else {
+      Copy-Item -Recurse -Force -Confirm:$False -Path $gpSrcFolderPath -Destination $gpBackupFolderPath
+      Write-Host "Copied $gpSrcFolderPath to $gpBackupFolderPath"
+    }
+  } else{
+    Write-Warning "Can't backup $gpSrcFolderPath - does not exist"
   }
 }
 
 
-Function Backup-MountedLocalGPOSettings {
+Function Backup-MountedGPOSettings {
   param(
-    [Parameter(Mandatory=$True)] [PSObject] $BootPartition
+    [Parameter(Mandatory=$True)] [PSObject] $BootPartition,
+    [Parameter(Mandatory=$False)] [boolean] $Remove=$True
   )
   #
   # Load the hive
@@ -555,8 +561,15 @@ Function Backup-MountedLocalGPOSettings {
     Write-Error "Failed to load registry hive"
     return
   }
-  #
-  Backup-LocalGPOSettings -DriveLetter $letter -Hive $HKEY_LOCAL_MACHINE_SOFTWARE
+  # Create the backups
+  $backupFile = Backup-GPOSettings -DriveLetter $letter -Hive $HKEY_LOCAL_MACHINE_SOFTWARE -Remove $Remove
+  if ($backupFile) {
+  # Modify the reg export to use HKLM\SOFTWARE
+    $backupDir = ($letter + ":\Breqwatr")
+    $regExportFile = "$backupDir\GpoKeyBackup.reg"
+    Write-Host "Updating Hive references in $RegExportFile"
+    (Get-Content $regExportFile -Raw) -Replace "HKEY_LOCAL_MACHINE\\TEMPSOFTWARE","HKEY_LOCAL_MACHINE\SOFTWARE" | Set-Content $regExportFile
+  }
   # Unload the hive
   Write-Host "REG UNLOAD $HKEY_LOCAL_MACHINE_SOFTWARE"
   REG UNLOAD $HKEY_LOCAL_MACHINE_SOFTWARE
@@ -564,53 +577,32 @@ Function Backup-MountedLocalGPOSettings {
 }
 
 
-function Remove-GPOStartupScript {
-  # Remove any GPO startup script and all of its associated files
-  Write-Host REG DELETE "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Group Policy\State\Machine\Scripts\0" /f
-  REG DELETE "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Group Policy\State\Machine\Scripts\0" /f 2>$Null
-  #
-  $startupScriptPath = "C:\Windows\System32\GroupPolicy\Machine\Scripts\Startup\startup.ps1"
-  Write-Host "Removing startup script: $startupScriptPath"
-  Remove-Item $startupScriptPath -Confirm:$False -Force 2>$Null
-  # 
-  # Set the gpt.ini to have the guid of the startup script and increase the version
-  $gptFile = "C:\Windows\System32\GroupPolicy\gpt.ini"
-  Write-Host "Blanking $gptFile"
-  $gptContent="[General]
-gPCMachineExtensionNames=
-Version=1"
-  Attrib -h $gptFile
-  $gptContent | Out-File -Force -Confirm:$False -Encoding ascii -FilePath $gptFile
-  #
-  # Remove psscripts.ini
-  $psscriptFile = "C:\Windows\System32\GroupPolicy\Machine\Scripts\psscripts.ini"
-  Write-Host "Removing: $psscriptFile"
-  Remove-Item $psscriptFile -Confirm:$False -Force 2>$Null
- 
-}
-
-
-function Reset-GPOStartupScript {
+function Reset-GPOConfig {
   # Restore the backed up GPO settings
   if (! (Test-Path "C:\Breqwatr" 2>$null)) {
-    Write-Host "C:\Breqwatr not found - Quitting (nothing to restore from)"
+    Write-Error "C:\Breqwatr not found - Quitting (nothing to restore from)"
     return
   }
-  $regBackupFile = "C:\Breqwatr\GpoScriptsBackup.reg"
+  #
+  # Restore Registry values
+  $regBackupFile = "C:\Breqwatr\GpoKeyBackup.reg"
   if (Test-Path $regBackupFile) {
     Write-Host REG IMPORT $regBackupFile
     REG IMPORT $regBackupFile
   } else {
-    Write-Host "Registry backup file not found: $regBackupFile"
+    Write-Warning "Registry backup file not found: $regBackupFile"
   }
-  $gpoFolderBackupPath = "C:\Breqwatr\GroupPolicyBackup"
-  if (Test-Path $gpoFolderBackupPath) {
-    $gpoFolderPath = "C:\Windows\System32\GroupPolicy"
-    Write-Host "Copying $gpoFolderBackupPath to $gpoFolderPath"
-    Remove-Item -Path $gpoFolderPath -Recurse -Confirm:$False -Force
-    Copy-Item -Recurse -Path $gpoFolderBackupPath -Destination $gpoFolderPath -Force
+  #
+  # Restore Files
+  $gpoBackupDir = "C:\Breqwatr\GroupPolicy"
+  $gpoDir= "C:\Windows\System32\GroupPolicy\"
+  if ((Test-Path $gpoBackupDir) ){
+      Get-ChildItem $gpoBackupDir | ForEach-Object {
+      Copy-Item -Recurse -Path $_.FullName -Destination "$gpoDir\$_.Name"
+    }
+    Write-Host "Copied backup files from $gpoBackupDir to $gpoDir"
   } else {
-    Write-Host "GPO backup folder not found: $gpoFolderBackupPath"
+    Write-Warning "Registry backup dir not found: $gpoBackupDir"
   }
 }
 
@@ -632,9 +624,9 @@ Export-ModuleMember -Function New-StartupScript
 Export-ModuleMember -Function Get-RunOnceScript
 Export-ModuleMember -Function Set-RunOnceScript
 Export-ModuleMember -Function Set-AllDisksOnline
-Export-ModuleMember -Function Backup-LocalGPOSettings
-Export-ModuleMember -Function Backup-MountedLocalGPOSettings
-Export-ModuleMember -Function Set-GPOStartupScript
+Export-ModuleMember -Function Backup-GPOSettings
+Export-ModuleMember -Function Backup-MountedGPOSettings
 Export-ModuleMember -Function Set-MountedGPOStartupScript
-Export-ModuleMember -Function Remove-GPOStartupScript
-Export-ModuleMember -Function Reset-GPOStartupScript 
+Export-ModuleMember -Function Remove-GPOConfig
+Export-ModuleMember -Function Reset-GPOConfig
+

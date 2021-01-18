@@ -23,12 +23,20 @@ currently test using Windows Server 2019.
 Open a Powershell terminal as administrator and execute the following:
 
 ```ps1
-# Download the Powershell module
-$url = "https://raw.githubusercontent.com/breqwatr/voithos/master/voithos.psm1"
+# Create the module dir
 $modulesDir = "$Env:ProgramFiles\WindowsPowerShell\Modules\Voithos"
 New-Item -ItemType Directory -Path $modulesDir
+
+# Download the Powershell module
+$url = "https://raw.githubusercontent.com/breqwatr/voithos/master/powershell/voithos.psm1"
 $output = "$modulesDir\voithos.psm1"
+Invoke-WebRequest $url -OutFile $output
+
+# Download the registry file
+$url = "https://raw.githubusercontent.com/breqwatr/voithos/master/powershell/gpoStartupScript.reg"
+$output = "$modulesDir\gpoStartupScript.reg"
 Invoke-WebRequest $url -OutFile $output
 ```
 
-This will enable the command `Import-Module Voithos`
+This will enable the command `Import-Module Voithos` and download a GPO export that will only run
+a startup script called startup.ps1

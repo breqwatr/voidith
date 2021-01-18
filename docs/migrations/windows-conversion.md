@@ -127,7 +127,7 @@ When creating the server, use `openstack server create --nic port-id=<id>` to se
 Back up the current GPO settings, as they'll get overwritten when we set the one ones.
 
 ```ps1
-Backup-MountedLocalGPOSettings -BootPartition $bootPartition
+Backup-MountedGPOSettings -BootPartition $bootPartition
 ```
 
 The `New-RunOnceScript` command will create a new script file
@@ -143,6 +143,11 @@ Inside this Notepad file, a script must be written. Here are some examples. The 
 steps are optional, but help to leave the system pristine.
 
 ```ps1
+try{
+  Unblock-File "C:\Program Files\WindowsPowershell\Modules\Voithos\voithos.psm1"
+} catch {
+  Write-Host "WARNING: Unblock-file failed"
+}
 Import-Module Voithos
 
 # Set the extra disks to online on boot
@@ -163,11 +168,8 @@ Set-InterfaceAddress -MacAddress "aa:bb:cc:dd:ee" -IPAddress "1.2.3.4" -SubnetPr
 
 
 # Clean-up to restore the VM to the pre-migration state
-# Remove the startup script
-Remove-GPOStartupScript
-
-# Restore any backed up startup script settings
-Reset-GPOStartupScript
+# Remove the GPO config and restore the backed up one
+Reset-GPOConfig
 
 # Remove the Voithos PowerShell module
 Remove-Module Voithos
@@ -176,6 +178,9 @@ Remove-Item -Recurse -ErrorAction Ignore "C:\Program Files\WindowsPowerShell\Mod
 
 # Remove the directory the GPOs got backed up to
 Remove-Item -Recurse -ErrorAction Ignore C:\Breqwatr
+
+# Reboot to apply the old startup GPOs
+shutdown /r /t 0
 ```
 
 Save and close the file in Notepad.
