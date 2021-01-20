@@ -174,7 +174,7 @@ function Add-VirtioDrivers {
     [Parameter(Mandatory=$True)] [PSObject] $BootPartition,
     [Parameter(Mandatory=$False)] [PSObject] $Distro
   )
-  $distroOptions = @("w7", "w8", "w8.1", "2k12", "2k12r2", "2k16", "2k19")
+  $distroOptions = @("w7", "w8", "w8.1", "w10", "2k12", "2k12r2", "2k16", "2k19")
   Write-Host "Valid -Distro values: $distroOptions"
   if (! $distroOptions.Contains($Distro)){
     return "ERROR: Invalid -Distro value"
