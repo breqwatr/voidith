@@ -2,24 +2,57 @@
 import click
 
 import voithos.lib.migrate.rhel as rhel
+from voithos.lib.migrate.rhel import RhelWorker
 from voithos.lib.system import error
 
 
-@click.argument("device")
+@click.argument("devices", nargs=-1)
 @click.command(name="add-virtio-drivers")
-def add_virtio_drivers(device):
+def add_virtio_drivers(devices):
     """ Add VirtIO drivers to mounted volume/device """
-    print(f"Adding VirtIO drivers to {device}")
-    rhel.add_virtio_drivers(device)
+    RhelWorker.add_virtio_drivers()
 
 
-@click.argument("device")
+@click.argument("devices", nargs=-1)
 @click.command(name="get-boot-mode")
-def get_boot_mode(device):
+def get_boot_mode(devices):
     """ Print the boot mode (UEFI or BIOS) of a device """
-    boot_mode = rhel.get_boot_mode(device)
-    print(boot_mode)
+    print(RhelWorker(devices).boot_mode)
 
+
+@click.argument("devices", nargs=-1)
+@click.command(name="get-mount-cmds")
+def get_mount_cmds(devices):
+    """ Print mount and unmount commands """
+    rhel_worker = RhelWorker(devices)
+    print(f"# mount to {rhel_worker.ROOT_MOUNT}:")
+    print("#")
+    for mount_opts in rhel_worker.get_ordered_mount_opts():
+        bind = "--bind" if mount_opts["bind"] else ""
+        if not mount_opts["bind"]:
+            print(f"mkdir -p {mount_opts['mnt_to']}")
+        print(f"mount {mount_opts['mnt_from']} {mount_opts['mnt_to']} {bind}")
+    print("#")
+    print(f"# to chroot into the guest system:  chroot {rhel.ROOT_MOUNT} /bin/bash")
+    print("#")
+    print("# to unmount:")
+    for mount_opts in rhel_worker.get_ordered_mount_opts(reverse=True):
+        print(f"umount {mount_opts['mnt_to']}")
+
+
+@click.argument("devices", nargs=-1)
+@click.command()
+def mount(devices):
+    """ Mount all the devices partitions from the root volume's fstab """
+    RhelWorker(devices).mount_volumes(print_progress=True)
+
+
+@click.argument("devices", nargs=-1)
+@click.option("--force/--no-force", "force", default=False, help="Skip the prompts")
+@click.command()
+def unmount(devices, force):
+    """ Unount all the devices partitions from the root volume's fstab """
+    RhelWorker(devices).unmount_volumes(prompt=(not force), print_progress=True)
 
 @click.argument("device")
 @click.command(name="repair-partitions")
@@ -74,25 +107,20 @@ def set_interface(device, dhcp, mac, ip_addr, name, prefix, gateway, dns, domain
         gateway=gateway,
         dns=dns,
         domain=domain,
-        ip_addr=ip_addr
+        ip_addr=ip_addr,
     )
 
 
-@click.argument("device")
+@click.argument("devices", nargs=-1)
 @click.command(name="get-partition-names")
-def get_partition_names(device):
+def get_partition_names(devices):
     """ Print the paths of the partitions on a device """
-    try:
-        boot_partition = rhel.get_bios_boot_partition(device)
-    except StopIteration:
-        boot_partition = "NOT FOUND"
-    print(f"Boot Partition: {boot_partition}")
-    try:
-        root_partition = rhel.get_root_partition(device, fail=False)
-    except StopIteration:
-        # WARNING: In an LVM environment, root_partition might still return something
-        root_partition = "NOT FOUND"
-    print(f"Root Partition: {root_partition}")
+    rhel_worker = RhelWorker(devices)
+    print(f"Boot Partition: {rhel_worker.boot_volume}")
+    if rhel_worker.boot_partition_is_on_root_volume:
+        printf("/boot is on the root partition, not its own volume")
+    else:
+        print(f"Root Partition: {rhel.root_volume}")
 
 
 def get_rhel_group():
@@ -110,4 +138,6 @@ def get_rhel_group():
     rhel.add_command(uninstall)
     rhel.add_command(set_interface)
     rhel.add_command(get_partition_names)
+    rhel.add_command(mount)
+    rhel.add_command(unmount)
     return rhel

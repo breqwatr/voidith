@@ -109,7 +109,7 @@ def mount(dev_path, mpoint, fail=True, bind=False, mkdir=True):
       pathlib.Path(mpoint).mkdir(parents=True, exist_ok=True)
     bind = "--bind" if bind else ""
     cmd = f"mount {bind} {dev_path} {mpoint}"
-    debug(f"run: {cmd}")
+    debug(f"run:  {cmd}")
     ret = os.system(cmd)
     if ret != 0:
         fail_msg = f"Failed to mount {dev_path} to {mpoint}"
@@ -151,6 +151,7 @@ def get_file_contents(file_path, required=False):
 
     When required=True, exit if the file is not found
     When required=False, return '' when the file is not found
+    When split=True, return a list split by new-line chars
     """
     if required:
         assert_path_exists(file_path)
