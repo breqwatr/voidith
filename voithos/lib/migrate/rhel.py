@@ -45,7 +45,6 @@ class RhelWorker:
         self.ROOT_MOUNT = f"{self.MOUNT_BASE}/root"
         # - init logic -
         # if the root volume is already mounted when this starts, find it, else leave it as = ""
-        self._root_volume = self.get_mounted_root_device()
 
     @property
     def fdisk_partitions(self):
@@ -179,7 +178,42 @@ class RhelWorker:
                 unmount(self.ROOT_MOUNT)
         self._root_volume = _root_volume
         debug(f"---- DONE: LOOKING FOR ROOT VOLUME (...it was {_root_volume}) ----")
+        if not _root_volume:
+            error(f"ERROR: Failed to find a root volume on devices: {self.devices}")
         return _root_volume
+
+    @staticmethod
+    def get_mounted_device_path(mountpoint):
+        """ Get the mounted root device path if it exists, else return an empty string """
+        debug(f"---- START: CHECKING FOR DEVICE MOUNTED TO {mountpoint} ----")
+        mount_lines = run("mount")
+        device = next(
+            (
+                line.split(" ")[0]
+                for line in mount_lines
+                if len(line.split(" ")) > 3 and line.split(" ")[2] == mountpoint
+            ),
+            "",
+        )
+        debug(f"---- DONE: CHECKING FOR DEVICE MOUNTED TO {mountpoint} ({device})----")
+        return device
+
+    @property
+    def is_root_mounted(self):
+        return self.get_mounted_device_path(self.ROOT_MOUNT) != ""
+
+    def mount_root(self):
+        """ Mount the root device if it isn't mounted """
+        if not self.is_root_mounted:
+            debug("mounting root")
+            mount(self.root_volume, self.ROOT_MOUNT)
+        else:
+            debug("mounting root: Already mounted")
+
+    def unmount_root(self):
+        """ Unmount the root device """
+        debug("Unmounting root")
+        unmount(self.ROOT_MOUNT, fail=False)
 
     @property
     def fstab(self):
@@ -196,8 +230,7 @@ class RhelWorker:
         debug("---- START: PARSING /etc/fstab FROM ROOT VOLUME ----")
         _fstab = []
         try:
-            if not self.is_root_mounted:
-                mount(self.root_volume, self.ROOT_MOUNT)
+            self.mount_root()
             fstab_lines = get_file_contents(f"{self.ROOT_MOUNT}/etc/fstab").replace("\t", "")
             debug("/etc/fstab contents:")
             debug(fstab_lines)
@@ -231,7 +264,7 @@ class RhelWorker:
                     }
                 )
         finally:
-            unmount(self.ROOT_MOUNT, fail=False)
+            self.unmount_root()
         debug("---- DONE: PARSING /etc/fstab FROM ROOT VOLUME ----")
         self._fstab = _fstab
         return _fstab
@@ -295,73 +328,55 @@ class RhelWorker:
         debug(f"---- DONE: DETERMINING BOOT MODE ({_boot_mode}) ----")
         return _boot_mode
 
-    def get_mounted_root_device(self):
-        """ Get the mounted root device path if it exists, else return an empty string """
-        debug(f"---- START: CHECKING FOR MOUNTED ROOT DEVICE ----")
-        mount_lines = run("mount")
-        root_device = next(
-            (
-                line.split(" ")[0]
-                for line in mount_lines
-                if len(line.split(" ")) > 3 and line.split(" ")[2] == self.ROOT_MOUNT
-            ),
-            "",
-        )
-        debug(f"---- DONE: CHECKING FOR MOUNTED ROOT DEVICE ({root_device}) ----")
-        return root_device
-
-    @property
-    def is_root_mounted(self):
-        return self.get_mounted_root_device != ""
-
     def get_ordered_mount_opts(self, reverse=False):
         """Return the order of volumes to be mounted/unmounted, in the order ftab returned them
         Returns list of dicts with these keys:
             { "mnt_from": "<path>", "mnt_to": "<path>", "bind": <bool> }
         """
-        # Assume root is already mounted, and don't bother with swap
-        if not self.is_root_mounted:
-            error("ERROR: root volume is not mounted, can't get the order yet", exit=True)
         mount_opts = []
-        mountpoints = [
-            entry["mountpoint"]
-            for entry in self.fstab
-            if entry["mountpoint"] != "swap" and entry["mountpoint"].startswith("/")
-        ]
-        for mpoint in mountpoints:
-            fstab_entry = next(entry for entry in self.fstab if entry["mountpoint"] == mpoint)
-            if fstab_entry["mountpoint"] == "/":
-                # Handle the root mount differently - it goes to ROOT_MOUNT and doesn't have a bind
-                mount_opts.append(
-                    {"mnt_from": fstab_entry["path"], "mnt_to": self.ROOT_MOUNT, "bind": False}
-                )
-                continue
-            debug(fstab_entry)
-            if "bind" not in fstab_entry["options"]:
-                device = fstab_entry["path"]
-                # Before the vol can be mounted to the chroot it needs to be mounted to the worker
-                # the sys_mountpoint of /var/tmp would be /convert/var_tmp
-                subpath = fstab_entry["mountpoint"][1:].replace("/", "_")
-                sys_mountpoint = f"{self.MOUNT_BASE}/{subpath}"
-                mount_opts.append(
-                    {"mnt_from": fstab_entry["path"], "mnt_to": sys_mountpoint, "bind": False}
-                )
-                # then bind-mind the volume into the chroot (remove first char / from mpoint)
-                chroot_bind_path = f"{self.ROOT_MOUNT}/{fstab_entry['mountpoint'][1:]}"
-                mount_opts.append(
-                    {"mnt_from": sys_mountpoint, "mnt_to": chroot_bind_path, "bind": True}
-                )
-            else:
-                # This is a bind mount, so just link the dirs in the chroot
-                chroot_src = f"{self.ROOT_MOUNT}/{fstab_entry['path']}"
-                chroot_dest = f"{self.ROOT_MOUNT}/{fstab_entry['mountpoint']}"
-                mount_opts.append({"mnt_from": chroot_src, "mnt_to": chroot_dest, "bind": True})
-        devpaths = ["/sys", "/proc", "/dev"]
-        if self._has_run_dir:
-            devpaths.append("/run")
-        for devpath in devpaths:
-            chroot_devpath = f"{self.ROOT_MOUNT}{devpath}"
-            mount_opts.append({"mnt_from": devpath, "mnt_to": chroot_devpath, "bind": True})
+        try:
+            self.mount_root()
+            mountpoints = [
+                entry["mountpoint"]
+                for entry in self.fstab
+                if entry["mountpoint"] != "swap" and entry["mountpoint"].startswith("/")
+            ]
+            for mpoint in mountpoints:
+                fstab_entry = next(entry for entry in self.fstab if entry["mountpoint"] == mpoint)
+                if fstab_entry["mountpoint"] == "/":
+                    # Handle root mount differently - it goes to ROOT_MOUNT and doesn't have a bind
+                    mount_opts.append(
+                        {"mnt_from": fstab_entry["path"], "mnt_to": self.ROOT_MOUNT, "bind": False}
+                    )
+                    continue
+                debug(fstab_entry)
+                if "bind" not in fstab_entry["options"]:
+                    device = fstab_entry["path"]
+                    # Before vol can be mounted to the chroot it needs to be mounted to the worker
+                    # the sys_mountpoint of /var/tmp would be /convert/var_tmp
+                    subpath = fstab_entry["mountpoint"][1:].replace("/", "_")
+                    sys_mountpoint = f"{self.MOUNT_BASE}/{subpath}"
+                    mount_opts.append(
+                        {"mnt_from": fstab_entry["path"], "mnt_to": sys_mountpoint, "bind": False}
+                    )
+                    # then bind-mind the volume into the chroot (remove first char / from mpoint)
+                    chroot_bind_path = f"{self.ROOT_MOUNT}/{fstab_entry['mountpoint'][1:]}"
+                    mount_opts.append(
+                        {"mnt_from": sys_mountpoint, "mnt_to": chroot_bind_path, "bind": True}
+                    )
+                else:
+                    # This is a bind mount, so just link the dirs in the chroot
+                    chroot_src = f"{self.ROOT_MOUNT}/{fstab_entry['path']}"
+                    chroot_dest = f"{self.ROOT_MOUNT}/{fstab_entry['mountpoint']}"
+                    mount_opts.append({"mnt_from": chroot_src, "mnt_to": chroot_dest, "bind": True})
+            devpaths = ["/sys", "/proc", "/dev"]
+            if self._has_run_dir:
+                devpaths.append("/run")
+            for devpath in devpaths:
+                chroot_devpath = f"{self.ROOT_MOUNT}{devpath}"
+                mount_opts.append({"mnt_from": devpath, "mnt_to": chroot_devpath, "bind": True})
+        finally:
+            self.unmount_root()
         if reverse:
             mount_opts.reverse()
         return mount_opts
@@ -384,14 +399,16 @@ class RhelWorker:
         # Mount the root volume
         if not self.is_root_mounted:
             debug(f"Mounting root volume {self.root_volume} to {self.ROOT_MOUNT}")
-            print(f"Mount: {self.ROOT_MOUNT}")
             mount(self.root_volume, self.ROOT_MOUNT)
+            if print_progress:
+                print(f"mount {self.root_volume} {self.ROOT_MOUNT}")
         # Mount the other volumes
         for mount_opts in self.get_ordered_mount_opts():
             if mount_opts["mnt_to"] == self.ROOT_MOUNT:
                 continue
             if print_progress:
-                print(f"Mount: {mount_opts['mnt_to']}")
+                bind = "--bind" if mount_opts["bind"] else ""
+                print(f"mount {mount_opts['mnt_from']} {mount_opts['mnt_to']} {bind}")
             mount(mount_opts["mnt_from"], mount_opts["mnt_to"], bind=mount_opts["bind"])
         debug(f"---- DONE: MOUNTING ALL VOLUMES ----")
 

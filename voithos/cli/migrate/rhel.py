@@ -6,17 +6,18 @@ from voithos.lib.migrate.rhel import RhelWorker
 from voithos.lib.system import error
 
 
-@click.argument("devices", nargs=-1)
-@click.command(name="add-virtio-drivers")
-def add_virtio_drivers(devices):
-    """ Add VirtIO drivers to mounted volume/device """
-    RhelWorker.add_virtio_drivers()
+def require_args(argument, qty=1):
+    """ Exit if the given length of an nargs argument is < qty """
+    num_args = len(argument)
+    if num_args < qty:
+        error(f"ERROR: arguments received: {num_args} - arguments required: >= {qty}", exit=True)
 
 
 @click.argument("devices", nargs=-1)
 @click.command(name="get-boot-mode")
 def get_boot_mode(devices):
     """ Print the boot mode (UEFI or BIOS) of a device """
+    require_args(devices)
     print(RhelWorker(devices).boot_mode)
 
 
@@ -24,6 +25,7 @@ def get_boot_mode(devices):
 @click.command(name="get-mount-cmds")
 def get_mount_cmds(devices):
     """ Print mount and unmount commands """
+    require_args(devices)
     rhel_worker = RhelWorker(devices)
     print(f"# mount to {rhel_worker.ROOT_MOUNT}:")
     print("#")
@@ -44,6 +46,7 @@ def get_mount_cmds(devices):
 @click.command()
 def mount(devices):
     """ Mount all the devices partitions from the root volume's fstab """
+    require_args(devices)
     RhelWorker(devices).mount_volumes(print_progress=True)
 
 
@@ -52,7 +55,16 @@ def mount(devices):
 @click.command()
 def unmount(devices, force):
     """ Unount all the devices partitions from the root volume's fstab """
+    require_args(devices)
     RhelWorker(devices).unmount_volumes(prompt=(not force), print_progress=True)
+
+
+@click.argument("devices", nargs=-1)
+@click.command(name="add-virtio-drivers")
+def add_virtio_drivers(devices):
+    """ Add VirtIO drivers to mounted volume/device """
+    require_args(devices)
+    RhelWorker.add_virtio_drivers()
 
 @click.argument("device")
 @click.command(name="repair-partitions")
@@ -138,6 +150,7 @@ def get_rhel_group():
     rhel.add_command(uninstall)
     rhel.add_command(set_interface)
     rhel.add_command(get_partition_names)
+    rhel.add_command(get_mount_cmds)
     rhel.add_command(mount)
     rhel.add_command(unmount)
     return rhel

@@ -105,6 +105,8 @@ def mount(dev_path, mpoint, fail=True, bind=False, mkdir=True):
     """Mount dev_path to mpoint.
     If fail is true, throw a nice error. Else raise an exception
     """
+    if not dev_path or not mpoint:
+        error("ERROR: Invalid mount arguments", exit=True)
     if mkdir:
       pathlib.Path(mpoint).mkdir(parents=True, exist_ok=True)
     bind = "--bind" if bind else ""
