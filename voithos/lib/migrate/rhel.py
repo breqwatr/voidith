@@ -407,7 +407,7 @@ class RhelWorker:
         return mount_opts
 
     def unmount_volumes(self, prompt=False, print_progress=False):
-        """ Unount the /etc/fstab and device volumes from the chroot root dir """
+        """ Unmount the /etc/fstab and device volumes from the chroot root dir """
         self.debug_action(action="UNMOUNT ALL VOLUMES")
         for mount_opts in self.get_ordered_mount_opts(reverse=True):
             debug(f"Unmount: {mount_opts['mnt_to']}")
