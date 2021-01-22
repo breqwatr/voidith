@@ -16,6 +16,9 @@ Before this guide can be followed:
 Though this guide, the example `<device>` is often shown. This is a top-level block device path
 found from `fdisk`, such as `/dev/vdb`.
 
+It's worth noting that VM migrations can vary significantly, and unexpected edge-cases are common.
+If something doesn't work, try enabling debug mode with `export VOITHOS_DEBUG=true` to see what's
+going on. Odds are you can at least get the volumes mounted, then finish the conversion manually.
 
 ---
 
@@ -39,12 +42,21 @@ openstack volume set --image-property hw_firmware_type=uefi <volume>
 
 Often a system will benefit from having its volumes repaired. Voithos can run `fsck` and
 `xfs-repair` on those volumes while their mounted. Sometimes this is required for the migrated VM
-to boot.
+to boot. If the VM had multiple drives, specify each.
 
 ```bash
-voithos migrate rhel repair-partitions <device>
+voithos migrate rhel repair-partitions <device> <device> <device...>
 ```
 
+
+## Mount the VM's partitions
+
+Specify each connected device of the migration target VM. The automation will find its root volume,
+parse `/etc/fstab` on it, and set up the mounts so you can `chroot` into it.
+
+```bash
+voithos migrate rhel mount <device> <device> <device...>
+```
 
 ## Add Virtio drivers to initrd
 
@@ -52,7 +64,7 @@ In many releases of RedHat, the VM will boot to `dracut >` when imported into Op
 manually inject the Virtio drivers to the initrd files.
 
 ```bash
-voithos migrate rhel add-virtio-drivers <device>
+voithos migrate rhel add-virtio-drivers
 ```
 
 
@@ -64,8 +76,8 @@ Voithos can remove certain problem packages from the migration target:
 - cloud-init is nice to have in templates. It causes all sorts of problems during migrations
 
 ```bash
-voithos migrate rhel uninstall vmware-tools <device>
-voithos migrate rhel uninstall cloud-init  <device>
+voithos migrate rhel uninstall vmware-tools
+voithos migrate rhel uninstall cloud-init
 ```
 
 
@@ -85,7 +97,7 @@ voithos migrate rhel set-interface <device> --name <interface name> --dhcp --mac
 
 # Setting a static interface with default route and DNS settings.
 # --gateway, --dns, and --domain are all optional
-voithos migrate rhel set-interface <device> \
+voithos migrate rhel set-interface \
   --name <interface name> \
   --static \
   --mac "<mac address>" \
@@ -100,14 +112,21 @@ voithos migrate rhel set-interface <device> \
 
 ## Unmount/Release VM the volume(s)
 
-The easiest way to unmount everything from the migration worker is to simply shut it down.
-This will also help avoid LVM-related problems.
+This will remove all of the mounted volumes.
+
+```bash
+voithos migrate rhel unmount
+```
+
+## Shutdown the migration server
+
+The LVM's won't clean themselves up nicely between migrations.
 
 ```bash
 openstack server stop <migration worker>
 ```
 
-Remove the volumes from the worker:
+## Remove the volumes from the worker
 
 ```
 openstack server remove volume <server> <volume>
