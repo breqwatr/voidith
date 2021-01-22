@@ -34,11 +34,12 @@ def shell(cmd, print_error=True, print_cmd=True):
         sys.exit(12)
 
 
-def run(cmd, exit_on_error=False, print_cmd=False):
+def run(cmd, exit_on_error=False, print_cmd=False, silent=False):
     """Runs a given shell command, returns a list of the stdout lines
     This uses the newer "run" subprocess command, requires later Python versions
     """
-    debug(f"run:  {cmd}")
+    if not silent:
+        debug(f"run:  {cmd}")
     cmd_list = cmd.split(" ")
     if is_debug_on():
         completed_process = subprocess.run(cmd_list, stdout=subprocess.PIPE)
@@ -86,19 +87,24 @@ class FailedMount(Exception):
     """ A mount operation has failed """
 
 
-def is_mounted(mpoint):
-    """ os.path.ismount is not reliable - return bool if mpoint is mounted """
-    mount_lines = run("mount")
+def get_mount(mpoint):
+    """ Return the device path of a mountpoint """
+    mount_lines = run("mount", silent=True)
     mpoint_lines = [mpoint_line for mpoint_line in mount_lines if mpoint in mpoint_line]
     if not mpoint_lines:
-        return False
+        return None
     for line in mpoint_lines:
         split = line.split(" ")
         if len(split) < 3:
-            return False
+            return None
         if split[2] == mpoint:
-            return True
-    return False
+            return {"device": split[0], "mpoint": split[2]}
+
+
+def is_mounted(mpoint):
+    """ os.path.ismount is not reliable - return bool if mpoint is mounted """
+    mnt = get_mount(mpoint)
+    return (mnt is not None)
 
 
 def mount(dev_path, mpoint, fail=True, bind=False, mkdir=True):
@@ -109,12 +115,15 @@ def mount(dev_path, mpoint, fail=True, bind=False, mkdir=True):
         error("ERROR: Invalid mount arguments", exit=True)
     if mkdir:
       pathlib.Path(mpoint).mkdir(parents=True, exist_ok=True)
+    if is_mounted(mpoint):
+        debug(f"!!  not mounting {dev_path} to {mpoint} - {mpoint} is already mounted")
+        return
     bind = "--bind" if bind else ""
     cmd = f"mount {bind} {dev_path} {mpoint}"
     debug(f"run:  {cmd}")
     ret = os.system(cmd)
     if ret != 0:
-        fail_msg = f"Failed to mount {dev_path} to {mpoint}"
+        fail_msg = f"ERROR:  Failed to mount {dev_path} to {mpoint}"
         if fail:
             error(fail_msg, exit=True)
         else:
@@ -138,10 +147,10 @@ def unmount(mpoint, prompt=False, fail=True):
     # It can take a few retries before it works
     retries = 5
     for attempt in range(1, retries + 1):
-        debug(f"Unmounting {mpoint} - try {attempt}/{retries}")
+        if attempt > 1:
+            debug(f"Unmounting {mpoint} - try {attempt}/{retries}")
         run(f"umount {mpoint}")
         if not is_mounted(mpoint):
-            debug(f"{mpoint} unmounted successfully")
             break
         sleep(attempt)
     if is_mounted(mpoint):
