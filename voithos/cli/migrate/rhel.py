@@ -1,7 +1,6 @@
 """ Command-group: voithos migrate rhel """
 import click
 
-import voithos.lib.migrate.rhel as rhel
 from voithos.lib.migrate.rhel import RhelWorker
 from voithos.lib.system import error
 
@@ -26,7 +25,7 @@ def get_mount_cmds(devices):
             print(f"mkdir -p {mount_opts['mnt_to']}")
         print(f"mount {mount_opts['mnt_from']} {mount_opts['mnt_to']} {bind}")
     print("#")
-    print(f"# to chroot into the guest system:  chroot {rhel.ROOT_MOUNT} /bin/bash")
+    print(f"# to chroot into the guest system:  chroot {rhel_worker.ROOT_MOUNT} /bin/bash")
     print("#")
     print("# to unmount:")
     for mount_opts in rhel_worker.get_ordered_mount_opts(reverse=True):
