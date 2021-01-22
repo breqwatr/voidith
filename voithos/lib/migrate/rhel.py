@@ -412,7 +412,7 @@ class RhelWorker:
         for mount_opts in self.get_ordered_mount_opts(reverse=True):
             debug(f"Unmount: {mount_opts['mnt_to']}")
             if print_progress:
-                print(f"Unmount: {mount_opts['mnt_to']}")
+                print(f"umount {mount_opts['mnt_to']}")
             unmount(mount_opts["mnt_to"], prompt=prompt, fail=prompt)
         self.debug_action(end=True)
 

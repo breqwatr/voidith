@@ -44,8 +44,7 @@ def mount(devices):
 @click.command()
 def unmount(force):
     """ Unount all the devices partitions from the root volume's fstab """
-    RhelWorker().unmount_volumes()
-    print("done")
+    RhelWorker().unmount_volumes(print_progress=True)
 
 
 @click.option("--force/--no-force", "force", default=False, help="Use force to reinstall")
