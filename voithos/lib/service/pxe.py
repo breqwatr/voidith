@@ -12,4 +12,4 @@ def start(interface, dhcp_start, dhcp_end, release="stable"):
         "DHCP_RANGE_END": dhcp_end
     }
     env_str = env_string(env_vars)
-    shell(f"docker run -d --name pxe --network host {env_str} {image}")
+    shell(f"docker run -d --name pxe --privileged --network host {env_str} {image}")
