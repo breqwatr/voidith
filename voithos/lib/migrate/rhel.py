@@ -479,16 +479,16 @@ class RhelWorker:
         """ Uninstall packages from the given system """
         if not like:
             print(f"Uninstalling: {package}")
-            chroot_run(f"rpm -e {package}")
+            self.chroot_run(f"rpm -e {package}")
             return
-        rpm_lines = chroot_run("rpm -qa")
+        rpm_lines = self.chroot_run("rpm -qa")
         rpms = [line for line in rpm_lines if package in line]
         if not rpms:
             print(f'No packages were found matching "{package}"')
             return
         for rpm in rpms:
             print(f"Uninstalling: {rpm}")
-            chroot_run(f"rpm -e {rpm}")
+            self.chroot_run(f"rpm -e {rpm}")
 
     def repair_partitions(self):
         """ Repair a given partition using the appropriate tool"""
