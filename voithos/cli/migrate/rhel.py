@@ -48,7 +48,7 @@ def unmount(force):
 
 @click.option("--force/--no-force", "force", default=False, help="Use force to reinstall")
 @click.command(name="add-virtio-drivers")
-def add_virtio_drivers():
+def add_virtio_drivers(force):
     """ Add VirtIO drivers to mounted volume/device """
     RhelWorker().add_virtio_drivers(force)
 
