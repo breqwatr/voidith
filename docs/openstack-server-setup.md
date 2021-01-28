@@ -211,6 +211,12 @@ Chrony will handle NTP for the OpenStack servers, so disable the NTP service in 
 systemctl disable ntp
 ```
 
+## Set time zone to UTC
+```bash
+# After running the command mentioned below, select `None of the above` in area and `UTC` in time zone
+sudo dpkg-reconfigure tzdata
+```
+
 
 ## Set Swappiness
 

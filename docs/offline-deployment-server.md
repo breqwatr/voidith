@@ -43,6 +43,12 @@ This command will download all packages and images required to deploy breqwatr c
 Now transfer this data on your ubuntu 18.04 deployment server.
 
 ## Install offline packages and voithos on deployment server
+Set time zone to UTC
+```bash
+# After running the command mentioned below, select `None of the above` in area and `UTC` in time zone
+sudo dpkg-reconfigure tzdata
+```
+
 Untar apt.tar.gz and voithos.tar.gz
 
 ```bash
@@ -93,7 +99,7 @@ Now start the registry using this command:
 voithos service registry start --ip <ip> --port <port> --path /<path to offline_media>/images/breqwatr-registry-stable.docker
 ```
 
-## Syn container images to registry
+## Sync container images to registry
 ```bash
 voithos service registry sync-offline-images-to-registry --path /<path to offline_media>/images/ --ceph-release <ceph-ansible-release> --bw-tag <tag> --kolla-tag <openstack-tag> <registry-ip:port>
 ```

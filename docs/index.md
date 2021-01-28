@@ -44,6 +44,10 @@ source env/bin/activate
 
 # Install voithos
 pip install .
+
+# Set time zone to UTC
+# After running the command mentioned below, select `None of the above` in area and `UTC` in time zone
+sudo dpkg-reconfigure tzdata
 ```
 ---
 
