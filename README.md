@@ -34,6 +34,9 @@ export ARCUS_CLIENT_DIR=<path to client checkout>
 
 # Turn on some debug logs
 export VOITHOS_DEBUG=true
+
+# Enable dev mode to upload packages to S3
+export VOITHOS_S3_DEV=true
 ```
 
 ### Running the tests

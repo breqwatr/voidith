@@ -18,6 +18,9 @@ VOITHOS_VERSION = "1.00"
 # Enabling dev mode toggles some features for developers such as mounting arcus code to docker
 DEV_MODE = "VOITHOS_DEV" in os.environ and os.environ["VOITHOS_DEV"].lower() == "true"
 
+# Enable s3 dev mode provides some s3 features for developers
+S3_DEV_MODE = "VOITHOS_S3_DEV" in os.environ and os.environ["VOITHOS_S3_DEV"].lower() == "true"
+
 # Images to pull when syncing the registry, organized by release
 KOLLA_IMAGE_REPOS = {
     "rocky": [

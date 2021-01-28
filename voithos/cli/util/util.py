@@ -4,6 +4,7 @@ import click
 import os
 import voithos.lib.util.util as util
 import voithos.lib.aws.s3 as s3
+from voithos.constants import S3_DEV_MODE
 from voithos.cli.util.qemu_img import get_qemu_img_group
 from voithos.lib.system import error
 
@@ -81,6 +82,7 @@ def get_util_group():
     util_group.add_command(get_qemu_img_group())
     util_group.add_command(export_offline_media)
     util_group.add_command(export_offline_single_image)
-    util_group.add_command(create_and_upload_apt_tar)
-    util_group.add_command(create_and_upload_voithos_tar)
+    if S3_DEV_MODE:
+        util_group.add_command(create_and_upload_apt_tar)
+        util_group.add_command(create_and_upload_voithos_tar)
     return util_group
