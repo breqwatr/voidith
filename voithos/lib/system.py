@@ -107,10 +107,19 @@ def is_mounted(mpoint):
     return (mnt is not None)
 
 
+def _strip_double_slash(path):
+    """ Remove redundant double-slashes, they break the mounts """
+    while "//" in path:
+            path = path.replace("//","/")
+                return path
+
+
 def mount(dev_path, mpoint, fail=True, bind=False, mkdir=True):
     """Mount dev_path to mpoint.
     If fail is true, throw a nice error. Else raise an exception
     """
+    dev_path = _strip_double_slash(dev_path)
+    mpoint = _strip_double_slash(mpoint)
     if not dev_path or not mpoint:
         error("ERROR: Invalid mount arguments", exit=True)
     if mkdir:
@@ -132,6 +141,7 @@ def mount(dev_path, mpoint, fail=True, bind=False, mkdir=True):
 
 def unmount(mpoint, prompt=False, fail=True):
     """ Unmount a block device if it's mounted. Prompt if prompt=True """
+    mpoint = _strip_double_slash(mpoint)
     # If its already not mounted, nothing to do
     if not is_mounted(mpoint):
         return
