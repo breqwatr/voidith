@@ -111,7 +111,7 @@ def _strip_double_slash(path):
     """ Remove redundant double-slashes, they break the mounts """
     while "//" in path:
             path = path.replace("//","/")
-                return path
+    return path
 
 
 def mount(dev_path, mpoint, fail=True, bind=False, mkdir=True):
