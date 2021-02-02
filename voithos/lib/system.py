@@ -110,7 +110,7 @@ def is_mounted(mpoint):
 def _strip_double_slash(path):
     """ Remove redundant double-slashes, they break the mounts """
     while "//" in path:
-            path = path.replace("//","/")
+        path = path.replace("//","/")
     return path
 
 
