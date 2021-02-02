@@ -21,7 +21,7 @@ off each one.
 
 If it's easy to install voithos on the OSD nodes, you can use use `voithos ceph zap-disk`.
 
-If not, `vioithos ceph zap-disk` just wraps the following to commands:
+If not, `voithos ceph zap-disk` just wraps the following to commands:
 
 ```bash
 disk=... # set the drive name... Careful not to overwrite your boot drive!
