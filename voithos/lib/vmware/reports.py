@@ -16,11 +16,12 @@ def get_disk_data(vm):
         if not isinstance(dev, vim.vm.device.VirtualDisk):
             continue
         shared = dev.backing.sharing != "sharingNone"
+        thin = dev.backing.thinProvisioned if hasattr(dev.backing, "thinProvisioned") else "NoData"
         disk_data.append(
             {
                 "label": dev.deviceInfo.label,
                 "uuid": dev.backing.uuid,
-                "thin_provisioned": dev.backing.thinProvisioned,
+                "thin_provisioned": thin,
                 "shared": shared,
                 "capacity_gb": bytes_to_gb(dev.capacityInBytes),
             }
