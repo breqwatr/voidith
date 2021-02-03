@@ -296,6 +296,20 @@ class LinuxWorker:
         self._fstab = _fstab
         return _fstab
 
+    @property
+    def has_run_dir(self):
+        """ Return bool does this system have a /run dir? Old OS's like RHEL 6 sometimes do not """
+        if self._has_run_dir != None:
+            return self._has_run_dir
+        try:
+            if not self.was_root_vol_mounted:
+                mount(self.root_volume, self.ROOT_MOUNT)
+            self._has_run_dir = Path(f"{self.ROOT_MOUNT}/run").exists()
+        finally:
+            if not self.was_root_vol_mounted:
+                unmount(self.ROOT_MOUNT)
+        return self._has_run_dir
+
     def get_ordered_mount_opts(self, reverse=False):
         """Return the order of volumes to be mounted/unmounted, in the order ftab returned them
         This is the lengthy logic where the /etc/fstab file gets parsed out
@@ -444,3 +458,11 @@ class LinuxWorker:
                 run(repair_cmd)
             else:
                 print(f" ! Cannot repair {partition} - unsupported filesystem: {filesystem}")
+
+    def uninstall(self, package, like=False):
+        """ Child classes must extend this method, it varies from distro to distro """
+        raise NotImplementedError(f"uninstall({self}, {package}, like={like}) is not implemented")
+
+    def chroot_run(self, cmd):
+        """ Run a command in the chroot """
+        return run(f"chroot {self.ROOT_MOUNT} {cmd}")

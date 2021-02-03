@@ -52,18 +52,6 @@ def add_virtio_drivers(force):
     RhelWorker().add_virtio_drivers(force)
 
 
-@click.command(name="vmware-tools")
-def uninstall_vmware_tools():
-    """ Uninstall VMware Tools """
-    RhelWorker().uninstall("vm-tools", like=True)
-
-
-@click.command(name="cloud-init")
-def uninstall_cloud_init():
-    """ Uninstall Cloud-Init """
-    RhelWorker().uninstall("cloud-init", like=True)
-
-
 @click.argument("package")
 @click.command(name="package")
 def uninstall_package(package):
@@ -81,6 +69,18 @@ def repair_partitions(devices):
 @click.group()
 def uninstall():
     """ Uninstall packages """
+
+
+@click.command(name="vmware-tools")
+def uninstall_vmware_tools():
+    """ Uninstall VMware Tools """
+    RhelWorker().uninstall("vm-tools", like=True)
+
+
+@click.command(name="cloud-init")
+def uninstall_cloud_init():
+    """ Uninstall Cloud-Init """
+    RhelWorker().uninstall("cloud-init", like=True)
 
 
 @click.option("--dhcp/--static", default=True, help="DHCP or Static IP (default DHCP)")

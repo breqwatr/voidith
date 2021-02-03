@@ -52,17 +52,8 @@ parse `/etc/fstab` on it, and set up the mounts so you can `chroot` into it.
 voithos migrate ubuntu mount <device> <device> <device...>
 ```
 
-## Add Virtio drivers to initrd
 
-In many releases of RedHat, the VM will boot to `dracut >` when imported into OpenStack unless you
-manually inject the Virtio drivers to the initrd files.
-
-```bash
-voithos migrate rhel add-virtio-drivers
-```
-
-
-## Remove Installed software
+## Remove installed software
 
 Voithos can remove certain problem packages from the migration target:
 
@@ -70,8 +61,8 @@ Voithos can remove certain problem packages from the migration target:
 - cloud-init is nice to have in templates. It causes all sorts of problems during migrations
 
 ```bash
-voithos migrate rhel uninstall vmware-tools
-voithos migrate rhel uninstall cloud-init
+voithos migrate ubuntu uninstall vmware-tools
+voithos migrate ubuntu uninstall cloud-init
 ```
 
 

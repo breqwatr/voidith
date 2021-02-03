@@ -17,7 +17,6 @@ def get_boot_mode(devices):
 @click.command()
 def mount(devices):
     """ Mount all the devices partitions from the root volume's fstab """
-    print(devices)
     UbuntuWorker(devices).mount_volumes(print_progress=True)
 
 
@@ -34,6 +33,23 @@ def repair_partitions(devices):
     UbuntuWorker(devices).repair_partitions()
 
 
+@click.group()
+def uninstall():
+    """ Uninstall packages """
+
+
+@click.command(name="vmware-tools")
+def uninstall_vmware_tools():
+    """ Uninstall VMware Tools """
+    UbuntuWorker().uninstall("vm-tools", like=True)
+
+
+@click.command(name="cloud-init")
+def uninstall_cloud_init():
+    """ Uninstall Cloud-Init """
+    UbuntuWorker().uninstall("cloud-init", like=True)
+
+
 def get_ubuntu_group():
     """ Return the migrate click group """
 
@@ -45,4 +61,7 @@ def get_ubuntu_group():
     ubuntu.add_command(mount)
     ubuntu.add_command(unmount)
     ubuntu.add_command(repair_partitions)
+    uninstall.add_command(uninstall_vmware_tools)
+    uninstall.add_command(uninstall_cloud_init)
+    ubuntu.add_command(uninstall)
     return ubuntu
