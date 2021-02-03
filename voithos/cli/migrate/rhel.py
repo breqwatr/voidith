@@ -39,9 +39,8 @@ def mount(devices):
     RhelWorker(devices).mount_volumes(print_progress=True)
 
 
-@click.option("--force/--no-force", "force", default=False, help="Skip the prompts")
 @click.command()
-def unmount(force):
+def unmount():
     """ Unmount all the devices partitions from the root volume's fstab """
     RhelWorker().unmount_volumes(print_progress=True)
 

@@ -53,6 +53,12 @@ def run(cmd, exit_on_error=False, print_cmd=False, silent=False):
     return text.split("\n")
 
 
+def grep(cmd, expression):
+    """ Run a command, return matching lines """
+    lines = run(cmd)
+    return [line for line in lines if expression in line]
+
+
 def error(msg, exit=False, code=1):
     """ Write an error to stderr, and exit with error code 'code' if exit=True """
     sys.stderr.write(f"{msg}\n")

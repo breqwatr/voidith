@@ -24,6 +24,7 @@ follows:
    1. With any IP address: `openstack port create --network <network> <interface name>`
 1. Perform any OS-dependent conversion steps
     1. [Red-Hat/CentOS Linux](/migrations/rhel-conversion.html)
+    1. [Ubuntu Linux](/migrations/ubuntu-conversion.html)
     1. [Windows Server/Client](/migrations/windows-conversion.html)
 1. Set the Cinder boot volume as `bootable`: `openstack volume set --bootable <volume>`
 1. (If needed) set Cinder the boot volume to use UEFI boot:
