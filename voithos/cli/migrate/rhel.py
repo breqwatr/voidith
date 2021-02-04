@@ -100,7 +100,9 @@ def set_interface(dhcp, mac, ip_addr, name, prefix, gateway, dns, domain):
     else:
         if ip_addr is None or prefix is None:
             error("ERROR: --ip-addr and --prefix are required with --static", exit=True)
-    RhelWorker().set_udev_interface(
+    worker = RhelWorker()
+    worker.set_udev_interface_mapping(interface_name=name, mac_addr=mac)
+    worker.set_interface(
         interface_name=name,
         is_dhcp=dhcp,
         mac_addr=mac,

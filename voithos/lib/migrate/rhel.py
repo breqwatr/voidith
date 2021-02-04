@@ -113,25 +113,3 @@ class RhelWorker(LinuxWorker):
         print(f"Creating interface file at {iface_path}:")
         print(iface_contents)
         set_file_contents(iface_path, iface_contents)
-        # Create the udev rule to set the interface name
-        udev_path = f"{self.ROOT_MOUNT}/etc/udev/rules.d/70-persistent-net.rules"
-        udev_contents = get_file_contents(udev_path)
-        for line in udev_contents:
-            if interface_name in line:
-                error(f"ERROR: '{interface_name}' in {udev_path} - remove to continue", exit=True)
-        # {address} is meant to look like that, it is not an f-string missing its f
-        udev_parts = [
-            'SUBSYSTEM=="net"',
-            'ACTION=="add"',
-            'DRIVERS=="?*"',
-            ('ATTR{address}=="' + mac_addr + '"'),
-            f'NAME="{interface_name}"',
-        ]
-        # Join the entries to looks like 'SUBSYSTEM=="net", ACTION=="add",...' with a \n at the end
-        udev_line = ", ".join(udev_parts) + "\n"
-        print("")
-        print(f"Appending udev rule to file: {udev_path}")
-        print(udev_line)
-        set_file_contents(udev_path, udev_line, append=True)
-        print("udev file contents:")
-        print(get_file_contents(udev_path))
