@@ -76,7 +76,7 @@ class RhelWorker(LinuxWorker):
             print(f"Uninstalling: {rpm}")
             self.chroot_run(f"rpm -e {rpm}")
 
-    def set_udev_interface(
+    def set_interface(
         self,
         interface_name,
         is_dhcp,
@@ -87,7 +87,7 @@ class RhelWorker(LinuxWorker):
         dns=(),
         domain=None,
     ):
-        """ Deploy a udev rule and interface file to ensure a predictable network config """
+        """ Deploy a RHEL styled interface file """
         # create the /etc/sysconfig/network-scripts file
         bootproto = "dhcp" if is_dhcp else "static"
         iface_lines = [

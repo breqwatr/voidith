@@ -68,17 +68,17 @@ def set_interface(dhcp, mac, ip_addr, name, prefix, gateway, dns, domain):
         if ip_addr is None or prefix is None:
             error("ERROR: --ip-addr and --prefix are required with --static", exit=True)
     worker = UbuntuWorker()
-    worker.set_udev_interface_mapping(interface_name=name, mac_addr=mac)
-    #worker.set_interface(
-    #    interface_name=name,
-    #    is_dhcp=dhcp,
-    #    mac_addr=mac,
-    #    prefix=prefix,
-    #    gateway=gateway,
-    #    dns=dns,
-    #    domain=domain,
-    #    ip_addr=ip_addr,
-    #)
+    # worker.set_udev_interface_mapping(interface_name=name, mac_addr=mac)
+    worker.set_interface(
+        interface_name=name,
+        is_dhcp=dhcp,
+        mac_addr=mac,
+        prefix=prefix,
+        gateway=gateway,
+        dns=dns,
+        domain=domain,
+        ip_addr=ip_addr,
+    )
 
 
 def get_ubuntu_group():
