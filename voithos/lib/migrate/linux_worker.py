@@ -80,14 +80,19 @@ class LinuxWorker:
             return self._data_volumes
         self.debug_action(action="FIND DATA VOLUMES")
         data_volumes = []
-        all_vols = (
-            [vol for vol in self.fdisk_partitions if vol in self.blkid]
-            + list(self.lvm_lvs.keys())
+        all_vols = [vol for vol in self.fdisk_partitions if vol in self.blkid] + list(
+            self.lvm_lvs.keys()
         )
         debug(f"All volumes: {all_vols}")
+        # if TYPE is swap, you can't mount it
+        # if TYPE is None (false), cant mount - could be Ubuntu's BIOS BOOT partition
         self._data_volumes = [
-            vol for vol in all_vols
-            if not vol in self.lvm_pvs and vol and self.blkid[vol]["TYPE"] != "swap"
+            vol
+            for vol in all_vols
+            if not vol in self.lvm_pvs
+            and vol
+            and self.blkid[vol]["TYPE"] != "swap"
+            and self.blkid[vol]["TYPE"]
         ]
         debug(f"Data volumes: {self._data_volumes}")
         self.debug_action(end=True)

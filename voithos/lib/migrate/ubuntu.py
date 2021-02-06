@@ -1,4 +1,5 @@
 """ Library for Ubuntu migration operations """
+import os
 from pathlib import Path
 from ipaddress import IPv4Interface
 
@@ -88,6 +89,13 @@ class UbuntuWorker(LinuxWorker):
     ):
         """ Deploy a netplan styled interface file """
         debug("Setting netplan file")
+        # check the yaml files in the netplan dir to see if this interface is already defined
+        netplan_dir_path = f"{self.ROOT_MOUNT}/etc/netplan"
+        dir_files = os.listdir(netplan_dir_path)
+        yaml_files = [fil for fil in dir_files if fil.endswith(".yaml") ]
+        for filename in yaml_files:
+            file_path = f"{netplan_dir_path}/{filename}"
+            debug(f"Ensuring {interface_name} is not in {file_path}")
 
     def set_interface(
         self,
