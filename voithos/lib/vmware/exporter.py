@@ -3,9 +3,13 @@ import os
 import requests
 from datetime import datetime
 from time import sleep, time
+from threading import Thread
+from pathlib import Path
 
 from hurry.filesize import size
 from pyVmomi import vim
+
+from voithos.lib.system import run
 
 
 class VMWareExportLeaseNotReady(Exception):
@@ -121,25 +125,43 @@ class VMWareExporter:
 
     def download(self):
         """ Initiate the download process """
-        print(f"Total VM Size: {size(self.size_in_bytes)}")
+        downloads = []
+        print(f"Download:")
         for dev in self.lease_disks:
+            # Collect the download paths and filenames
+            url = dev.url.replace("*/", f"{self.vmware_mgr.ip_addr}/")
             file_path = os.path.join(self.base_dir, dev.targetId)
-            with open(file_path, "wb") as vol_file:
-                # The dev.url value is https:/*/ for some reason, replace it with the IP
-                url = dev.url.replace("*/", f"{self.vmware_mgr.ip_addr}/")
-                print(f"Downloading {url} to {file_path}")
-                headers = {"Accept": "application/x-vnd.vmware-streamVmdk"}
-                resp = requests.get(
-                    url, stream=True, headers=headers, cookies=self.cookies, verify=False
-                )
-                for block in resp.iter_content(chunk_size=(self.chunk_size)):
-                    if not block:
-                        continue
-                    vol_file.write(block)
-                    # TO DO: Try swapping len(block) with self.chunk_size for speed
-                    self.print_progress(len(block))
-                    # update the export progress in VMWare
-                    self.lease.HttpNfcLeaseProgress(self.percent_transfered)
-        # when the loop is done, set the progress to 100% (to handle edge cases)
+            print(f"  FROM:  {url}")
+            print(f"  TO:    {file_path}")
+            thread = Thread(target=download_thread, kwargs={"url": url, "file_path": file_path})
+            thread.start()
+            downloads.append({
+                "url": url,
+                "file_path": file_path,
+                "thread": thread
+            })
+        sleep(2)  # Give wget a second to get going
+        print("")
+        num_files = len(downloads)
+        num_downloading_files = num_files
+        while num_downloading_files >= 1:
+            num_downloading_files = len([dld for dld in downloads if dld["thread"].is_alive()])
+            total_downloaded = 0
+            for download in downloads:
+                print(f"Downloading Files: {num_downloading_files}/{num_files}")
+                print(download["file_path"])
+                done = "(DONE)" if not download["thread"].is_alive() else ""
+                file_size = Path(download["file_path"]).stat().st_size
+                total_downloaded += file_size
+                print(f"  Downloaded: {file_size} {done}")
+            print(f"Total downloaded: {total_downloaded}/{self.size_in_bytes}")
+            self.percent_transfered = int(self.transfered_bytes / self.size_in_bytes * 100)
+            self.lease.HttpNfcLeaseProgress(self.percent_transfered)
+            sleep(30)
         self.lease.HttpNfcLeaseProgress(100)
         self.lease.HttpNfcLeaseComplete()
+
+
+def download_thread(url, file_path):
+    """ Start a thread to download the file """
+    run(f"wget --quiet --no-check-certificate {url} -O {file_path}")
