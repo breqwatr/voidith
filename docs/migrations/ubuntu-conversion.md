@@ -68,11 +68,12 @@ voithos migrate ubuntu uninstall cloud-init
 
 ## Configure Networking
 
-The network interface names in RHEL/CentOS usually change during a migration, and it can be
+The network interface names in Linux  usually change during a migration, and it can be
 difficult to predict what the new ones will be. Voithos will inject `udev` rules into the boot
-volume to enforce the names, and write interface files accordingly.
+volume to enforce the names, and write interface files accordingly. This is the `udev` same
+procedure in Ubuntu as it is in RedHat.
 
-- Interface names are commonly `ens1`, `ens2`, `ens3`, and so on.
+- Interface names are commonly `ens0`, `ens1`, `ens2`, and so on.
 - Prefix is the CIDR prefix. For `255.255.255.0`, the prefix is `24`.
 - Reference: [Consistent network device naming](https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/7/html/networking_guide/ch-consistent_network_device_naming)
 
@@ -94,13 +95,17 @@ voithos migrate rhel set-interface \
   --domain "<dns search domain>"
 ```
 
+Optionally, you might want to navigate to either `/convert/root/etc/network/interfaces/` or
+`/convert/root/etc/netplan/` and clean up the previous interface configs. They won't hurt anything,
+but doing so would result in a "cleaner" import/conversion.
+
 
 ## Unmount/Release VM the volume(s)
 
 This will remove all of the mounted volumes.
 
 ```bash
-voithos migrate rhel unmount
+voithos migrate ubuntu unmount
 ```
 
 ## Shutdown the migration server
