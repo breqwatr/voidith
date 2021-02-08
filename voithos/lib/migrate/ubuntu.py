@@ -110,7 +110,7 @@ class UbuntuWorker(LinuxWorker):
             iface_lines.append(f"      dhcp4: no")
             iface_lines.append(f"      addresses: [\"{ip_addr}/{prefix}\"]")
             if gateway:
-                iface_lines.append(f"      gateway4: [\"{gateway}\"]")
+                iface_lines.append(f"      gateway4: {gateway}")
             if dns:
                 nameservers = ', '.join('"{0}"'.format(entry) for entry in dns)
                 iface_lines.append(f"      nameservers:")
