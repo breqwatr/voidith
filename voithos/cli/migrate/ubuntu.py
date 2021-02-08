@@ -68,8 +68,7 @@ def set_interface(dhcp, mac, ip_addr, name, prefix, gateway, dns, domain):
         if ip_addr is None or prefix is None:
             error("ERROR: --ip-addr and --prefix are required with --static", exit=True)
     worker = UbuntuWorker()
-    # worker.set_udev_interface_mapping(interface_name=name, mac_addr=mac)
-    print("WARNING: UDEV RULE CREATION IS COMMENTED OUT - KYLE NEEDS TO FIX THIS")
+    worker.set_udev_interface_mapping(interface_name=name, mac_addr=mac)
     worker.set_interface(
         interface_name=name,
         is_dhcp=dhcp,
