@@ -79,11 +79,11 @@ procedure in Ubuntu as it is in RedHat.
 
 ```bash
 # Example of setting a DHCP interface
-voithos migrate rhel set-interface <device> --name <interface name> --dhcp --mac "<mac address>"
+voithos migrate ubuntu set-interface <device> --name <interface name> --dhcp --mac "<mac address>"
 
 # Setting a static interface with default route and DNS settings.
 # --gateway, --dns, and --domain are all optional
-voithos migrate rhel set-interface \
+voithos migrate ubuntu set-interface \
   --name <interface name> \
   --static \
   --mac "<mac address>" \
