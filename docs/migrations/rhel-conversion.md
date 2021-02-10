@@ -57,6 +57,12 @@ parse `/etc/fstab` on it, and set up the mounts so you can `chroot` into it.
 ```bash
 voithos migrate rhel mount <device> <device> <device...>
 ```
+Once the root volume is mounted, make sure the hostname is properly set.  If the hostname does not match with the VM Name, update the hostname file.
+
+```bash
+vi /etc/hostname
+```
+
 
 ## Add Virtio drivers to initrd
 
@@ -93,7 +99,7 @@ volume to enforce the names, and write interface files accordingly.
 
 ```bash
 # Example of setting a DHCP interface
-voithos migrate rhel set-interface <device> --name <interface name> --dhcp --mac "<mac address>"
+voithos migrate rhel set-interface --name <interface name> --dhcp --mac "<mac address>"
 
 # Setting a static interface with default route and DNS settings.
 # --gateway, --dns, and --domain are all optional
