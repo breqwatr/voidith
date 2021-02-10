@@ -57,10 +57,10 @@ parse `/etc/fstab` on it, and set up the mounts so you can `chroot` into it.
 ```bash
 voithos migrate rhel mount <device> <device> <device...>
 ```
-Once the root volume is mounted, make sure the hostname is properly set.  If the hostname does not match with the VM Name, update the hostname file.
+Once the root volume of the migration target is mounted, make sure the hostname is properly set.  If you are not in `chroot` and the hostname does not match with the VM Name, update the hostname file. 
 
 ```bash
-vi /etc/hostname
+vi /convert/root/etc/hostname
 ```
 
 
