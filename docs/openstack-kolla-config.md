@@ -99,7 +99,7 @@ particularly important in hyperconverged deployments.
 [DEFAULT]
 reserved_host_memory_mb = 16384
 reserved_host_cpus = 4
-reserved_host_disk_mb = 5242880
+reserved_host_disk_mb = 200000
 ```
 
 ### Build retries
