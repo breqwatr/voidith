@@ -92,11 +92,15 @@ function Repair-OfflineDisks {
   Get-Disk | Where-Object OperationalStatus -eq "Offline"  | ForEach-Object {
     Write-Host ("Repairing Disk " + $_.Number)
     $_ | Set-Disk -isOffline $False
-    $_ | Set-Disk -isReadOnly $False
-    Get-Partition -DiskNumber $_.Number | Where-Object DriveLetter | Get-Volume | Repair-Volume
-    $_ | Set-Disk -isOffline $True
-  }
+    $_ | Set-Disk -isReadOnly $False 
+    Get-Partition -DiskNumber $_.Number | Where-Object DriveLetter | Get-Volume | ForEach-Object {
+        Write-Host ("Scanning and Repairing Volume " + $_.DriveLetter)
+        Repair-Volume -DriveLetter $_.DriveLetter -OfflineScanAndFix
+        }
+    $_ | Set-Disk -IsOffline $True
+    }
 }
+
 
 
 function Get-TargetBootPartition {
