@@ -541,9 +541,16 @@ Function Backup-MountedGPOSettings {
     [Parameter(Mandatory=$True)] [PSObject] $BootPartition,
     [Parameter(Mandatory=$False)] [boolean] $Remove=$True
   )
+
+  # Validate if there is an existing GPO Settings backup  
+  $letter = $BootPartition.DriveLetter
+  $backupDir = ($letter + ":\Breqwatr")
+  if ((Test-Path $backupDir)){
+    Write-Warning "Can't backup - there is an existing GPO backup on $backupDir"
+    return
+  }
   #
   # Load the hive
-  $letter = $BootPartition.DriveLetter
   $hklmPath = ($letter + ":\Windows\System32\Config\SOFTWARE")
   $HKEY_LOCAL_MACHINE_SOFTWARE = "HKLM\TEMPSOFTWARE"
   Write-Host "REG LOAD $HKEY_LOCAL_MACHINE_SOFTWARE  $hklmPath"
@@ -556,7 +563,6 @@ Function Backup-MountedGPOSettings {
   $backupFile = Backup-GPOSettings -DriveLetter $letter -Hive $HKEY_LOCAL_MACHINE_SOFTWARE -Remove $Remove
   if ($backupFile) {
   # Modify the reg export to use HKLM\SOFTWARE
-    $backupDir = ($letter + ":\Breqwatr")
     $regExportFile = "$backupDir\GpoKeyBackup.reg"
     Write-Host "Updating Hive references in $RegExportFile"
     (Get-Content $regExportFile -Raw) -Replace "HKEY_LOCAL_MACHINE\\TEMPSOFTWARE","HKEY_LOCAL_MACHINE\SOFTWARE" | Set-Content $regExportFile
@@ -565,7 +571,7 @@ Function Backup-MountedGPOSettings {
   Write-Host "REG UNLOAD $HKEY_LOCAL_MACHINE_SOFTWARE"
   REG UNLOAD $HKEY_LOCAL_MACHINE_SOFTWARE
   Write-Host "Backup completed"
-}
+} 
 
 
 function Reset-GPOConfig {
