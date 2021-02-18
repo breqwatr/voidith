@@ -364,14 +364,22 @@ function Copy-VoithosModuleToBootPartition {
     [Parameter(Mandatory=$True)] [PSObject] $BootPartition
   )
   # Write the Voithos module to the migration target's boot partition
+  $mod = "Voithos"
   $src = "$Env:ProgramFiles\WindowsPowerShell\Modules\Voithos"
-  $dest1 = ($BootPartition.DriveLetter + ":\Program Files (x86)\WindowsPowerShell\Modules\")
-  Copy-Item -Recurse -Path $src -Destination $dest1 -Force | Out-Null
-  Get-Item $dest1
-  $dest2 = ($BootPartition.DriveLetter + ":\Program Files\WindowsPowerShell\Modules\")
-  Copy-Item -Recurse -Path $src -Destination $dest2 -Force | Out-Null
-  Get-Item $dest2
-}
+  $dest = ($BootPartition.DriveLetter + ":\Windows\System32\WindowsPowerShell\v1.0\Modules\")
+  If (! (Test-Path ($dest + $mod))){
+    Try {
+    Copy-Item -Recurse -Path $src -Destination $dest -Force -ErrorAction Stop
+    Get-ChildItem -Recurse ($dest + $mod)
+    }
+    Catch {
+       Write-Host "An error occurred:" -ForegroundColor RED
+       Write-Host $_
+    }
+  } else {
+    Write-Host "Voithos Module already exists. - $dest"
+  }
+} 
 
 
 function New-StartupScript {
