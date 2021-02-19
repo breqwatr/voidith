@@ -373,7 +373,7 @@ function Copy-VoithosModuleToBootPartition {
     Get-ChildItem -Recurse ($dest + $mod)
     }
     Catch {
-       Write-Host "An error occurred:" -ForegroundColor RED
+       Write-Host "ERROR: Failed to copy $mod Module - $dest" -ForegroundColor RED
        Write-Host $_
     }
   } else {
