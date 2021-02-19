@@ -144,7 +144,7 @@ steps are optional, but help to leave the system pristine.
 
 ```ps1
 try{
-  Unblock-File "C:\Program Files\WindowsPowershell\Modules\Voithos\voithos.psm1"
+  Unblock-File "C:\Windows\System32\WindowsPowerShell\v1.0\Modules\Voithos\voithos.psm1"
 } catch {
   Write-Host "WARNING: Unblock-file failed"
 }
