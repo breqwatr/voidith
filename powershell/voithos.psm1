@@ -10,26 +10,42 @@
 
 function Add-HklmRegistryHive {
   param(
-    [Parameter(Mandatory=$True)]  [PSObject] $BootPartition,
-    [Parameter(Mandatory=$True)]  [string]   $Hive
+    [Parameter(Mandatory=$True)] [PSObject] $BootPartition,
+    [Parameter(Mandatory=$True)] [ValidateSet("SOFTWARE","SYSTEM","SECURITY")] [ValidatePattern('^[A-Z]',Options='None')] [string] $Hive
+   
   )
   ### Load the given HKLM hive from the specified partition as TEMP$HIVE ###
   # Common values for Hive: SOFTWARE, SYSTEM, SECURITY
   $hklmPath = ($BootPartition.DriveLetter + ":\Windows\System32\Config\$Hive")
-  Write-Host REG LOAD "HKLM\TEMP$Hive" $hklmPath
+  Write-Host REG LOAD "HKLM\TEMP$Hive" $hklmPath 
   REG LOAD "HKLM\TEMP$Hive" $hklmPath | Out-Null
   return "HKLM:\TEMP$Hive"
-}
+} 
 
 
 function Remove-HklmRegistryHive {
   param(
-    [Parameter(Mandatory=$True)]  [string] $Hive
+    [Parameter(Mandatory=$True)] [ValidateSet("SOFTWARE","SYSTEM","SECURITY")] [ValidatePattern('^[A-Z]',Options='None')] [string] $Hive
   )
   ### Unload HKLM\TEMP$Hive ###
-  Write-Host REG UNLOAD "HKLM\TEMP$Hive"
+  Write-Host REG UNLOAD "HKLM\TEMP$Hive" 
   REG UNLOAD "HKLM\TEMP$Hive" | Out-Null
 }
+ 
+
+ function Test-HklmRegistryHive {
+  param(
+    [Parameter(Mandatory=$True)] [ValidateSet("SOFTWARE","SYSTEM","SECURITY")] [ValidatePattern('^[A-Z]',Options='None')] [string] $Hive
+    )
+   ### Return the value of a given registry key in the HKLM/$Hive hive ###
+  $hivePath = "HKLM:\TEMP$Hive"
+  $exists = Test-Path  $hivePath  
+  if (!$exists){
+     Write-Host "$hivePath un-loaded"  -ForegroundColor Black -BackgroundColor Yellow
+  } else {
+     return Write-Host "$hivePath loaded"  -ForegroundColor Black -BackgroundColor Cyan
+  }
+} 
 
 
 function Get-HklmRegistryValue {
@@ -79,6 +95,7 @@ function Get-HklmRegistryChildKey {
   return $names
 }
 
+
 function Set-HklmRegistryValue {
     [Parameter(Mandatory=$True)] [string] $Hive,
     [Parameter(Mandatory=$True)] [string] $KeyPath,
@@ -100,7 +117,6 @@ function Repair-OfflineDisks {
     $_ | Set-Disk -IsOffline $True
     }
 }
-
 
 
 function Get-TargetBootPartition {
@@ -222,15 +238,13 @@ function Remove-VMwareTools {
   # Manually remove all traces of VMware Tools, file-by-file and registry key-by-registry key
   $letter = $BootPartition.DriveLetter
   # Load the HKLM\SOFTWARE\ registry hive
-  $hklmPath = ($letter + ":\Windows\System32\Config\SOFTWARE")
-  $HKEY_LOCAL_MACHINE_SOFTWARE = "HKLM\TEMPSOFTWARE"
-  Write-Host REG LOAD $HKEY_LOCAL_MACHINE_SOFTWARE  $hklmPath
-  REG LOAD $HKEY_LOCAL_MACHINE_SOFTWARE  $hklmPath
+  $hiveSoftware = Add-HklmRegistryHive -BootPartition $BootPartition -Hive SOFTWARE
+  $HKEY_LOCAL_MACHINE_SOFTWARE = ($hiveSoftware -replace ":")
+  Test-HklmRegistryHive -Hive SOFTWARE 
   # Load the HKLM\SYSTEM\ registry hive
-  $hklmSystemPath = ($letter + ":\Windows\System32\Config\SYSTEM")
-  $HKEY_LOCAL_MACHINE_SYSTEM = "HKLM\TEMPSYSTEM"
-  Write-Host REG LOAD $HKEY_LOCAL_MACHINE_SYSTEM $hklmSystemPath
-  REG LOAD $HKEY_LOCAL_MACHINE_SYSTEM $hklmSystemPath
+  $hiveSystem = Add-HklmRegistryHive -BootPartition $BootPartition -Hive SYSTEM
+  $HKEY_LOCAL_MACHINE_SYSTEM = ($hiveSystem -replace ":")
+  Test-HklmRegistryHive -Hive SYSTEM 
   # Find the key for VMWare Tools, if it's installed - the ID may vary
   $hasVmwareTools = $False
   $productsDirPath = ($HKEY_LOCAL_MACHINE_SOFTWARE + "\Classes\Installer\Products\")
@@ -296,10 +310,10 @@ function Remove-VMwareTools {
     }
   }
   # Unload the hives
-  Write-Host REG UNLOAD $HKEY_LOCAL_MACHINE_SOFTWARE
-  REG UNLOAD $HKEY_LOCAL_MACHINE_SOFTWARE
-  Write-Host REG UNLOAD $HKEY_LOCAL_MACHINE_SYSTEM
-  REG UNLOAD $HKEY_LOCAL_MACHINE_SYSTEM
+  Remove-HklmRegistryHive -Hive SOFTWARE
+  Test-HklmRegistryHive -Hive SOFTWARE
+  Remove-HklmRegistryHive -Hive SYSTEM
+  Test-HklmRegistryHive -Hive SYSTEM 
   # Remove the VMware Tools installation directory
   $folders = @(
     ($letter + ":\Program Files\VMware"),
@@ -383,7 +397,7 @@ function Copy-VoithosModuleToBootPartition {
   } else {
     Write-Host "Voithos Module already exists. - $dest"
   }
-} 
+}
 
 
 function New-StartupScript {
@@ -399,39 +413,6 @@ function New-StartupScript {
 }
 
 
-function Set-RunOnceScript {
-  param(
-    [Parameter(Mandatory=$True)] [PSObject] $BootPartition,
-    [Parameter(Mandatory=$True)] [string] $ScriptPath
-  )
-  $hklmPath = ($BootPartition.DriveLetter + ":\Windows\System32\Config\SOFTWARE")
-  $HKEY_LOCAL_MACHINE_SOFTWARE = "HKLM\TEMPSOFTWARE"
-  Write-Host "REG LOAD $HKEY_LOCAL_MACHINE_SOFTWARE  $hklmPath"
-  REG LOAD $HKEY_LOCAL_MACHINE_SOFTWARE  $hklmPath
-  $runOnceKey = ($HKEY_LOCAL_MACHINE_SOFTWARE + "\Microsoft\Windows\CurrentVersion\RunOnce")
-  $runOnceVal = "PowerShell.exe -executionpolicy bypass -file C:\Breqwatr\startup.ps1"
-  Write-Host "REG ADD $runOnceKey /ve /t REG_SZ /d $runOnceVal /f"
-  REG ADD $runOnceKey /ve /t REG_SZ /d $runOnceVal /f
-  Write-Host "REG UNLOAD $HKEY_LOCAL_MACHINE_SOFTWARE"
-  REG UNLOAD $HKEY_LOCAL_MACHINE_SOFTWARE
-}
-
-
-function Get-RunOnceScript {
-  param(
-    [Parameter(Mandatory=$True)] [PSObject] $BootPartition
-  )
-  $hklmPath = ($BootPartition.DriveLetter + ":\Windows\System32\Config\SOFTWARE")
-  $HKEY_LOCAL_MACHINE_SOFTWARE = "HKLM\TEMPSOFTWARE"
-  Write-Host "REG LOAD $HKEY_LOCAL_MACHINE_SOFTWARE  $hklmPath"
-  REG LOAD $HKEY_LOCAL_MACHINE_SOFTWARE  $hklmPath
-  $runOnceKey = ($HKEY_LOCAL_MACHINE_SOFTWARE + "\Microsoft\Windows\CurrentVersion\RunOnce")
-  Write-Host "REG QUERY $runOnceKey"
-  REG QUERY $runOnceKey
-  Write-Host "REG UNLOAD $HKEY_LOCAL_MACHINE_SOFTWARE"
-  REG UNLOAD $HKEY_LOCAL_MACHINE_SOFTWARE
-}
-
 function Set-AllDisksOnline {
   $offDisks = Get-Disk | Where-Object OperationalStatus -eq "Offline"
   $offDisks | Set-Disk -isOffline $False
@@ -445,14 +426,8 @@ function Set-MountedGPOStartupScript {
   )
   # Load the hive
   $letter = $BootPartition.DriveLetter
-  $hklmPath = ($letter + ":\Windows\System32\Config\SOFTWARE")
-  $HKEY_LOCAL_MACHINE_SOFTWARE = "HKLM\TEMPSOFTWARE"
-  Write-Host "REG LOAD $HKEY_LOCAL_MACHINE_SOFTWARE  $hklmPath"
-  REG LOAD $HKEY_LOCAL_MACHINE_SOFTWARE  $hklmPath
-  if (! $?) {
-    Write-Error "Failed to load registry hive"
-    return
-  }
+  Add-HklmRegistryHive -BootPartition $BootPartition -Hive SOFTWARE
+  Test-HklmRegistryHive -Hive SOFTWARE 
   # import the registry export from the migration worker's module dir
   ## Note: It will inject the values into HKLM\TEMPSOFTWARE
   $gpoStartupRegPath = "C:\Program Files\WindowsPowerShell\Modules\voithos\gpoStartupScript.reg"
@@ -496,6 +471,9 @@ Version=$version"
   Write-Host "Creating: $gptFile"
   $gptContent | Out-File -Force -Confirm:$False -Encoding ascii -FilePath $gptFile
   Get-Content $gptFile
+  # Unload the hive
+  Remove-HklmRegistryHive -Hive SOFTWARE
+  Test-HklmRegistryHive -Hive SOFTWARE 
 }
 
 
@@ -553,7 +531,6 @@ Function Backup-MountedGPOSettings {
     [Parameter(Mandatory=$True)] [PSObject] $BootPartition,
     [Parameter(Mandatory=$False)] [boolean] $Remove=$True
   )
-
   # Validate if there is an existing GPO Settings backup  
   $letter = $BootPartition.DriveLetter
   $backupDir = ($letter + ":\Breqwatr")
@@ -563,14 +540,8 @@ Function Backup-MountedGPOSettings {
   }
   #
   # Load the hive
-  $hklmPath = ($letter + ":\Windows\System32\Config\SOFTWARE")
-  $HKEY_LOCAL_MACHINE_SOFTWARE = "HKLM\TEMPSOFTWARE"
-  Write-Host "REG LOAD $HKEY_LOCAL_MACHINE_SOFTWARE  $hklmPath"
-  REG LOAD $HKEY_LOCAL_MACHINE_SOFTWARE  $hklmPath
-  if (! $?) {
-    Write-Error "Failed to load registry hive"
-    return
-  }
+  Add-HklmRegistryHive -BootPartition $BootPartition -Hive SOFTWARE
+  Test-HklmRegistryHive -Hive SOFTWARE 
   # Create the backups
   $backupFile = Backup-GPOSettings -DriveLetter $letter -Hive $HKEY_LOCAL_MACHINE_SOFTWARE -Remove $Remove
   if ($backupFile) {
@@ -580,8 +551,8 @@ Function Backup-MountedGPOSettings {
     (Get-Content $regExportFile -Raw) -Replace "HKEY_LOCAL_MACHINE\\TEMPSOFTWARE","HKEY_LOCAL_MACHINE\SOFTWARE" | Set-Content $regExportFile
   }
   # Unload the hive
-  Write-Host "REG UNLOAD $HKEY_LOCAL_MACHINE_SOFTWARE"
-  REG UNLOAD $HKEY_LOCAL_MACHINE_SOFTWARE
+  Remove-HklmRegistryHive -Hive SOFTWARE
+  Test-HklmRegistryHive -Hive SOFTWARE 
   Write-Host "Backup completed"
 } 
 
@@ -634,8 +605,6 @@ Export-ModuleMember -Function Repair-OfflineDisks
 Export-ModuleMember -Function Copy-VoithosModuleToBootPartition
 Export-ModuleMember -Function Set-InterfaceAddress
 Export-ModuleMember -Function New-StartupScript
-Export-ModuleMember -Function Get-RunOnceScript
-Export-ModuleMember -Function Set-RunOnceScript
 Export-ModuleMember -Function Set-AllDisksOnline
 Export-ModuleMember -Function Backup-GPOSettings
 Export-ModuleMember -Function Backup-MountedGPOSettings
