@@ -539,13 +539,13 @@ Function Backup-MountedGPOSettings {
   }
   #
   # Load the hive
-  Add-HklmRegistryHive -BootPartition $BootPartition -Hive SOFTWARE
+  $HKEY_LOCAL_MACHINE_SOFTWARE = Add-HklmRegistryHive -BootPartition $BootPartition -Hive SOFTWARE
   Test-HklmRegistryHive -Hive SOFTWARE
   # Create the backups
-  $backupFile = Backup-GPOSettings -DriveLetter $letter -Hive $HKEY_LOCAL_MACHINE_SOFTWARE -Remove $Remove
-  if ($backupFile) {
+  Backup-GPOSettings -DriveLetter $letter -Hive ($HKEY_LOCAL_MACHINE_SOFTWARE -replace ":") -Remove $Remove
+  $regExportFile = "$backupDir\GpoKeyBackup.reg"
+  if ($regExportFile) {
   # Modify the reg export to use HKLM\SOFTWARE
-    $regExportFile = "$backupDir\GpoKeyBackup.reg"
     Write-Host "Updating Hive references in $RegExportFile"
     (Get-Content $regExportFile -Raw) -Replace "HKEY_LOCAL_MACHINE\\TEMPSOFTWARE","HKEY_LOCAL_MACHINE\SOFTWARE" | Set-Content $regExportFile
   }
