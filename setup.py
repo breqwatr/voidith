@@ -17,6 +17,7 @@ setup(
     download_url="https://github.com/breqwatr/voithos/archive/1.00.tar.gz",
     url="https://github.com/breqwatr/voithos",
     keywords=["Breqwatr", "Openstack", "Kolla", "Ceph", "Docker"],
+    python_requires='>=3.0.0',
     install_requires=[
         "click",
         "boto3",
