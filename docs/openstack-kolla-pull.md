@@ -15,4 +15,5 @@ voithos openstack kolla-ansible pull \
   --passwords passwords.yml \
   --inventory inventory \
   --certificates certificates
+  --config config/
 ```
