@@ -228,6 +228,13 @@ Launch the arcus-mgr service
 voithos service arcus mgr start --help
 ```
 
+Now check if openstack user has `administrator` tag in rabbitmq
+```bash
+docker exec -it rabbitmq rabbitmqctl list_users
+```
+Make openstack admin if it's not already
+```bash
+docker exec -it rabbitmq rabbitmqctl set_user_tags openstack administrator
 
 ---
 

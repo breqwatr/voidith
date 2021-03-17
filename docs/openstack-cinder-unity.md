@@ -1,6 +1,6 @@
 # Cinder Unity Integration
 
-## config/cinder/cinder-volume.conf
+## config/cinder/cinder.conf
 
 [driver options](https://github.com/emc-openstack/unity-cinder-driver#driver-options)
 

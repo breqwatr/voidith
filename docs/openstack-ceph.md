@@ -8,7 +8,7 @@ The `config/` directory will be used to deploy:
 
 - `ceph.conf`: Ceph's config files
 - `ceph.client.<service>.keyring`: Ceph's authentication keyring files
-- `cinder-volume.conf` and `glance-api.conf`: OpenStack service configuration
+- `cinder.conf` and `glance-api.conf`: OpenStack service configuration
   overrides.
 
 
@@ -150,15 +150,15 @@ commands, then copy them into the following paths:
 
 OpenStack needs to be configured to use Ceph. The following files are required:
 
-- `config/cinder/cinder-volume.conf`
+- `config/cinder/cinder.conf`
 - `config/glance/glance-api.conf`
 
 
-### config/cinder/cinder-volume.conf
+### config/cinder/cinder.conf
 
 During the [OpenStack Installation](/openstack-install.html), a `passwords.yml`
 file was generated. This file contains the value that will be used for
-`rbd_secret_uuid` in `cinder-volume.conf`.
+`rbd_secret_uuid` in `cinder.conf`.
 
 ```bash
 cat passwords.yml | grep cinder_rbd_secret_uuid | awk '{print $2}'
@@ -226,7 +226,7 @@ Before you continue, double-check that (at minimum) the following files exist:
 ./config/cinder/cinder-volume
 ./config/cinder/cinder-volume/ceph.client.cinder.keyring
 ./config/cinder/ceph.client.cinder.keyring
-./config/cinder/cinder-volume.conf
+./config/cinder/cinder.conf
 ./config/nova
 ./config/nova/ceph.conf
 ./config/nova/ceph.client.cinder.keyring

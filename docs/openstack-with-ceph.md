@@ -9,7 +9,7 @@ Ceph already be installed. If you haven't installed Ceph yet, follow the
 ## Prepare Ceph
 
 1. [**Create Ceph OSD pools for OpenStack**](/ceph-pools.html)
-1. [**Create Ceph keyring, ceph.conf, glance-api.conf and cinder-volume.conf files**](/openstack-ceph.html)
+1. [**Create Ceph keyring, ceph.conf, glance-api.conf and cinder.conf files**](/openstack-ceph.html)
 
 ## Install OpenStack
 

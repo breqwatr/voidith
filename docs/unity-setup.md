@@ -2,7 +2,7 @@
 
 ## Cinder Setup
 
-To configure OpenStack Cinder for use with Unity Storage, create a `cinder-volume.conf` file in the
+To configure OpenStack Cinder for use with Unity Storage, create a `cinder.conf` file in the
 `config/cinder/` directory with contents as follows.
 
 Be sure to replace anything with `<example>` angle brackets with your own values.
@@ -11,7 +11,7 @@ The `volume_backend_name` defined here will be used as a property when creating 
 volume type (`--property volume_backend_name=<volume_backend_name>`).
 
 
-`vi config/cinder/cinder-volume.conf`
+`vi config/cinder/cinder.conf`
 
 ```ini
 [DEFAULT]
