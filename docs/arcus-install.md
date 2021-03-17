@@ -235,7 +235,7 @@ docker exec -it rabbitmq rabbitmqctl list_users
 Make openstack admin if it's not already
 ```bash
 docker exec -it rabbitmq rabbitmqctl set_user_tags openstack administrator
-
+```
 ---
 
 
