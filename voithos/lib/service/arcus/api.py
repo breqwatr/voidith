@@ -126,8 +126,9 @@ def _get_token(api_url, username, password):
     token_response = requests.post(token_url, json=req_data, verify=False)
     response_headers = token_response.headers
     token_header_name = "X-Subject-Token"
-    if token_header_name not in response_headers:
-        error("ERROR: Failed to get token - Authentication failed.", exit=True)
+    if "error" in token_response.json():
+        message = token_response.json()["error"]["message"]
+        error(f"ERROR: Failed to get token: {message}", exit=True)
     return response_headers[token_header_name]
 
 
