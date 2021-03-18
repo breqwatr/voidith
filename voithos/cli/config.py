@@ -19,6 +19,17 @@ def license(new_key):
         click.echo("No license found: Use --set to configure the key")
 
 
+@click.option(
+    "--prefer-ecr/--prefer-dhub", "prefer_ecr", default=None, help="Pull image from ecr or dockerhub?"
+)
+@click.command()
+def set(prefer_ecr):
+    """ Apply config options"""
+    if prefer_ecr is not None:
+       repo_type = "ecr" if prefer_ecr else "dockerhub"
+       click.echo("Setting the prefered repo type to {}".format(repo_type))
+       config.set_repo_type(repo_type)
+
 def get_config_group():
     """ Return the config click group """
 
@@ -27,4 +38,5 @@ def get_config_group():
         """ Configure Voithos """
 
     config_group.add_command(license)
+    config_group.add_command(set)
     return config_group

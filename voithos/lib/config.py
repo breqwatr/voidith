@@ -34,6 +34,16 @@ def set_config(key, value):
     system.set_file_contents(config_path, config_json)
 
 
+
+def get_repo_type():
+    """ Return prefered repo type """
+    config = get_config()
+    if "repo-type" in config:
+        return config["repo-type"]
+    else:
+        return "dockerhub"
+
+
 def get_license():
     """ Return the license key - Return an empty string if not found """
     config = get_config()
@@ -50,3 +60,8 @@ def require_license():
 def set_license(license):
     """ Save the given license key to the config """
     set_config("license", license)
+
+
+def set_repo_type(repo_type):
+    """ Save the repo type to the config """
+    set_config("repo-type", repo_type)
