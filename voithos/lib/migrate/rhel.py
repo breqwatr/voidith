@@ -38,6 +38,9 @@ class RhelWorker(LinuxWorker):
             if line.startswith("initramfs-") and line.endswith(".img") and "dump" not in line
         ]
         for filename in initram_lines:
+            if "rescue" in filename or "kdump" in filename:
+                debug(f"Skipping rescue/kdump file: {filename}")
+                continue
             kernel_version = filename.replace("initramfs-", "").replace(".img", "")
             debug("Running lsinitrd to check for virtio drivers")
             lsinitrd = self.chroot_run(f"lsinitrd /boot/{filename}")
