@@ -4,6 +4,7 @@ import os
 import pkg_resources
 import sys
 import subprocess
+import voithos.lib.config as config
 import voithos.lib.aws.ecr as ecr
 import voithos.lib.aws.s3 as s3
 from click import echo
@@ -105,27 +106,40 @@ def pull_and_save_kolla_tag_images(kolla_tag, path, force):
     kolla_tag_service_images = ["pip", "apt", "openstack-client", "kolla-ansible"]
     all_images.extend(kolla_tag_service_images)
     image_dir_path = "{}/images/".format(path)
-    echo("Pulling dockerhub images with tag: {}\n".format(kolla_tag))
-    _pull_and_save_all(all_images, kolla_tag, image_dir_path, force)
+    prefered_repo = config.get_repo_type()
+    if prefered_repo == "ecr":
+        echo("Pulling images from ecr with tag: {}\n".format(kolla_tag))
+        _pull_and_save_all_ecr(all_images, kolla_tag, image_dir_path, force)
+    else:
+        echo("Pulling images from dockerhub with tag: {}\n".format(kolla_tag))
+        _pull_and_save_all(all_images, kolla_tag, image_dir_path, force)
 
 
 def pull_and_save_bw_tag_images(bw_tag, path, force):
     """ Pull and save service images with bw tag"""
     bw_tag_docker_images = ["rsyslog", "pxe", "registry"]
-    bw_tag_ecr_images = ["arcus-api", "arcus-client", "arcus-mgr"]
+    bw_tag_arcus_images = ["arcus-api", "arcus-client", "arcus-mgr"]
     image_dir_path = "{}/images/".format(path)
-    echo("Pulling dockerhub images with tag: {}\n".format(bw_tag))
-    _pull_and_save_all(bw_tag_docker_images, bw_tag, image_dir_path, force)
-    echo("Pulling ecr images with tag: {}\n".format(bw_tag))
-    _pull_and_save_all_ecr(bw_tag_ecr_images, bw_tag, image_dir_path, force)
+    echo("Pulling arcus images with tag: {}\n".format(bw_tag))
+    _pull_and_save_all_ecr(bw_tag_arcus_images, bw_tag, image_dir_path, force)
+    prefered_repo = config.get_repo_type()
+    if prefered_repo == "ecr":
+        echo("Pulling other images from ecr with tag: {}\n".format(bw_tag))
+        _pull_and_save_all_ecr(bw_tag_docker_images, bw_tag, image_dir_path, force)
+    else:
+        echo("Pulling other images from dockerhub with tag: {}\n".format(bw_tag))
+        _pull_and_save_all(bw_tag_docker_images, bw_tag, image_dir_path, force)
 
 
 def pull_and_save_single_image(image_name, tag, path, force):
     """ Pull and save any image from dockerhub breqwatr repo or ecr """
     image_name = f"breqwatr/{image_name}:{tag}"
-    if "arcus" in image_name:
+    prefered_repo = config.get_repo_type()
+    if "arcus" in image_name or prefered_repo == "ecr":
+        echo("Pulling {} from ecr".format(image_name))
         pull_ecr(image_name)
     else:
+        echo("Pulling {} from dockerhub".format(image_name))
         pull(image_name)
     save(image_name, path, force)
 
