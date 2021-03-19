@@ -150,11 +150,11 @@ commands, then copy them into the following paths:
 
 OpenStack needs to be configured to use Ceph. The following files are required:
 
-- `config/cinder/cinder.conf`
+- `config/cinder.conf`
 - `config/glance/glance-api.conf`
 
 
-### config/cinder/cinder.conf
+### config/cinder.conf
 
 During the [OpenStack Installation](/openstack-install.html), a `passwords.yml`
 file was generated. This file contains the value that will be used for
@@ -226,7 +226,7 @@ Before you continue, double-check that (at minimum) the following files exist:
 ./config/cinder/cinder-volume
 ./config/cinder/cinder-volume/ceph.client.cinder.keyring
 ./config/cinder/ceph.client.cinder.keyring
-./config/cinder/cinder.conf
+./config/cinder.conf
 ./config/nova
 ./config/nova/ceph.conf
 ./config/nova/ceph.client.cinder.keyring

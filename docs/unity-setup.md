@@ -11,7 +11,7 @@ The `volume_backend_name` defined here will be used as a property when creating 
 volume type (`--property volume_backend_name=<volume_backend_name>`).
 
 
-`vi config/cinder/cinder.conf`
+`vi config/cinder.conf`
 
 ```ini
 [DEFAULT]
@@ -35,7 +35,7 @@ Creating VMs can be slow using iSCSI storage. Unlike with Ceph, with iSCSI  Open
 the Glance image to the host and then dd it into a new empty volume each time it makes a new
 image-backed volume.
 
-Once the cloud is deployed, you can update the `cinder-volume.conf` file with an OpenStack service
+Once the cloud is deployed, you can update the `cinder.conf` file with an OpenStack service
 account and project to created cached volumes, a feature supported by Unity storage. This will
 slightly slow the creation of a volume based on a Glance image the first time it is created, then
 greatly speed up all subsequent volumes from that same image.
@@ -46,7 +46,7 @@ Collect the following:
   cache.
 - `cinder_internal_tenant_user_id`: The UUID of a service-account user for the image-volume cache.
 
-Add the above two values to the `[DEFAULT]` section of `cinder-volume.conf` and add a line saying
+Add the above two values to the `[DEFAULT]` section of `cinder.conf` and add a line saying
 `image_volume_cache_enabled = True` to the `[<volume backend name>]` section of that same file.
 
 
