@@ -128,8 +128,13 @@ def show_vm(name, output, username, password, ip_addr):
 @click.option(
     "--interval", default="15", help="Optional CLI Print interval override - 0 disables updates"
 )
+@click.option(
+    "--auto/--manual",
+    default=True,
+    help="--manual will not run wget. Instead, holds NFC lease open until Ctrl-C is passed",
+)
 @click.command(name="download-vm")
-def download_vm(vm_uuid, dest_dir, username, password, ip_addr, interval):
+def download_vm(vm_uuid, dest_dir, username, password, ip_addr, interval, auto):
     """ Download a VM with a given UUID """
     mgr = VMWareMgr(username=username, password=password, ip_addr=ip_addr)
     vm = mgr.find_vm_by_uuid(vm_uuid)
@@ -139,7 +144,10 @@ def download_vm(vm_uuid, dest_dir, username, password, ip_addr, interval):
         exporter = VMWareExporter(mgr, vm, base_dir=dest_dir, interval=int(interval))
     except VMWareOnlineVMCantMigrate:
         error("ERROR: This VM is not offline", exit=True)
-    exporter.download()
+    if auto:
+        exporter.download()
+    else:
+        exporter.hold_nfc_lease()
 
 
 def get_vmware_group():

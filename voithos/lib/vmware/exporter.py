@@ -1,6 +1,8 @@
 """ Handle exporting a VMWare VM """
 import os
 import requests
+import signal
+import sys
 from datetime import datetime
 from time import sleep, time
 from threading import Thread
@@ -169,7 +171,9 @@ class VMWareExporter:
             self.percent_transfered = int(downloaded_bytes_thick / self.size_in_bytes * 100)
             self.lease.HttpNfcLeaseProgress(self.percent_transfered)
             gb_down_thick = bytes_to_gb(downloaded_bytes_thick)
-            print(f"\- Total Downloaded: \t{gb_down_thick} GB / {gb_total} GB - {self.percent_transfered}%")
+            print(
+                f"\- Total Downloaded: \t{gb_down_thick} GB / {gb_total} GB - {self.percent_transfered}%"
+            )
             thick_avg_speed_mbs = round(downloaded_bytes_thick / 1024 / 1024 / elapsed_seconds, 2)
             print(f"\- Avg Speed (thick): \t{thick_avg_speed_mbs} MB/s")
             thin_avg_speed_mbs = round(downloaded_bytes_thin / 1024 / 1024 / elapsed_seconds, 2)
@@ -177,6 +181,32 @@ class VMWareExporter:
         print("Finished download, closing NFC lease")
         self.lease.HttpNfcLeaseProgress(100)
         self.lease.HttpNfcLeaseComplete()
+
+    def hold_nfc_lease(self):
+        """ Open and hold an NFC lease until ctrl-c is passed """
+        print("Opening and holding NFC lease - Ctrl+C to close lease")
+        gb_total = bytes_to_gb(self.size_in_bytes)
+        print(f"Size: {gb_total} GB")
+
+        def signal_handler(sig, frame):
+            print("You pressed Ctrl+C - Closing NFC lease...")
+            self.lease.HttpNfcLeaseProgress(100)
+            self.lease.HttpNfcLeaseComplete()
+            print("Gracefully closed NFC lease")
+            sys.exit(0)
+
+        signal.signal(signal.SIGINT, signal_handler)
+        for dev in self.lease_disks:
+            # Collect the download paths and filenames
+            url = dev.url.replace("*/", f"{self.vmware_mgr.ip_addr}/")
+            file_path = os.path.join(self.base_dir, dev.targetId)
+            print(f"  {file_path} <-- {url}")
+        while True:
+            sleep(30)
+            self.percent_transfered = 50
+            self.lease.HttpNfcLeaseProgress(self.percent_transfered)
+            now = str(datetime.fromtimestamp((time())))
+            print(f"{now} - Renewed NFC lease")
 
 
 def print_download_progress(download, progress):

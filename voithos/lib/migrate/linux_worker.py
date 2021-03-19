@@ -128,6 +128,7 @@ class LinuxWorker:
         for line in pvs_lines:
             partition = line.strip().split(" ")[0]
             if "/dev/" not in partition:
+                debug(f"Skipping {partition} - does not contain /dev")
                 continue
             if partition in self.fdisk_partitions:
                 pvs.append(partition)
@@ -283,8 +284,8 @@ class LinuxWorker:
                     if path is None:
                         error(f"ERROR: Failed to find path to fstab UUID in {line}", exit=True)
                     debug(f"Mapped UUID {uuid} to device path: {path}")
-                elif not path.startswith("/"):
-                    debug(f"Skipping /etc/fstab system path: {path}")
+                elif not path.startswith("/dev"):
+                    debug(f"Skipping /etc/fstab path: {path} - does not start with /dev")
                     continue
                 _fstab.append(
                     {

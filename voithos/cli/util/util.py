@@ -68,7 +68,9 @@ def create_and_upload_voithos_tar(voithos_branch):
 @click.command(name="export-offline-image")
 def export_offline_single_image(name, tag, path, force):
     """ Download single image at <path>/images/ """
-    util.verify_create_dirs(path)
+    if not os.path.isdir(path):
+        echo("Creating base directory: {}".format(path))
+        os.mkdir(path)
     util.pull_and_save_single_image(name, tag, path, force)
 
 

@@ -4,6 +4,8 @@ import os
 from click import echo
 
 import voithos.lib.aws.s3 as s3
+import voithos.lib.aws.ecr as ecr
+import voithos.lib.config as config
 from voithos.lib.system import shell, error, assert_path_exists
 from voithos.lib.docker import volume_opt
 from voithos.constants import KOLLA_IMAGE_REPOS
@@ -198,11 +200,14 @@ def kolla_ansible_exec(
     shell(cmd)
 
 
-def _sync_image(repo, release, keep, registry):
+def _sync_image(repo, release, keep, registry, prefered_repo):
     """ Sync a single image to the registry """
     dh_image = f"breqwatr/{repo}:{release}"
     local_image = f"{registry}/{dh_image}"
-    shell(f"docker pull {dh_image}")
+    if prefered_repo == "ecr":
+        ecr.pull(dh_image)
+    else:
+        shell(f"docker pull {dh_image}")
     shell(f"docker tag {dh_image} {local_image}")
     shell(f"docker push {local_image}")
     if not keep:
@@ -213,6 +218,7 @@ def _sync_image(repo, release, keep, registry):
 
 def sync_local_registry(release, keep, registry, image=None):
     """ Pull Kolla docker images and push them to local registry """
+    prefered_repo = config.get_repo_type()
     if release not in KOLLA_IMAGE_REPOS:
         error(f"ERROR: release {release} is not supported", exit=True)
     total_images = len(KOLLA_IMAGE_REPOS[release])
@@ -223,11 +229,11 @@ def sync_local_registry(release, keep, registry, image=None):
                 image = f"ubuntu-source-{image}"
             else:
                 error(f"Invalid repository {image}", exit=True)
-        _sync_image(image, release, keep, registry)
+        _sync_image(image, release, keep, registry, prefered_repo)
         return
     for repo in KOLLA_IMAGE_REPOS[release]:
         echo(f"Progress: {index}/{total_images} - Image: {repo}")
-        _sync_image(repo, release, keep, registry)
+        _sync_image(repo, release, keep, registry, prefered_repo)
         index += 1
 
 
