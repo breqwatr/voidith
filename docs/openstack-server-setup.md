@@ -237,9 +237,13 @@ swapoff -a; swapon -a
 
 
 ## Set Filter Excluding Guest Volumes
-Note: These configs are required for cloud using iscsi based storage.
+
+Note: These configs are **ONLY** required for cloud using iscsi based storage. Hyper-converged
+nodes running Ceph will have OSD issues unless you include the OSD drives in the filter if used.
+
 In order for iscsi to only activate boot disk related volumes and not the volumes that are intended
 for guest VMs, add a filter for it in `/etc/lvm/lvm.conf`.
+
 First check PV for boot disk.
 ```bash
 pvdisplay | grep "PV Name"
@@ -249,3 +253,15 @@ If it's `/dev/sdX1`, open `/etc/lvm/lvm.conf` and add this filter in `devices` s
 filter = [ "a|^/dev/sdX[1-9]$|", "r|^/dev/*|" ]
 ```
 Now reboot the server.
+
+
+## Disable LVMETAD
+
+The LVM metadata service lvmetad causes problems in iSCSI environments. If iSCSI is not being used,
+you don't need to turn it off.
+
+`vi /etc/lvm/lvm.conf`
+
+```
+use_lvmetad = 0
+```
