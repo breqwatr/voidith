@@ -97,10 +97,8 @@ network:
   ethernets:
     eno1:
       dhcp4: no
-      mtu: 9000
     eno2:
       dhcp4: no
-      mtu: 9000
     enp179s0f0:
       dhcp4: no
     enp179s0f1:
@@ -144,7 +142,27 @@ network:
 ```
 
 
+### Regarding MTUs
 
+When using iSCSI with multipathing, you won't be bonding your interfaces. There's a bug in netplan
+where setting an MTU value of the NIC doesn't work. Assigning an MTU to a bond or VLAN interface
+works as expected.
+
+To ensure your MTU is properly assigned to the interface (such as eno1 or eno2), add a `match`
+key with a `macaddresss` subkey matching that NIC's MAC address. Also add a `set-name` key with
+the value of that interface's name.
+
+Example:
+
+```
+        ens6:
+            dhcp4: false
+            addresses: ["10.108.3.153/16"]
+            match:
+                macaddress: fa:16:3e:99:41:40
+            mtu: 1400
+            set-name: ens6
+```
 
 ## SSH Settings
 
