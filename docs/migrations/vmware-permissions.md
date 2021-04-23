@@ -10,12 +10,17 @@ Create a user and save the username, password, and VMware's IP address. They'll 
 environment variables like so:
 
 
-## Creating the vSphere Role
+## Create the Role
 
-Create a new role from the Administration > Access Control > Roles sections of vSphere.
+For the most part, only read access is required. Duplicate the Read-Only role and make a new one,
+and give it a useful name -for example `voithos` or `breqwatr`. Navigate to the vApp section
+and enable Export.
 
-Clone the Read-Only role and name it something like `voithos` or `breqwatr-migrations`.
+## Granting Access
 
-Under Global Permissions, assign the role to the above service account.
+From Hosts and Clusters, select the datacenter then go to Permissions. Add the service account,
+and assign it the new role. The easiest configuration here is to select
+`Propogate to Children`.
 
-
+If granting access to the entire datacenter is not appropriate, ensure that all hosts,
+datastores, virtual networksm distributed switches, etc grant access to the service account.
