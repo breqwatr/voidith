@@ -26,12 +26,13 @@ of OSDs which will use that pool and the replica count (size) of the pool.
 1. [Open ceph.io's pg calculator](https://ceph.io/pgcalc/)
 1. Delete the pools that listed by default using the trash icon to the left
 1. Click the Add Pools button to add a pool
-    1. Add two pools, `volumes` and `images`
+    1. Add three pools, `gnocchi`, `volumes` and `images`
     1. **Size**: your replica count -
        usually either 2 or 3 depending on whether you're using SSD or HDD
     1. **OSD #** is the number of OSD drives in your cluster that this pool will
        use. By default it will use all the drives.
-    1. **% Data**: Set volumes to 80 and images to 20
+    1. **% Data**: Set volumes to 80 and images to 20. Gnocchi utilizes negligible amount
+       of storage so set it to 0.
     1. **Target PGs per OSD**: 200
 
 
@@ -40,9 +41,11 @@ of OSDs which will use that pool and the replica count (size) of the pool.
 - For a very small 1-node 1-disk POC cluster
     - **volumes**: 128
     - **images**: 32
+    - **gnocchi**: 2
 - For a generic POC cluster of 4 nodes with size=3 and 24 drives total
     - **volumes**: 1024
     - **images**: 256
+    - **gnocchi**: 16
 
 
 ## Create Pools
@@ -60,6 +63,10 @@ ceph osd pool application enable volumes rbd
 ceph osd pool create images <images pg count>
 ceph osd pool set images size <replica count>
 ceph osd pool application enable images rbd
+
+ceph osd pool create gnocchi <gnocchi pg count>
+ceph osd pool set gnocchi size <replica count>
+ceph osd pool application enable gnocchi rbd
 ```
 
 ## Configure PG Autoscale
@@ -71,10 +78,12 @@ Ensure that autoscale is enabled and set the weights:
 # autoscale is on by default. To manually enable it:
 ceph osd pool set volumes pg_autoscale_mode on
 ceph osd pool set images pg_autoscale_mode on
+ceph osd pool set gnocchi pg_autoscale_mode on
 
 # Setting the weights
 ceph osd pool set volumes target_size_ratio .8
 ceph osd pool set images target_size_ratio .15
+ceph osd pool set images target_size_ratio .001
 
 # Display the status
 ceph osd pool autoscale-status

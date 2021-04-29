@@ -245,6 +245,9 @@ Gnocchi depends on ceilometer for polling metrics. Enable both gnocchi and ceilo
 ```yaml
 enable_ceilometer: yes
 enable_gnocchi: yes
+gnocchi_backend_storage: "ceph" or "file"
+# Use following attribute if pool name is other than "gnocchi"
+ceph_gnocchi_pool_name:
 ```
 
 ## Central Logging
