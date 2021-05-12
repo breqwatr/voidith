@@ -7,11 +7,12 @@ source /etc/kolla/admin-openrc.sh
 ```
 
 ## Create archive policy
-Use archive policy name used in step [**Write Kolla-Ansible's config/ files**](/openstack-kolla-config.html)
+Use archive policy names used in step [**Write Kolla-Ansible's config/ files**](/openstack-kolla-config.html)
 ```
-openstack metric archive-policy create metering-policy \
- -d "granularity:00:05:00,timespan:2hours" \
- -d "granularity:01:00:00,timespan:33days" -m mean
+openstack metric archive-policy create metering-policy-utilization \
+  -d "granularity:00:05:00,timespan:2hours" -m mean
+openstack metric archive-policy create metering-policy-usage \
+-d "granularity:01:00:00,timespan:33days" -m mean
 ```
 
 ## Delete default archive policy rule
@@ -19,9 +20,12 @@ openstack metric archive-policy create metering-policy \
 openstack metric archive-policy-rule delete default
 ```
 
-## Create new default archive policy rule
+## Create new archive policy rules
 ```
-openstack metric archive-policy-rule create -a metering-policy -m "*" default
+openstack metric archive-policy-rule create -a metering-policy-usage \
+-m "{vcpus,memory,volume.size}" usage
+openstack metric archive-policy-rule create -a metering-policy-utilization \
+-m "{cpu,memory.usage}" utilization
 ```
 
 ## Restart ceilometer and gnocchi containers

@@ -53,6 +53,9 @@ sources:
       meters:
         - cpu
         - memory.usage
+    - name: some_pollsters
+      interval: 3600
+      meters:
         - volume.size
 ```
 
@@ -63,26 +66,40 @@ sources:
 
 This configuration is strictly required for the Arcus self-service portal.
 
-The `pipeline.yaml` file configures Ceilometer to the the custom metering policy
-"`metering-policy`", a dependency of Arcus.
+The `pipeline.yaml` file configures Ceilometer to use custom metering policies 
+"`metering-policy-usage`" and "`metering-policy-utilization`". These two archive policies 
+will be created after deployment. "`metering-policy-usage`" will act as archive-policy-rule for  
+arcus usage metrics like vcpus, memory and volume.size to get their measures with one hour 
+granularity. Whereas "`metering-policy-utilization` will act as archive-policy-rule for
+arcus utilization metrics like cpu and memory.usage to get their measures with five minutes 
+granularity.
 
 ```
 # config/ceilometer/pipeline.yaml
 ---
 sources:
-    - name: meter_source
+    - name: meter_source_usage
       meters:
-          - cpu
-          - vcpus
-          - memory
-          - memory.usage
-          - volume.size
+          - "vcpus"
+          - "memory"
+          - "volume.size"
       sinks:
-          - meter_sink
+          - meter_sink_usage
+    - name: meter_source_utilization
+      meters:
+          - "cpu"
+          - "memory.usage"
+      sinks:
+          - meter_sink_utilization
 sinks:
-    - name: meter_sink
+    - name: meter_sink_usage
       publishers:
-          - gnocchi://?archive_policy=metering-policy
+          - gnocchi://?archive_policy=metering-policy-usage
+    - name: meter_sink_utilization
+      publishers:
+          - gnocchi://?archive_policy=metering-policy-utilization
+
+
 ```
 
 
