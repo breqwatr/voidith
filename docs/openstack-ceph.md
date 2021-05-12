@@ -30,7 +30,7 @@ The following files will be created:
 - `config/cinder/ceph.conf`
 - `config/nova/ceph.conf`
 - `config/glance/ceph.conf`
-
+- `config/gnocchi/ceph.conf`
 
 On the deployment server, create the directories. Remember that this `config/`
 directory might be used for other things too - use the same directory for
@@ -40,12 +40,13 @@ everything.
 mkdir -p config/cinder/cinder-volume
 mkdir -p config/nova
 mkdir -p config/glance
+mkdir -p config/gnocchi
 ```
 
-Create the three `ceph.conf` files.
+Create the four `ceph.conf` files.
 
 Each file will be similar, except that the `keyring =` line differs. For the
-keyring line, replace `<service>` with either cinder, nova, or glance in
+keyring line, replace `<service>` with either cinder, nova, gnocchi, or glance in
 accordance with which file you're editing.
 
 ```
@@ -64,14 +65,19 @@ rbd default features = 3
 nodes looks like this `mon host = [v2:192.168.0.13:3300,v1:192.168.0.13:6789]`,
 it's using a newer syntax that isn't backwards compatible. Cinder's ceph
 client cannot parse the new format. Instead, use the old format - a space
-delimited list of each monitor node's IP address with no ports. Example:
+delimited list of each monitor node's IP address with no ports for ceph.conf under 
+cinder, glance and nova.
+Example:
 `mon host = 192.168.0.13 192.168.0.14 192.168.0.15`
+This change isn't applicable for gnocchi's ceph.conf, use the newer format for that.
+Example:
+`mon host = [v2:192.168.0.13:3300,v1:192.168.0.13:6789] 
 
 ## Creating ceph.client.\<service\>.keyring files
 
 ### Creating CephX Keys
 
-CephX keys are required on OpenStack's Cinder, Nova, and Glance services to
+CephX keys are required on OpenStack's Cinder, Nova, Gnocchi, and Glance services to
 interact with a secure Ceph cluster. These keys are created using the `ceph`
 command-line. They can later be piped to files for use with Kolla-Ansible.
 First check the current keyrings by running:
@@ -89,29 +95,36 @@ ceph auth get-or-create client.glance
 ceph auth caps client.glance \
   mon 'allow r' \
   mds 'allow r' \
-  osd 'allow rwx pool=volumes, allow rwx pool=images, allow class-read object_prefix rbd_children'
+  osd 'allow rwx pool=volumes, allow rwx pool=images, allow rwx pool=gnocchi, allow class-read object_prefix rbd_children'
 
 ceph auth get-or-create client.cinder
 ceph auth caps client.cinder\
   mon 'allow r' \
   mds 'allow r' \
-  osd 'allow rwx pool=volumes, allow rwx pool=images, allow class-read object_prefix rbd_children'
+  osd 'allow rwx pool=volumes, allow rwx pool=images, allow rwx pool=gnocchi, allow class-read object_prefix rbd_children'
 
 ceph auth get-or-create client.nova
 ceph auth caps client.nova \
   mon 'allow r' \
   mds 'allow r' \
-  osd 'allow rwx pool=volumes, allow rwx pool=images, allow class-read object_prefix rbd_children'
+  osd 'allow rwx pool=volumes, allow rwx pool=images, allow rwx pool=gnocchi, allow class-read object_prefix rbd_children'
+
+ceph auth get-or-create client.gnocchi
+ceph auth caps client.gnocchi \
+  mon 'allow r' \
+  mds 'allow r' \
+  osd 'allow rwx pool=volumes, allow rwx pool=images, allow rwx pool=gnocchi, allow class-read object_prefix rbd_children'
 ```
 
 ### Gather information from Ceph monitor nodes
 
-On the Ceph monitor nodes, print the cinder, glance, and nova keyring text.
+On the Ceph monitor nodes, print the cinder, glance, gnocchi, and nova keyring text.
 
 ```bash
 ceph auth get client.cinder 2>/dev/null
 ceph auth get client.nova   2>/dev/null
 ceph auth get client.glance 2>/dev/null
+ceph auth get client.gnocchi 2>/dev/null
 ```
 
 The keyrings will look like this, with the keyring name at the top and the
@@ -127,14 +140,15 @@ The keyrings will look like this, with the keyring name at the top and the
 
 ### Create the keyring files
 
-It's easiest to just create the 3 keyring files, then distribute them to the
+It's easiest to just create the 4 keyring files, then distribute them to the
 various locations they need to reside for the automation to find them.
 
-The three files are:
+The four files are:
 
 - `ceph.client.cinder.keyring`
 - `ceph.client.nova.keyring`
 - `ceph.client.glance.keyring`
+- `ceph.client.gnocchi.keyring`
 
 Populate each of those files with the output from the above `ceph auth get`
 commands, then copy them into the following paths:
@@ -144,7 +158,7 @@ commands, then copy them into the following paths:
 - `config/nova/ceph.client.cinder.keyring`
 - `config/nova/ceph.client.nova.keyring`
 - `config/glance/ceph.client.glance.keyring`
-
+- `config/gnocchi/ceph.client.gnocchi.keyring`
 
 ## Creating OpenStack config files
 
@@ -217,6 +231,9 @@ Before you continue, double-check that (at minimum) the following files exist:
 ```text
 ./passwords.yml
 ./config
+./config/gnocchi
+./config/gnocchi/ceph.conf
+./config/gnocchi/ceph.client.gnocchi.keyring
 ./config/glance
 ./config/glance/ceph.conf
 ./config/glance/ceph.client.glance.keyring
