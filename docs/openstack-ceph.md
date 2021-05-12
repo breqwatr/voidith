@@ -71,7 +71,7 @@ Example:
 `mon host = 192.168.0.13 192.168.0.14 192.168.0.15`
 This change isn't applicable for gnocchi's ceph.conf, use the newer format for that.
 Example:
-`mon host = [v2:192.168.0.13:3300,v1:192.168.0.13:6789] 
+`mon host = [v2:192.168.0.13:3300,v1:192.168.0.13:6789]`
 
 ## Creating ceph.client.\<service\>.keyring files
 
