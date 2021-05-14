@@ -187,6 +187,16 @@ function Get-MountedWindowsVersion {
     -BootPartition $BootPartition
 }
 
+function Get-MountedComputerName {
+  param(
+    [Parameter(Mandatory=$True)] [PSObject] $BootPartition
+  )
+  return Get-HklmRegistryValue `
+    -Hive SYSTEM `
+    -KeyPath "ControlSet001\Control\ComputerName\ComputerName\" `
+    -KeyName "ComputerName" `
+    -BootPartition $BootPartition
+}
 
 function Add-VirtioDrivers {
   param(
@@ -199,6 +209,8 @@ function Add-VirtioDrivers {
     return "ERROR: Invalid -Distro value"
   }
   $windowsVersion = Get-MountedWindowsVersion -BootPartition $BootPartition
+  $computerName  = Get-MountedComputerName -BootPartition $BootPartition
+  Write-Host "Detected ComputerName: $computerName"
   Write-Host "Provided Distro value: $Distro"
   Write-Host "Detected Windows Version: $windowsVersion"
   $confirm = Read-Host -Prompt "Continue? [y/N]"
@@ -596,6 +608,7 @@ function Reset-GPOConfig {
 # Publc Function Exports
 Export-ModuleMember -Function Get-TargetBootPartition
 Export-ModuleMember -Function Get-MountedWindowsVersion
+Export-ModuleMember -Function Get-MountedComputerName
 Export-ModuleMember -Function Add-VirtioDrivers
 Export-ModuleMember -Function Get-PartitionDrivers
 Export-ModuleMember -Function Remove-VMwareTools
