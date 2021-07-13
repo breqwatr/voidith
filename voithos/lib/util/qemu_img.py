@@ -27,7 +27,7 @@ def convert(input_format, output_format, input_path, output_path):
         internal_output_dir = "/output"
         internal_output_path = f"{internal_output_dir}/{path_out.name}"
         out_mount = f"-v {output_dir}:{internal_output_dir}"
-    name = "qemu-img"
+    name = "qemu-img_"+path_in.name
     image = "breqwatr/qemu-img:latest"
     run = (
         f"qemu-img convert -f {input_format} -O {output_format} "
