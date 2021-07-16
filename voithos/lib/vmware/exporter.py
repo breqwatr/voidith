@@ -237,12 +237,12 @@ def get_vmdk_thick_size(file_path):
     image = "breqwatr/qemu-img:latest"
     path = Path(file_path)
     file_abspath = path.absolute().__str__()
-    run = f"qemu-img info {file_abspath}"
-    mount = f"-v {vol_abspath}:{vol_abspath}"
-    cmd = f"docker run --rm -it --name {name} {mount} {image} {run}"
+    run_cmd = f"qemu-img info {file_abspath}"
+    mount = f"-v {file_abspath}:{file_abspath}"
+    cmd = f"docker run --rm -it --name {name} {mount} {image} {run_cmd}"
 
-    """ Return the 'thick' size of a VMDK file in bytes as an integer - requires qemu-utils """
-    qemu_img_lines = run(f"cmd")
+    """ Return the 'thick' size of a VMDK file in bytes as an integer"""
+    qemu_img_lines = run(cmd)
     vsize_line = next(line for line in qemu_img_lines if "virtual size" in line)
     size_bytes = int(vsize_line.split(" ")[-2].replace("(", ""))
     return size_bytes
